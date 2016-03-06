@@ -16,6 +16,9 @@
 
 `docker build -t piflab-store-api-go .`
 
+## Run a command inside container
+   ``docker run -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go piflab-store-api-go <command you want to run>``
+
 ## Development
 
 ``docker run -p 80:80 -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go piflab-store-api-go gin -p 80 run``
