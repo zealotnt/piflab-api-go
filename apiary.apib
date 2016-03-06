@@ -1,80 +1,32 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: https://store-api.piflab.io/
 
-# piflab-store
+# PIF Lab Store API
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+## Products Colllection [/products]
 
-## Questions Collection [/questions]
-
-### List All Questions [GET]
+### Products API [GET]
+It lists all products
 
 + Response 200 (application/json)
 
         [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
+          {
+            "name": "XBox",
+            "price": 70000,
+            "provider": "Microsoft",
+            "rating": 3,
+            "status": "sale",
+            "image_url": "img/catalog/1.png",
+            "detail_url": "/product/1"
+          },
+          {
+            "name": "PS3",
+            "price": 50000,
+            "provider": "Sony",
+            "rating": 4,
+            "status": "sale",
+            "image_url": "img/catalog/2.png",
+            "detail_url": "/product/2"
+          }
         ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
