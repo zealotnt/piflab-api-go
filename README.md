@@ -1,6 +1,9 @@
 # PIFLab Store API
 [![Circle CI](https://circleci.com/gh/o0khoiclub0o/piflab-store-api-go.svg?style=svg&circle-token=b62eec2adc4baa81e1e0d75b704de98d94b49be6)](https://circleci.com/gh/o0khoiclub0o/piflab-store-api-go)
 
+## API Docs
+http://docs.piflabstore.apiary.io/
+
 ## Dependencies
 
 - **GO 1.5**
