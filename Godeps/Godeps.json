@@ -14,6 +14,24 @@
 			"Rev": "47e8f450ef38c857cdd922ec08862ca9d65a1c6d"
 		},
 		{
+			"ImportPath": "github.com/jinzhu/gorm",
+			"Rev": "1819dda80ab0963da3ec38f484264c1cab543786"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/inflection",
+			"Rev": "3272df6c21d04180007eb3349844c89a3856bc25"
+		},
+		{
+			"ImportPath": "github.com/lib/pq",
+			"Comment": "go1.0-cutoff-83-g165a352",
+			"Rev": "165a3529e799da61ab10faed1fabff3662d6193f"
+		},
+		{
+			"ImportPath": "github.com/lib/pq/oid",
+			"Comment": "go1.0-cutoff-83-g165a352",
+			"Rev": "165a3529e799da61ab10faed1fabff3662d6193f"
+		},
+		{
 			"ImportPath": "github.com/onsi/ginkgo",
 			"Comment": "v1.2.0-44-gac3d45d",
 			"Rev": "ac3d45ddd7ef5c4d7fc4d037b615a81f4d67981e"

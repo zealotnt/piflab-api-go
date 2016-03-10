@@ -1,0 +1,7 @@
+test:
+    driver: postgres
+    open: ${DATABASE_URL}
+
+development:
+    driver: postgres
+    open: ${DATABASE_URL}

@@ -43,3 +43,10 @@ http://docs.piflabstore.apiary.io/
 `docker run -p 80:80 piflab-store-api-go`
 
 ## Deployment
+
+
+## Migration
+### Migrate
+`goose -env=test up`
+### Rollback
+`goose -env=test down`

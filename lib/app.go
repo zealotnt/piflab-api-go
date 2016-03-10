@@ -7,12 +7,15 @@ import (
 	"net/http/httptest"
 	"os"
 	"strings"
+	_ "github.com/lib/pq"
+	"github.com/jinzhu/gorm"
 )
 
 type App struct {
-	router *mux.Router
-	ENV    string
-	PORT   string
+	router  *mux.Router
+	DB      *DB
+	ENV     string
+	PORT    string
 }
 
 func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -20,6 +23,7 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) Close() {
+	app.DB.Close()
 }
 
 func (app *App) AddRoutes(routes Routes) {
@@ -58,7 +62,8 @@ func (app *App) Request(method string, route string, body string) *httptest.Resp
 
 func NewApp() *App {
 	return &App{
-		router: newRouter(),
+		router:  newRouter(),
+		DB:      newDB(),
 		PORT:   getPort(),
 		ENV:    getEnv(),
 	}
@@ -86,4 +91,19 @@ func getEnv() string {
 
 func newRouter() *mux.Router {
 	return mux.NewRouter().StrictSlash(true)
+}
+
+func newDB() *DB {
+	db, err := gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Open doesn't open a connection. Validate DSN data:
+	err = db.DB().Ping()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return &DB{db.Debug()}
 }
