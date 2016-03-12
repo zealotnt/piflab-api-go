@@ -20,7 +20,15 @@ http://docs.piflabstore.apiary.io/
 `docker build -t piflab-store-api-go .`
 
 ## Run a command inside container
-   ``docker run -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go piflab-store-api-go <command you want to run>``
+
+``docker run -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go piflab-store-api-go <command you want to run>``
+
+## Add package
+
+- ``docker run -it -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go piflab-store-api-go bash``
+- `go get <package>`
+- `import "<package>"`
+- `godep save ./...`
 
 ## Development
 
