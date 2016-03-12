@@ -12,21 +12,86 @@ It lists all products
 
         [
           {
+            "id": 1,
             "name": "XBox",
             "price": 70000,
             "provider": "Microsoft",
             "rating": 3,
             "status": "sale",
             "image_url": "img/catalog/1.png",
+            "created_at": "2016-01-17T07:20:40+0000",
+            "updated_at": "2016-01-17T07:20:40+0000",
             "detail_url": "/product/1"
           },
           {
+            "id": 2,
             "name": "PS3",
             "price": 50000,
             "provider": "Sony",
             "rating": 4,
             "status": "sale",
             "image_url": "img/catalog/2.png",
+            "created_at": "2016-01-17T07:20:40+0000",
+            "updated_at": "2016-01-17T07:20:40+0000",
             "detail_url": "/product/2"
           }
         ]
+
+### Create Product API [POST]
+It creates a product
+
++ Request (application/json)
+
+        {
+            "name": "XBox",
+            "price": 70000,
+            "provider": "Microsoft",
+            "rating": 3.5,
+            "status": "sale"
+        }
+
++ Request (application/x-www-form-urlencoded)
+
+        name=XBox&price=70000&provider=Microsoft&rating=3.5&status=sale
+
++ Request (multipart/form-data; boundary=---BOUNDARY)
+
+        -----BOUNDARY
+        Content-Disposition: form-data; name="image"; filename="image.jpg"
+        Content-Type: image/jpeg
+        Content-Transfer-Encoding: base64
+
+        /9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a
+        HBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy
+        MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIA
+        AhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEB
+        AAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AL+AD//Z
+        -----BOUNDARY
+
++ Response 422 (application/json)
+
+    + Body
+
+            {
+                "error": {
+                    "type": "Validation",
+                    "message": "Image is required"
+                }
+            }
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "id": 1,
+                "name": "XBox",
+                "price": 70000,
+                "provider": "Microsoft",
+                "rating": 3,
+                "status": "sale",
+                "image_url": "img/catalog/1.png",
+                "created_at": "2016-01-17T07:20:40+0000",
+                "updated_at": "2016-01-17T07:20:40+0000",
+                "detail_url": "/product/1"
+            }
