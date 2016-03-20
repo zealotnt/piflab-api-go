@@ -9,7 +9,11 @@ RUN godep restore
 ENV PORT 80
 EXPOSE 80
 
+RUN go install
+CMD piflab-store-api-go
+
 # For development
+RUN go get github.com/mholt/binding
 RUN go get bitbucket.org/liamstask/goose/cmd/goose
 RUN go get github.com/codegangsta/gin
 RUN go install github.com/onsi/ginkgo/ginkgo
@@ -19,5 +23,3 @@ RUN go get -u github.com/jinzhu/gorm
 RUN go get github.com/lib/pq
 RUN chmod +x ./testcoverage.sh
 
-RUN go install
-CMD piflab-store-api-go

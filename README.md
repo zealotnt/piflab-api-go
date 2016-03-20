@@ -46,7 +46,9 @@ http://docs.piflabstore.apiary.io/
 
 
 ## Migration
+
 ### Migrate
 `goose -env=test up`
+
 ### Rollback
 `goose -env=test down`

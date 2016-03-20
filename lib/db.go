@@ -1,9 +1,9 @@
 package lib
 
 import (
-    "github.com/jinzhu/gorm"
+	"github.com/jinzhu/gorm"
 )
 
 type DB struct {
-    *gorm.DB
+	*gorm.DB
 }

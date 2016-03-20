@@ -6,16 +6,18 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"regexp"
 	"strings"
-	_ "github.com/lib/pq"
+
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 type App struct {
-	router  *mux.Router
-	DB      *DB
-	ENV     string
-	PORT    string
+	router *mux.Router
+	DB     *DB
+	ENV    string
+	PORT   string
 }
 
 func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -62,8 +64,8 @@ func (app *App) Request(method string, route string, body string) *httptest.Resp
 
 func NewApp() *App {
 	return &App{
-		router:  newRouter(),
-		DB:      newDB(),
+		router: newRouter(),
+		DB:     newDB(),
 		PORT:   getPort(),
 		ENV:    getEnv(),
 	}
@@ -94,7 +96,16 @@ func newRouter() *mux.Router {
 }
 
 func newDB() *DB {
-	db, err := gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+	re, _ := regexp.Compile(`(\w*):\/\/`)
+	result := re.FindStringSubmatch(os.Getenv("DATABASE_URL"))
+
+	if result == nil {
+		panic("Can't find driver for DB")
+	}
+
+	driver := result[1]
+
+	db, err := gorm.Open(driver, os.Getenv("DATABASE_URL"))
 	if err != nil {
 		panic(err.Error())
 	}

@@ -11,6 +11,11 @@ type ProductRepository struct {
 
 func (repo ProductRepository) GetAll() (*[]Product, error) {
 	products := &[]Product{}
-	repo.DB.Find(products)
-	return products, nil
+	err := repo.DB.Find(products).Error
+	return products, err
+}
+
+func (repo ProductRepository) CreateProduct(product *Product) error {
+	err := repo.DB.Create(product).Error
+	return err
 }
