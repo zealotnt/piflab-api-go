@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
@@ -95,6 +96,19 @@ func newRouter() *mux.Router {
 	return mux.NewRouter().StrictSlash(true)
 }
 
+func parseDB(driver string, env string) string {
+	switch driver {
+	case "postgres":
+		return env
+	case "mysql":
+		re, _ := regexp.Compile(`(\w*):\/\/(.+)`)
+		result := re.FindStringSubmatch(env)
+		return result[2] + "?parseTime=true"
+	default:
+		panic("Driver is not supported")
+	}
+}
+
 func newDB() *DB {
 	re, _ := regexp.Compile(`(\w*):\/\/`)
 	result := re.FindStringSubmatch(os.Getenv("DATABASE_URL"))
@@ -105,7 +119,9 @@ func newDB() *DB {
 
 	driver := result[1]
 
-	db, err := gorm.Open(driver, os.Getenv("DATABASE_URL"))
+	gorm_arg := parseDB(driver, os.Getenv("DATABASE_URL"))
+
+	db, err := gorm.Open(driver, gorm_arg)
 	if err != nil {
 		panic(err.Error())
 	}
