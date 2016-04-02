@@ -1,10 +1,16 @@
 {
 	"ImportPath": "github.com/o0khoiclub0o/piflab-store-api-go",
 	"GoVersion": "go1.5",
+	"GodepVersion": "v60",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
+		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.2-188-g66312f7",
+			"Rev": "66312f7fe2678aa0f5ec770f96702f4c4ec5aa8e"
+		},
 		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
@@ -15,6 +21,10 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
+			"Rev": "1819dda80ab0963da3ec38f484264c1cab543786"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/gorm/dialects/mysql",
 			"Rev": "1819dda80ab0963da3ec38f484264c1cab543786"
 		},
 		{
