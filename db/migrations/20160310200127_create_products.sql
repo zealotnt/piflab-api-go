@@ -3,13 +3,13 @@
 -- SQL in section 'Up' is executed when this migration is applied
 CREATE TABLE products (
 	id SERIAL PRIMARY KEY,
-	name varchar(80),
+	name varchar(255),
 	price int, 
-	provider varchar(80),
+	provider varchar(255),
 	rating float,
 	status varchar(80),
-	image varchar(80),
-	detail varchar(80),	
+	image varchar(255),
+	detail varchar(255),	
 	created_at date,
 	updated_at date
 );

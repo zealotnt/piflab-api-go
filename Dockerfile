@@ -13,7 +13,6 @@ RUN go install
 CMD piflab-store-api-go
 
 # For development
-RUN go get github.com/mholt/binding
 RUN go get bitbucket.org/liamstask/goose/cmd/goose
 RUN go get github.com/codegangsta/gin
 RUN go install github.com/onsi/ginkgo/ginkgo

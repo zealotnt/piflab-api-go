@@ -48,7 +48,10 @@ http://docs.piflabstore.apiary.io/
 ## Migration
 
 ### Migrate
-`goose -env=test up`
+`goose up`
 
 ### Rollback
-`goose -env=test down`
+`goose down`
+
+### Seed
+`go run db/seeds/main.go`

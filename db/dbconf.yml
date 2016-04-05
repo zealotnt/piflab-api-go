@@ -1,3 +1,2 @@
-test:
-    driver: postgres
+development:
     open: ${DATABASE_URL}
