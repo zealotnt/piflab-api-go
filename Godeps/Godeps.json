@@ -20,6 +20,10 @@
 			"Rev": "47e8f450ef38c857cdd922ec08862ca9d65a1c6d"
 		},
 		{
+			"ImportPath": "github.com/icrowley/fake",
+			"Rev": "84bff6d01560fb0b5a396ba29534e93fd00d09c6"
+		},
+		{
 			"ImportPath": "github.com/jinzhu/gorm",
 			"Rev": "1819dda80ab0963da3ec38f484264c1cab543786"
 		},
@@ -53,6 +57,10 @@
 		{
 			"ImportPath": "github.com/mholt/binding",
 			"Rev": "89411c4ffb61f0ebef45d8bdb830103b358ef9fa"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "d2dd0262208475919e1a362f675cfc0e7c10e905"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
