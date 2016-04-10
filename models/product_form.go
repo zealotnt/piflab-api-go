@@ -16,6 +16,21 @@ type ProductForm struct {
 	Image    *multipart.FileHeader `json:"image"`
 }
 
+var STATUS_OPTIONS = []string{
+	"sale",
+	"out of stock",
+	"available",
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
 func (form *ProductForm) FieldMap(req *http.Request) binding.FieldMap {
 	return binding.FieldMap{
 		&form.Name: binding.Field{
@@ -49,6 +64,11 @@ func (form ProductForm) Validate() error {
 	if form.Image == nil {
 		return errors.New("Image is required")
 	}
+
+	if !stringInSlice(form.Status, STATUS_OPTIONS) {
+		return errors.New("Status is invalid")
+	}
+
 	return nil
 }
 

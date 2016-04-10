@@ -8,12 +8,12 @@ import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 )
 
-func GetAllProductsHandler(app *App) HandlerFunc {
+func GetProductsHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
 		products, err := ProductRepository{app.DB}.GetAll()
 
 		if err != nil {
-			JSON(w, err, 400)
+			JSON(w, err, 500)
 			return
 		}
 
@@ -23,8 +23,8 @@ func GetAllProductsHandler(app *App) HandlerFunc {
 
 func CreateProductHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-
 		form := new(ProductForm)
+
 		if err := Bind(form, r); err != nil {
 			JSON(w, err, 400)
 			return
@@ -37,10 +37,8 @@ func CreateProductHandler(app *App) HandlerFunc {
 
 		product := form.Product()
 
-		err := ProductRepository{app.DB}.CreateProduct(&product)
-
-		if err != nil {
-			JSON(w, err, 422)
+		if err := (ProductRepository{app.DB}).SaveProduct(&product); err != nil {
+			JSON(w, err, 500)
 			return
 		}
 

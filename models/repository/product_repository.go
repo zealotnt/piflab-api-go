@@ -15,7 +15,15 @@ func (repo ProductRepository) GetAll() (*[]Product, error) {
 	return products, err
 }
 
-func (repo ProductRepository) CreateProduct(product *Product) error {
+func (repo ProductRepository) SaveProduct(product *Product) error {
 	err := repo.DB.Create(product).Error
 	return err
+}
+
+func (repo ProductRepository) CountProduct() (int, error) {
+	count := 0
+
+	err := repo.DB.Table("products").Count(&count).Error
+
+	return count, err
 }

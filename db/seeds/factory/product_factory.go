@@ -10,53 +10,32 @@ import (
 	"time"
 )
 
-var status = []string{
-	"sale",
-	"out of stock",
-	"available",
-}
-
-func NewProduct(params ...map[string]interface{}) *Product {
+func NewProduct(params ...map[string]interface{}) (*Product, error) {
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	id := fake.CharactersN(14)
-	product := Product{
+	product := &Product{
 		Name:     fake.ProductName(),
 		Price:    rand.Intn(100000),
 		Provider: fake.Company(),
 		Rating:   rand.Float32() * float32(rand.Intn(5)),
-		Status:   status[rand.Intn(len(status))],
-		Image:    id + ".jpg",
-		Detail:   id,
+		Status:   STATUS_OPTIONS[rand.Intn(len(STATUS_OPTIONS))],
+		Detail:   fake.CharactersN(14),
 	}
 
 	if params != nil {
-		if err := Decode(params[0], &product); err != nil {
-			panic(err)
-		}
+		err := Decode(params[0], product)
+		return product, err
 	}
 
-	return &product
+	return product, nil
 }
 
-func CreateProduct(app *lib.App, params ...map[string]interface{}) *Product {
-	product := NewProduct(params...)
-
-	err := ProductRepository{app.DB}.CreateProduct(product)
+func CreateProduct(DB *lib.DB, params ...map[string]interface{}) (*Product, error) {
+	product, err := NewProduct(params...)
 
 	if err != nil {
-		panic(err)
+		return product, err
 	}
 
-	return product
-}
-
-func CountProduct(app *lib.App) int {
-	products, err := ProductRepository{app.DB}.GetAll()
-
-	if err != nil {
-		panic(err)
-	}
-
-	return len(*products)
+	return product, (ProductRepository{DB}).SaveProduct(product)
 }
