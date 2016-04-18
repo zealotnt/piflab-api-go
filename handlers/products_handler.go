@@ -2,10 +2,9 @@ package handlers
 
 import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
 	"net/http"
-
-	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 )
 
 func GetProductsHandler(app *App) HandlerFunc {

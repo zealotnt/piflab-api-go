@@ -55,3 +55,17 @@ http://docs.piflabstore.apiary.io/
 
 ### Seed
 `go run db/seeds/main.go`
+
+
+## Docker-compose
+
+### Deployment
+`docker-compose up`
+
+### Run docker-compose component manually
+
+#### Manually start database
+`docker-compose up -d db`
+
+#### Manually run piflab-store-api command
+`docker-compose run -p 80:80 api <command you want to run>`

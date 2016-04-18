@@ -1,9 +1,9 @@
 package lib
 
 import (
-	"net/http"
 	"github.com/mholt/binding"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
+	"net/http"
 )
 
 func Bind(form *ProductForm, r *http.Request) error {

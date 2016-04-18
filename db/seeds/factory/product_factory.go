@@ -19,7 +19,7 @@ func NewProduct(params ...map[string]interface{}) (*Product, error) {
 		Provider: fake.Company(),
 		Rating:   rand.Float32() * float32(rand.Intn(5)),
 		Status:   STATUS_OPTIONS[rand.Intn(len(STATUS_OPTIONS))],
-		Detail:   fake.CharactersN(14),
+		Detail:   fake.ParagraphsN(1),
 	}
 
 	if params != nil {

@@ -9,9 +9,10 @@ CREATE TABLE products (
 	rating float,
 	status varchar(80),
 	image varchar(255),
-	detail varchar(255),	
-	created_at date,
-	updated_at date
+	detail TEXT,	
+	created_at timestamp,
+	updated_at timestamp,
+	image_updated_at timestamp
 );
 
 -- +goose Down

@@ -1,0 +1,17 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  api:
+    build: .
+    image: piflab-store-api-go
+    command: bash api-go-entry.sh postgres
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+    links:
+      - db
+    volumes:
+      - .:/go/src/github.com/o0khoiclub0o/piflab-store-api-go
+    env_file: .env

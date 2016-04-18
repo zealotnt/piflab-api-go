@@ -1,7 +1,7 @@
 package lib
 
 import (
-	"github.com/gorilla/mux"
+	"errors"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -96,30 +97,33 @@ func newRouter() *mux.Router {
 	return mux.NewRouter().StrictSlash(true)
 }
 
-func parseDB(driver string, env string) string {
+func parseDB(database_url string) (driver string, gorm_arg string, err error) {
+	re, _ := regexp.Compile(`(\w*):\/\/`)
+	result := re.FindStringSubmatch(database_url)
+
+	if result == nil {
+		return "", "", errors.New("Can't find driver for DB")
+	}
+
+	driver = result[1]
+
 	switch driver {
 	case "postgres":
-		return env
+		return driver, database_url, nil
 	case "mysql":
-		re, _ := regexp.Compile(`(\w*):\/\/(.+)`)
-		result := re.FindStringSubmatch(env)
-		return result[2] + "?parseTime=true"
+		re, _ := regexp.Compile(`(\w*):\/\/(.+@)([^/]+)(.+)`)
+		result := re.FindStringSubmatch(database_url)
+		return driver, result[2] + "tcp(" + result[3] + ")" + result[4] + "?parseTime=true", nil
 	default:
-		panic("Driver is not supported")
+		return "", "", errors.New("Driver is not supported")
 	}
 }
 
 func newDB() *DB {
-	re, _ := regexp.Compile(`(\w*):\/\/`)
-	result := re.FindStringSubmatch(os.Getenv("DATABASE_URL"))
-
-	if result == nil {
-		panic("Can't find driver for DB")
+	driver, gorm_arg, err := parseDB(os.Getenv("DATABASE_URL"))
+	if err != nil {
+		panic(err)
 	}
-
-	driver := result[1]
-
-	gorm_arg := parseDB(driver, os.Getenv("DATABASE_URL"))
 
 	db, err := gorm.Open(driver, gorm_arg)
 	if err != nil {
