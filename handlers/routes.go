@@ -7,6 +7,7 @@ import (
 func GetRoutes() Routes {
 	return Routes{
 		Route{"GET", "/", IndexHandler},
-		Route{"GET", "/products", ProductsHandler},
+		Route{"GET", "/products", GetProductsHandler},
+		Route{"POST", "/products", CreateProductHandler},
 	}
 }

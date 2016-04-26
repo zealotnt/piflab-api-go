@@ -1,33 +1,46 @@
 package handlers
 
 import (
-	"encoding/json"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
 	"net/http"
 )
 
-func ProductsHandler(app *App) HandlerFunc {
+func GetProductsHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		products := [2]Product{{
-			Price:     70000,
-			Name:      "XBox",
-			Provider:  "Microsoft",
-			Rating:    3,
-			Status:    "sale",
-			ImageUrl:  "img/catalog/1.png",
-			DetailUrl: "/product/1",
-		}, {
-			Price:     50000,
-			Name:      "PS3",
-			Provider:  "Sony",
-			Rating:    4,
-			Status:    "sale",
-			ImageUrl:  "img/catalog/2.png",
-			DetailUrl: "/product/2",
-		},
+		products, err := ProductRepository{app.DB}.GetAll()
+
+		if err != nil {
+			JSON(w, err, 500)
+			return
 		}
 
-		json.NewEncoder(w).Encode(products)
+		JSON(w, products)
+	}
+}
+
+func CreateProductHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		form := new(ProductForm)
+
+		if err := Bind(form, r); err != nil {
+			JSON(w, err, 400)
+			return
+		}
+
+		if err := form.Validate(); err != nil {
+			JSON(w, err, 422)
+			return
+		}
+
+		product := form.Product()
+
+		if err := (ProductRepository{app.DB}).SaveProduct(&product); err != nil {
+			JSON(w, err, 500)
+			return
+		}
+
+		JSON(w, product, 201)
 	}
 }

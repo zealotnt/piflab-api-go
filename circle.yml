@@ -2,7 +2,9 @@ machine:
   environment:
     IMPORT_PATH: "github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
     FULL_IMPORT_PATH: "`echo $GOPATH | cut -d: -f1`/src/$IMPORT_PATH"
-
+    DATABASE_URL: "mysql://root@localhost:3306/circle_test"
+  services:
+    - mysql
 dependencies:
   pre:
     - go get github.com/tools/godep
