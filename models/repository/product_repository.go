@@ -15,6 +15,11 @@ type ProductRepository struct {
 func (repo ProductRepository) GetAll() (*[]Product, error) {
 	products := &[]Product{}
 	err := repo.DB.Find(products).Error
+
+	for idx := range *products {
+		(*products)[idx].ImageUrl, _ = (*products)[idx].GetImageUrl()
+	}
+
 	return products, err
 }
 

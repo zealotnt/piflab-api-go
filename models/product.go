@@ -1,7 +1,7 @@
 package models
 
 import (
-	"errors"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -17,19 +17,24 @@ type Product struct {
 	Status         string    `json:"status"`
 	Detail         string    `json:"detail"`
 	ImageData      []byte    `json:"-" sql:"-"`
-	Image          string    `json:"image"`	
-	ImageUpdatedAt time.Time `json:"image_updated_at"`
+	Image          string    `json:"-"`
+	ImageUpdatedAt time.Time `json:"-"`
+	ImageUrl       string    `json:"image_url" sql:"-"`
 	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`	
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 func (product *Product) GetImagePath() string {
+	re, _ := regexp.Compile(`.+(\..+$)`)
+	extension := re.FindStringSubmatch(product.Image)
+	if extension != nil {
+		return "products/" + strconv.FormatUint(uint64(product.Id), 10) + "/origin." + strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10) + extension[1]
+	}
+
 	return "products/" + strconv.FormatUint(uint64(product.Id), 10) + "/origin." + strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10)
+
 }
 
-func (product *Product) GetImageUrl(params ...int) (string, error) {
-	if params == nil {
-		return "", errors.New("Public URL is not support yet")
-	}
-	return (FileService{}).GetProtectedUrl(product.GetImagePath(), params[0])
+func (product *Product) GetImageUrl() (string, error) {
+	return (FileService{}).GetProtectedUrl(product.GetImagePath(), 15)
 }
