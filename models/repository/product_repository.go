@@ -12,6 +12,14 @@ type ProductRepository struct {
 	*DB
 }
 
+func (repo ProductRepository) FindById(id uint) (*Product, error) {
+	product := &Product{}
+
+	err := repo.DB.First(&product, id).Error
+
+	return product, err
+}
+
 func (repo ProductRepository) GetAll() (*[]Product, error) {
 	products := &[]Product{}
 	err := repo.DB.Find(products).Error
@@ -23,11 +31,7 @@ func (repo ProductRepository) GetAll() (*[]Product, error) {
 	return products, err
 }
 
-func (repo ProductRepository) SaveProduct(product *Product) error {
-	if product.ImageData == nil {
-		return errors.New("ImageData is required")
-	}
-
+func (repo ProductRepository) createProduct(product *Product) error {
 	product.ImageUpdatedAt = time.Now()
 
 	tx := repo.DB.Begin()
@@ -43,7 +47,42 @@ func (repo ProductRepository) SaveProduct(product *Product) error {
 	}
 
 	tx.Commit()
+
 	return nil
+}
+
+func (repo ProductRepository) updateProduct(product *Product) error {
+	tx := repo.DB.Begin()
+
+	if product.ImageData != nil {
+		if err := (FileService{}).DeleteFile(product.GetImagePath()); err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		product.ImageUpdatedAt = time.Now()
+
+		if err := (FileService{}).SaveFile(product.ImageData, product.GetImagePath()); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if err := tx.Save(product).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+
+	return nil
+}
+
+func (repo ProductRepository) SaveProduct(product *Product) error {
+	if product.Id == 0 {
+		return repo.createProduct(product)
+	}
+	return repo.updateProduct(product)
 }
 
 func (repo ProductRepository) CountProduct() (int, error) {
