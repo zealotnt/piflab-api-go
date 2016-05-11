@@ -1,6 +1,6 @@
 machine:
   environment:
-    IMPORT_PATH: "github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+    IMPORT_PATH: "github.com/o0khoiclub0o/piflab-store-api-go"
     FULL_IMPORT_PATH: "`echo $GOPATH | cut -d: -f1`/src/$IMPORT_PATH"
     DATABASE_URL: "mysql://root@localhost:3306/circle_test"
   services:
