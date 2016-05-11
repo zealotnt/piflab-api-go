@@ -19,6 +19,8 @@ func JSON(w http.ResponseWriter, params ...interface{}) {
 		obj = &Error{obj.(error)}
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", `*`)
+
 	json.NewEncoder(w).Encode(obj)
 }
 

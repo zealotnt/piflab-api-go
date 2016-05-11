@@ -47,6 +47,25 @@ func (service FileService) GetFile(key string) ([]byte, error) {
 	return aws_buff.Bytes(), err
 }
 
+func (service FileService) DeleteFile(key string) error {
+	svc := s3.New(session.New(&aws.Config{Region: aws.String(os.Getenv("S3_REGION"))}))
+	params := &s3.DeleteObjectsInput{
+		Bucket: aws.String(os.Getenv("S3_BUCKET_NAME")),
+		Delete: &s3.Delete{
+			Objects: []*s3.ObjectIdentifier{
+				{
+					Key: aws.String(key),
+				},
+			},
+			Quiet: aws.Bool(true),
+		},
+	}
+
+	_, err := svc.DeleteObjects(params)
+
+	return err
+}
+
 func (servie FileService) GetProtectedUrl(key string, minute int) (string, error) {
 	svc := s3.New(session.New(&aws.Config{Region: aws.String(os.Getenv("S3_REGION"))}))
 	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{

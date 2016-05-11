@@ -18,10 +18,10 @@ It lists all products
             "provider": "Microsoft",
             "rating": 3,
             "status": "sale",
-            "image_url": "img/catalog/1.png",
+            "detail": "in maiores non quas ratione voluptatem."
+            "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1",
             "created_at": "2016-01-17T07:20:40+0000",
             "updated_at": "2016-01-17T07:20:40+0000",
-            "detail_url": "/product/1"
           },
           {
             "id": 2,
@@ -29,11 +29,11 @@ It lists all products
             "price": 50000,
             "provider": "Sony",
             "rating": 4,
-            "status": "sale",
-            "image_url": "img/catalog/2.png",
+            "status": "out of stock",
+            "detail": "rerum itaque cumque explicabo omnis."
+            "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/2",
             "created_at": "2016-01-17T07:20:40+0000",
             "updated_at": "2016-01-17T07:20:40+0000",
-            "detail_url": "/product/2"
           }
         ]
 
@@ -73,10 +73,7 @@ It creates a product
     + Body
 
             {
-                "error": {
-                    "type": "Validation",
-                    "message": "Image is required"
-                }
+                "error": "Image is required"
             }
 
 + Response 201 (application/json)
@@ -90,8 +87,8 @@ It creates a product
                 "provider": "Microsoft",
                 "rating": 3,
                 "status": "sale",
+                "detail": "rerum itaque cumque explicabo omnis."
                 "image_url": "img/catalog/1.png",
                 "created_at": "2016-01-17T07:20:40+0000",
                 "updated_at": "2016-01-17T07:20:40+0000",
-                "detail_url": "/product/1"
             }
