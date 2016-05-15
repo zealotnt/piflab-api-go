@@ -52,7 +52,7 @@ func (form *CreateProductForm) Validate() error {
 		return errors.New("Rating is required")
 	}
 	if *form.Rating > float32(5.0) {
-		return errors.New("Rating must be less or equal than 5")
+		return errors.New("Rating must be less than or equal to 5")
 	}
 
 	if form.Status == nil {
