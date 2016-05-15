@@ -1,4 +1,4 @@
-package handlers_test
+package models_test
 
 import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/handlers"
@@ -19,9 +19,9 @@ import (
 	"testing"
 )
 
-func TestHandlers(t *testing.T) {
+func TestModels(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Handlers Suite")
+	RunSpecs(t, "Models Suite")
 }
 
 var app *lib.App
@@ -29,7 +29,6 @@ var app *lib.App
 var _ = BeforeSuite(func() {
 	app = lib.NewApp()
 	app.AddRoutes(GetRoutes())
-	RequestPost("POST", "/products")
 })
 
 var _ = AfterSuite(func() {

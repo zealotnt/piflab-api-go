@@ -1,5 +1,6 @@
 # PIFLab Store API
-[![Circle CI](https://circleci.com/gh/zealotnt/piflab-api-go.svg?style=svg)](https://circleci.com/gh/zealotnt/piflab-api-go)
+[![CircleCI](https://circleci.com/gh/zealotnt/piflab-store-api-go.svg?style=svg)](https://circleci.com/gh/zealotnt/piflab-store-api-go)  
+[![Coverage Status](https://coveralls.io/repos/github/zealotnt/piflab-store-api-go/badge.svg?branch=master)](https://coveralls.io/github/zealotnt/piflab-store-api-go?branch=master)  
 
 ## API Docs
 http://docs.piflabstore.apiary.io/
@@ -38,13 +39,6 @@ http://docs.piflabstore.apiary.io/
 
 ``docker run -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go piflab-store-api-go ginkgo -r``
 
-## Production
-
-`docker run -p 80:80 piflab-store-api-go`
-
-## Deployment
-
-
 ## Migration
 
 ### Migrate
@@ -56,16 +50,13 @@ http://docs.piflabstore.apiary.io/
 ### Seed
 `go run db/seeds/main.go`
 
-
 ## Docker-compose
 
-### Deployment
+### Run entire app
 `docker-compose up`
 
-### Run docker-compose component manually
-
-#### Manually start database
+### Manually start database
 `docker-compose up -d db`
 
-#### Manually run piflab-store-api command
+### Manually run piflab-store-api command
 `docker-compose run -p 80:80 api <command you want to run>`
