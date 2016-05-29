@@ -1,6 +1,8 @@
 package models
 
 import (
+	"github.com/mholt/binding"
+
 	"bytes"
 	"mime/multipart"
 	"net/http"
@@ -30,6 +32,29 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+func (form *ProductForm) FieldMap(req *http.Request) binding.FieldMap {
+	return binding.FieldMap{
+		&form.Name: binding.Field{
+			Form: "name",
+		},
+		&form.Price: binding.Field{
+			Form: "price",
+		},
+		&form.Provider: binding.Field{
+			Form: "provider",
+		},
+		&form.Rating: binding.Field{
+			Form: "rating",
+		},
+		&form.Status: binding.Field{
+			Form: "status",
+		},
+		&form.Image: binding.Field{
+			Form: "image",
+		},
+	}
+}
+
 func (form ProductForm) isValidImage() bool {
 	fh, err := form.Image.Open()
 	if err != nil {
@@ -50,8 +75,6 @@ func (form ProductForm) isValidImage() bool {
 		fallthrough
 	case "image/gif":
 		return true
-	default:
-		return false
 	}
 
 	return false

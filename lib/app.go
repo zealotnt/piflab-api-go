@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"net/http"
@@ -20,6 +21,11 @@ type App struct {
 	DB     *DB
 	ENV    string
 	PORT   string
+}
+
+type BodyMultipart struct {
+	Buff        bytes.Buffer
+	ContentType string
 }
 
 func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -46,16 +52,28 @@ func (app *App) Run() {
 	log.Fatal(http.ListenAndServe(":"+app.PORT, app))
 }
 
-func (app *App) Request(method string, route string, body string) *httptest.ResponseRecorder {
-	request, _ := http.NewRequest(method, route, strings.NewReader(body))
+func (app *App) Request(method string, route string, body interface{}) *httptest.ResponseRecorder {
+	var request = &http.Request{}
+	switch t := body.(type) {
+	case string:
+		request, _ = http.NewRequest(method, route, strings.NewReader(t))
+		if method == "POST" || method == "PUT" {
+			if t != "" && t[0:1] == "{" {
+				request.Header.Set("Content-Type", "application/json")
+			} else {
+				request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+			}
+		}
+	case BodyMultipart:
+		request, _ = http.NewRequest(method, route, &t.Buff)
+		request.Header.Set("Content-Type", t.ContentType)
+	default:
+		return nil
+	}
+
 	request.RemoteAddr = "127.0.0.1:8080"
 
 	if method == "POST" || method == "PUT" {
-		if body != "" && body[0:1] == "{" {
-			request.Header.Set("Content-Type", "application/json")
-		} else {
-			request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-		}
 	}
 
 	response := httptest.NewRecorder()

@@ -38,7 +38,7 @@ func (form *UpdateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 func (form *UpdateProductForm) Validate() error {
 	if form.Rating != nil {
 		if *form.Rating > float32(5.0) {
-			return errors.New("Rating must be less or equal than 5")
+			return errors.New("Rating must be less than or equal to 5")
 		}
 	}
 

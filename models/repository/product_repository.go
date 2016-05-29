@@ -15,6 +15,11 @@ func (repo ProductRepository) FindById(id uint) (*Product, error) {
 	product := &Product{}
 
 	err := repo.DB.First(&product, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	product.ImageUrl, err = product.GetImageUrl()
 
 	return product, err
 }
@@ -90,4 +95,27 @@ func (repo ProductRepository) CountProduct() (int, error) {
 	err := repo.DB.Table("products").Count(&count).Error
 
 	return count, err
+}
+
+func (repo ProductRepository) DeleteProduct(id uint) error {
+	product, err := repo.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	tx := repo.DB.Begin()
+
+	if err := (FileService{}).DeleteFile(product.GetImagePath()); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := repo.DB.Delete(product).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+
+	return nil
 }
