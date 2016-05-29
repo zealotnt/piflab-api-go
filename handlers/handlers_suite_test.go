@@ -7,15 +7,14 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
-	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -25,18 +24,33 @@ func TestHandlers(t *testing.T) {
 }
 
 var app *lib.App
+var extraParams = map[string]string{
+	"name":     "xbox",
+	"price":    "70000",
+	"provider": "Microsoft",
+	"rating":   "3.5",
+	"status":   "sale",
+}
+var product = &Product{}
 
 var _ = BeforeSuite(func() {
 	app = lib.NewApp()
 	app.AddRoutes(GetRoutes())
-	RequestPost("POST", "/products")
+
+	path := os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/factory/golang.png"
+	response := MultipartRequest("POST", "/products", extraParams, "image", path)
+	Expect(response.Code).To(Equal(201))
+
+	body, _ := ioutil.ReadAll(response.Body)
+	err := json.Unmarshal(body, product)
+	Expect(err).To(BeNil())
 })
 
 var _ = AfterSuite(func() {
 	app.Close()
 })
 
-func Request(method string, route string, body string) *httptest.ResponseRecorder {
+func Request(method string, route string, body interface{}) *httptest.ResponseRecorder {
 	return app.Request(method, route, body)
 }
 
@@ -63,27 +77,24 @@ func getFirstAvailableUrl() string {
 	return fmt.Sprintf("/products/%d", getFirstAvailableId(response))
 }
 
-func RequestPost(method string, route string) *httptest.ResponseRecorder {
-	bodyBuf := &bytes.Buffer{}
-	bodyWriter := multipart.NewWriter(bodyBuf)
-	fileWriter, _ := bodyWriter.CreateFormFile("image", "golang.png")
-	fh, _ := os.Open(os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/factory/golang.png")
-	io.Copy(fileWriter, fh)
-	bodyWriter.WriteField("name", "xbox")
-	bodyWriter.WriteField("price", "70000")
-	bodyWriter.WriteField("provider", "Microsoft")
-	bodyWriter.WriteField("rating", "3.5")
-	bodyWriter.WriteField("status", "sale")
-	bodyWriter.Close()
+func MultipartRequest(method string, route string, params map[string]string, paramName, path string) *httptest.ResponseRecorder {
+	body := lib.BodyMultipart{}
 
-	request, _ := http.NewRequest(method, route, bodyBuf)
+	writer := multipart.NewWriter(&body.Buff)
 
-	request.RemoteAddr = "127.0.0.1:8080"
-	contentType := bodyWriter.FormDataContentType()
-	request.Header.Set("Content-Type", contentType)
+	file, err := os.Open(path)
+	if err == nil {
+		part, _ := writer.CreateFormFile(paramName, filepath.Base(path))
+		io.Copy(part, file)
+	}
+	defer file.Close()
 
-	response := httptest.NewRecorder()
-	app.ServeHTTP(response, request)
+	for key, val := range params {
+		writer.WriteField(key, val)
+	}
+	writer.Close()
 
-	return response
+	body.ContentType = writer.FormDataContentType()
+
+	return Request(method, route, body)
 }

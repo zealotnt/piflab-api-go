@@ -55,12 +55,6 @@ var _ = Describe("CreateProductHandlerTest", func() {
 			Expect(response.Body).To(ContainSubstring(test.expect))
 		}
 	})
-
-	It("creates product successfully, and returns 201", func() {
-		response := RequestPost("POST", "/products")
-		Expect(response.Code).To(Equal(201))
-	})
-
 })
 
 var _ = Describe("UpdateProductHandlerTest", func() {
