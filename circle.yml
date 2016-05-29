@@ -2,10 +2,8 @@ machine:
   environment:
     IMPORT_PATH: "github.com/o0khoiclub0o/piflab-store-api-go"
     FULL_IMPORT_PATH: "`echo $GOPATH | cut -d: -f1`/src/$IMPORT_PATH"
-    DATABASE_URL: "mysql://root@localhost:3306/circle_test"
+    DATABASE_URL: "postgres://root:@127.0.0.1:5432/circle_test"
     COVERALLS_TOKEN: ZFTjZRukTuUW6YITt9SCXkfQBowmjGFw4
-  services:
-    - mysql
 dependencies:
   pre:
     - go get github.com/tools/godep
