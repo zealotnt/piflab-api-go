@@ -71,3 +71,14 @@ func UpdateProductHandler(app *App) HandlerFunc {
 		JSON(w, product)
 	}
 }
+
+func DeleteProductHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		product, err := (ProductRepository{app.DB}).DeleteProduct(c.ID())
+		if err != nil {
+			JSON(w, err, 500)
+			return
+		}
+		JSON(w, product)
+	}
+}

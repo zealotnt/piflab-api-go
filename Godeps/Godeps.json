@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/o0khoiclub0o/piflab-store-api-go",
 	"GoVersion": "go1.5",
-	"GodepVersion": "v60",
+	"GodepVersion": "v62",
 	"Packages": [
 		"./..."
 	],

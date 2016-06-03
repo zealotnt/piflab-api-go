@@ -97,25 +97,25 @@ func (repo ProductRepository) CountProduct() (int, error) {
 	return count, err
 }
 
-func (repo ProductRepository) DeleteProduct(id uint) error {
+func (repo ProductRepository) DeleteProduct(id uint) (*Product, error) {
 	product, err := repo.FindById(id)
 	if err != nil {
-		return err
+		return product, err
 	}
 
 	tx := repo.DB.Begin()
 
 	if err := (FileService{}).DeleteFile(product.GetImagePath()); err != nil {
 		tx.Rollback()
-		return err
+		return product, err
 	}
 
 	if err := repo.DB.Delete(product).Error; err != nil {
 		tx.Rollback()
-		return err
+		return product, err
 	}
 
 	tx.Commit()
 
-	return nil
+	return product, nil
 }
