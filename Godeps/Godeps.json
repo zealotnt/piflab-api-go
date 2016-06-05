@@ -127,6 +127,10 @@
 			"Rev": "b743ca27e4b9237d7e2911d6dba2f039c4a3ad0f"
 		},
 		{
+			"ImportPath": "github.com/disintegration/imaging",
+			"Rev": "d8bbae1de109b518dabc98c6c1633eb358c148a4"
+		},
+		{
 			"ImportPath": "github.com/go-ini/ini",
 			"Comment": "v1.11.0",
 			"Rev": "12f418cc7edc5a618a51407b7ac1f1f512139df3"
@@ -326,6 +330,18 @@
 			"ImportPath": "github.com/onsi/gomega/types",
 			"Comment": "v1.0-83-gc72df92",
 			"Rev": "c72df929b80ef4930aaa75d5e486887ff2f3e06a"
+		},
+		{
+			"ImportPath": "golang.org/x/image/bmp",
+			"Rev": "97680175a5267bb8b31f1923e7a66df98013b11a"
+		},
+		{
+			"ImportPath": "golang.org/x/image/tiff",
+			"Rev": "97680175a5267bb8b31f1923e7a66df98013b11a"
+		},
+		{
+			"ImportPath": "golang.org/x/image/tiff/lzw",
+			"Rev": "97680175a5267bb8b31f1923e7a66df98013b11a"
 		}
 	]
 }

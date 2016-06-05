@@ -40,6 +40,7 @@ var _ = BeforeSuite(func() {
 
 	path := os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/factory/golang.png"
 	response := MultipartRequest("POST", "/products", extraParams, "image", path)
+	response = MultipartRequest("POST", "/products", extraParams, "image", path)
 	Expect(response.Code).To(Equal(201))
 
 	body, _ := ioutil.ReadAll(response.Body)
