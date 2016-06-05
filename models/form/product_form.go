@@ -64,7 +64,7 @@ func (form *ProductForm) ImageData() []byte {
 
 	fh, err := form.Image.Open()
 	if err != nil {
-		panic(err)
+		return nil
 	}
 	defer fh.Close()
 

@@ -1,9 +1,10 @@
 package models_test
 
 import (
+	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
 	. "github.com/onsi/ginkgo"
-	// . "github.com/onsi/gomega"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Product", func() {
@@ -11,7 +12,11 @@ var _ = Describe("Product", func() {
 		response := Request("GET", "/products", "")
 		id := getFirstAvailableId(response)
 		product, _ := (ProductRepository{app.DB}).FindById(id)
-		product.GetImageUrl()
+		product.GetImageUrl(ORIGIN)
+
+		url, err := product.GetImageUrl(99)
+		Expect(url).To(Equal(""))
+		Expect(err.Error()).To(ContainSubstring("field too short, minimum length 1: Key"))
 	})
 })
 
@@ -20,7 +25,8 @@ var _ = Describe("ProductWithImgExtension", func() {
 		response := Request("GET", "/products", "")
 		id := getFirstAvailableId(response)
 		product, _ := (ProductRepository{app.DB}).FindById(id)
+		// rename Image file name, so we don't use regex's result to give to file name
 		product.Image = "dummyFile"
-		product.GetImageUrl()
+		product.GetImageUrl(ORIGIN)
 	})
 })

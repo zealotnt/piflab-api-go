@@ -94,7 +94,7 @@ var _ = Describe("ValidateCreateProductForm", func() {
 		Expect(err).To(BeNil())
 
 		err = form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Image extension is invalid"))
+		Expect(err.Error()).To(ContainSubstring("image: unknown format"))
 	})
 
 	It("is success", func() {

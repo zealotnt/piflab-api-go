@@ -104,3 +104,10 @@ var _ = Describe("UpdateProductHandlerTest", func() {
 	})
 
 })
+
+var _ = Describe("DeleteProductHandlerTest", func() {
+	It("delete fail, because no record invalid, and returns 500", func() {
+		response := Request("DELETE", "/products/0", "")
+		Expect(response.Code).To(Equal(500))
+	})
+})

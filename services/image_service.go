@@ -24,23 +24,12 @@ func (service ImageService) IsValidImage(file ImageFile) (bool, error) {
 	}
 	defer fh.Close()
 
-	image, filetype, err := image.DecodeConfig(fh)
+	image, _, err := image.DecodeConfig(fh)
 	if image.Width < 550 || image.Height < 550 || err != nil {
 		if err != nil {
 			return false, err
 		}
 		return false, errors.New("Image size is too small, Width/Height's minimum value should be 500")
-	}
-
-	switch filetype {
-	case "jpeg":
-		fallthrough
-	case "png":
-		fallthrough
-	case "gif":
-		return true, nil
-	default:
-		return false, errors.New("Image extension is invalid")
 	}
 
 	return true, nil
@@ -62,9 +51,7 @@ func (service ImageService) GetThumbnail(file ImageFile, size int) []byte {
 
 	dataBytes := new(bytes.Buffer)
 
-	if err := png.Encode(dataBytes, dstImage); err != nil {
-		return nil
-	}
+	png.Encode(dataBytes, dstImage)
 
 	return dataBytes.Bytes()
 }
@@ -85,9 +72,7 @@ func (service ImageService) GetDetail(file ImageFile, size int) []byte {
 
 	dataBytes := new(bytes.Buffer)
 
-	if err := png.Encode(dataBytes, dstImage); err != nil {
-		return nil
-	}
+	png.Encode(dataBytes, dstImage)
 
 	return dataBytes.Bytes()
 }
