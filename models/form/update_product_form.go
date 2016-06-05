@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/services"
 )
 
 type UpdateProductForm struct {
@@ -49,7 +50,7 @@ func (form *UpdateProductForm) Validate() error {
 	}
 
 	if form.Image != nil {
-		if !form.isValidImage() {
+		if !!(ImageService{}).IsValidImage(form.Image) {
 			return errors.New("Image extension is invalid")
 		}
 	}

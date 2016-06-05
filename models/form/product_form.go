@@ -55,31 +55,6 @@ func (form *ProductForm) FieldMap(req *http.Request) binding.FieldMap {
 	}
 }
 
-func (form ProductForm) isValidImage() bool {
-	fh, err := form.Image.Open()
-	if err != nil {
-		return false
-	}
-	defer fh.Close()
-
-	buff := make([]byte, 512)
-	if _, err := fh.Read(buff); err != nil {
-		return false
-	}
-
-	filetype := http.DetectContentType(buff)
-	switch filetype {
-	case "image/jpeg":
-		fallthrough
-	case "image/png":
-		fallthrough
-	case "image/gif":
-		return true
-	}
-
-	return false
-}
-
 func (form *ProductForm) ImageData() []byte {
 	if form.Image == nil {
 		return nil
