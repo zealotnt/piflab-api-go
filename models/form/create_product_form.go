@@ -5,7 +5,6 @@ import (
 	"github.com/mholt/binding"
 	"net/http"
 
-	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/services"
 )
 
@@ -67,21 +66,9 @@ func (form *CreateProductForm) Validate() error {
 		return errors.New("Image is required")
 	}
 
-	if !(ImageService{}).IsValidImage(form.Image) {
-		return errors.New("Image extension is invalid")
+	if valid, err := (ImageService{}).IsValidImage(form.Image); valid != true {
+		return err
 	}
 
 	return nil
-}
-
-func (form *CreateProductForm) Product() *Product {
-	return &Product{
-		Name:      *form.Name,
-		Price:     *form.Price,
-		Provider:  *form.Provider,
-		Rating:    *form.Rating,
-		Status:    *form.Status,
-		Image:     form.Image.Filename,
-		ImageData: form.ImageData(),
-	}
 }

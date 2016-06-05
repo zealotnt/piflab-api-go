@@ -50,8 +50,8 @@ func (form *UpdateProductForm) Validate() error {
 	}
 
 	if form.Image != nil {
-		if !!(ImageService{}).IsValidImage(form.Image) {
-			return errors.New("Image extension is invalid")
+		if valid, err := (ImageService{}).IsValidImage(form.Image); valid != true {
+			return err
 		}
 	}
 

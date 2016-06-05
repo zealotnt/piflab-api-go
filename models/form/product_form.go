@@ -2,6 +2,8 @@ package models
 
 import (
 	"github.com/mholt/binding"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/services"
 
 	"bytes"
 	"mime/multipart"
@@ -71,4 +73,18 @@ func (form *ProductForm) ImageData() []byte {
 	dataBytes.ReadFrom(fh)
 
 	return dataBytes.Bytes()
+}
+
+func (form *ProductForm) Product() *Product {
+	return &Product{
+		Name:               *form.Name,
+		Price:              *form.Price,
+		Provider:           *form.Provider,
+		Rating:             *form.Rating,
+		Status:             *form.Status,
+		Image:              form.Image.Filename,
+		ImageData:          form.ImageData(),
+		ImageThumbnailData: (ImageService{}).GetThumbnail(form.Image, 320),
+		ImageDetailData:    (ImageService{}).GetDetail(form.Image, 550),
+	}
 }
