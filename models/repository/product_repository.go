@@ -19,7 +19,9 @@ func (repo ProductRepository) FindById(id uint) (*Product, error) {
 		return nil, err
 	}
 
-	product.ImageUrl, err = product.GetImageUrl()
+	product.ImageUrl, err = product.GetImageUrl(ORIGIN)
+	product.ImageThumbnailUrl, err = product.GetImageUrl(THUMBNAIL)
+	product.ImageDetailUrl, err = product.GetImageUrl(DETAIL)
 
 	return product, err
 }
@@ -29,7 +31,9 @@ func (repo ProductRepository) GetAll() (*[]Product, error) {
 	err := repo.DB.Find(products).Error
 
 	for idx := range *products {
-		(*products)[idx].ImageUrl, _ = (*products)[idx].GetImageUrl()
+		(*products)[idx].ImageUrl, _ = (*products)[idx].GetImageUrl(ORIGIN)
+		(*products)[idx].ImageThumbnailUrl, _ = (*products)[idx].GetImageUrl(THUMBNAIL)
+		(*products)[idx].ImageDetailUrl, _ = (*products)[idx].GetImageUrl(DETAIL)
 	}
 
 	return products, err
@@ -45,7 +49,17 @@ func (repo ProductRepository) createProduct(product *Product) error {
 		return err
 	}
 
-	if err := (FileService{}).SaveFile(product.ImageData, product.GetImagePath()); err != nil {
+	if err := (FileService{}).SaveFile(product.ImageData, product.GetImagePath(ORIGIN)); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := (FileService{}).SaveFile(product.ImageThumbnailData, product.GetImagePath(THUMBNAIL)); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := (FileService{}).SaveFile(product.ImageDetailData, product.GetImagePath(DETAIL)); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -59,14 +73,34 @@ func (repo ProductRepository) updateProduct(product *Product) error {
 	tx := repo.DB.Begin()
 
 	if product.ImageData != nil {
-		if err := (FileService{}).DeleteFile(product.GetImagePath()); err != nil {
+		if err := (FileService{}).DeleteFile(product.GetImagePath(ORIGIN)); err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		if err := (FileService{}).DeleteFile(product.GetImagePath(THUMBNAIL)); err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		if err := (FileService{}).DeleteFile(product.GetImagePath(DETAIL)); err != nil {
 			tx.Rollback()
 			return err
 		}
 
 		product.ImageUpdatedAt = time.Now()
 
-		if err := (FileService{}).SaveFile(product.ImageData, product.GetImagePath()); err != nil {
+		if err := (FileService{}).SaveFile(product.ImageData, product.GetImagePath(ORIGIN)); err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		if err := (FileService{}).SaveFile(product.ImageThumbnailData, product.GetImagePath(THUMBNAIL)); err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		if err := (FileService{}).SaveFile(product.ImageDetailData, product.GetImagePath(DETAIL)); err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -97,25 +131,35 @@ func (repo ProductRepository) CountProduct() (int, error) {
 	return count, err
 }
 
-func (repo ProductRepository) DeleteProduct(id uint) error {
+func (repo ProductRepository) DeleteProduct(id uint) (*Product, error) {
 	product, err := repo.FindById(id)
 	if err != nil {
-		return err
+		return product, err
 	}
 
 	tx := repo.DB.Begin()
 
-	if err := (FileService{}).DeleteFile(product.GetImagePath()); err != nil {
+	if err := (FileService{}).DeleteFile(product.GetImagePath(ORIGIN)); err != nil {
 		tx.Rollback()
-		return err
+		return product, err
+	}
+
+	if err := (FileService{}).DeleteFile(product.GetImagePath(THUMBNAIL)); err != nil {
+		tx.Rollback()
+		return product, err
+	}
+
+	if err := (FileService{}).DeleteFile(product.GetImagePath(DETAIL)); err != nil {
+		tx.Rollback()
+		return product, err
 	}
 
 	if err := repo.DB.Delete(product).Error; err != nil {
 		tx.Rollback()
-		return err
+		return product, err
 	}
 
 	tx.Commit()
 
-	return nil
+	return product, nil
 }

@@ -15,6 +15,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 )
 
@@ -31,7 +32,7 @@ var extraParams = map[string]string{
 	"rating":   "3.5",
 	"status":   "sale",
 }
-var product = &Product{}
+var initialize_product = &Product{}
 
 var _ = BeforeSuite(func() {
 	app = lib.NewApp()
@@ -39,14 +40,17 @@ var _ = BeforeSuite(func() {
 
 	path := os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/factory/golang.png"
 	response := MultipartRequest("POST", "/products", extraParams, "image", path)
+	response = MultipartRequest("POST", "/products", extraParams, "image", path)
 	Expect(response.Code).To(Equal(201))
 
 	body, _ := ioutil.ReadAll(response.Body)
-	err := json.Unmarshal(body, product)
+	err := json.Unmarshal(body, initialize_product)
 	Expect(err).To(BeNil())
 })
 
 var _ = AfterSuite(func() {
+	response := Request("DELETE", "/products/"+strconv.FormatUint(uint64(initialize_product.Id), 10), "")
+	Expect(response.Code).To(Equal(200))
 	app.Close()
 })
 

@@ -4,6 +4,7 @@ import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models/form"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
+
 	"net/http"
 )
 
@@ -65,6 +66,17 @@ func UpdateProductHandler(app *App) HandlerFunc {
 
 		form.Assign(product)
 		if err := (ProductRepository{app.DB}).SaveProduct(product); err != nil {
+			JSON(w, err, 500)
+			return
+		}
+		JSON(w, product)
+	}
+}
+
+func DeleteProductHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		product, err := (ProductRepository{app.DB}).DeleteProduct(c.ID())
+		if err != nil {
 			JSON(w, err, 500)
 			return
 		}

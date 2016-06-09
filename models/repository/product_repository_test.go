@@ -19,6 +19,8 @@ var _ = Describe("ProductRepositoryTest", func() {
 	testStatus := "sale"
 	testDetail := "Lorem Ipsum"
 	testImageData := []byte("Some miscellaneous data")
+	testImageThumbnail := []byte("Some miscellaneous thumbnail data")
+	testImageDetail := []byte("Some miscellaneous detail data")
 
 	GoodBucketName := os.Getenv("S3_BUCKET_NAME")
 	BadBucketName := "wrong!!!"
@@ -26,13 +28,15 @@ var _ = Describe("ProductRepositoryTest", func() {
 	var product Product
 	BeforeEach(func() {
 		product = Product{
-			Name:      testName,
-			Price:     testPrice,
-			Provider:  testProvider,
-			Rating:    testRating,
-			Status:    testStatus,
-			Detail:    testDetail,
-			ImageData: testImageData,
+			Name:               testName,
+			Price:              testPrice,
+			Provider:           testProvider,
+			Rating:             testRating,
+			Status:             testStatus,
+			Detail:             testDetail,
+			ImageData:          testImageData,
+			ImageThumbnailData: testImageThumbnail,
+			ImageDetailData:    testImageDetail,
 		}
 	})
 
@@ -72,7 +76,7 @@ var _ = Describe("ProductRepositoryTest", func() {
 		Expect(temp_product.Name).To(Equal(testNewName))
 
 		/* Delete product */
-		err = ProductRepository{app.DB}.DeleteProduct(product.Id)
+		_, err = ProductRepository{app.DB}.DeleteProduct(product.Id)
 		Expect(err).To(BeNil())
 
 		/* Find it again, of course it fails  */
@@ -81,7 +85,7 @@ var _ = Describe("ProductRepositoryTest", func() {
 		Expect(temp_product).To(BeNil())
 
 		/* Try to delete it, of course it fails */
-		err = ProductRepository{app.DB}.DeleteProduct(product.Id)
+		_, err = ProductRepository{app.DB}.DeleteProduct(product.Id)
 		Expect(err.Error()).To(ContainSubstring("record not found"))
 	})
 
@@ -103,12 +107,12 @@ var _ = Describe("ProductRepositoryTest", func() {
 		Expect(err.Error()).To(ContainSubstring("NoSuchBucket: The specified bucket does not exist"))
 
 		/* Fail to delete */
-		err = ProductRepository{app.DB}.DeleteProduct(product.Id)
+		_, err = ProductRepository{app.DB}.DeleteProduct(product.Id)
 		Expect(err.Error()).To(ContainSubstring("NoSuchBucket: The specified bucket does not exist"))
 
 		/* Teardown temporary record */
 		os.Setenv("S3_BUCKET_NAME", GoodBucketName)
-		err = ProductRepository{app.DB}.DeleteProduct(product.Id)
+		_, err = ProductRepository{app.DB}.DeleteProduct(product.Id)
 		Expect(err).To(BeNil())
 	})
 

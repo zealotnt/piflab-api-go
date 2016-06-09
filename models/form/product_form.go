@@ -2,6 +2,8 @@ package models
 
 import (
 	"github.com/mholt/binding"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/services"
 
 	"bytes"
 	"mime/multipart"
@@ -55,31 +57,6 @@ func (form *ProductForm) FieldMap(req *http.Request) binding.FieldMap {
 	}
 }
 
-func (form ProductForm) isValidImage() bool {
-	fh, err := form.Image.Open()
-	if err != nil {
-		return false
-	}
-	defer fh.Close()
-
-	buff := make([]byte, 512)
-	if _, err := fh.Read(buff); err != nil {
-		return false
-	}
-
-	filetype := http.DetectContentType(buff)
-	switch filetype {
-	case "image/jpeg":
-		fallthrough
-	case "image/png":
-		fallthrough
-	case "image/gif":
-		return true
-	}
-
-	return false
-}
-
 func (form *ProductForm) ImageData() []byte {
 	if form.Image == nil {
 		return nil
@@ -87,7 +64,7 @@ func (form *ProductForm) ImageData() []byte {
 
 	fh, err := form.Image.Open()
 	if err != nil {
-		panic(err)
+		return nil
 	}
 	defer fh.Close()
 
@@ -96,4 +73,18 @@ func (form *ProductForm) ImageData() []byte {
 	dataBytes.ReadFrom(fh)
 
 	return dataBytes.Bytes()
+}
+
+func (form *ProductForm) Product() *Product {
+	return &Product{
+		Name:               *form.Name,
+		Price:              *form.Price,
+		Provider:           *form.Provider,
+		Rating:             *form.Rating,
+		Status:             *form.Status,
+		Image:              form.Image.Filename,
+		ImageData:          form.ImageData(),
+		ImageThumbnailData: (ImageService{}).GetThumbnail(form.Image, 320),
+		ImageDetailData:    (ImageService{}).GetDetail(form.Image, 550),
+	}
 }
