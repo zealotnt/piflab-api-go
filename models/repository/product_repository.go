@@ -20,8 +20,8 @@ func (repo ProductRepository) FindById(id uint) (*Product, error) {
 	}
 
 	product.ImageUrl, err = product.GetImageUrl(ORIGIN)
-	product.ImageThumbNail, err = product.GetImageUrl(THUMBNAIL)
-	product.ImageDetail, err = product.GetImageUrl(DETAIL)
+	product.ImageThumbnailUrl, err = product.GetImageUrl(THUMBNAIL)
+	product.ImageDetailUrl, err = product.GetImageUrl(DETAIL)
 
 	return product, err
 }
@@ -32,8 +32,8 @@ func (repo ProductRepository) GetAll() (*[]Product, error) {
 
 	for idx := range *products {
 		(*products)[idx].ImageUrl, _ = (*products)[idx].GetImageUrl(ORIGIN)
-		(*products)[idx].ImageThumbNail, _ = (*products)[idx].GetImageUrl(THUMBNAIL)
-		(*products)[idx].ImageDetail, _ = (*products)[idx].GetImageUrl(DETAIL)
+		(*products)[idx].ImageThumbnailUrl, _ = (*products)[idx].GetImageUrl(THUMBNAIL)
+		(*products)[idx].ImageDetailUrl, _ = (*products)[idx].GetImageUrl(DETAIL)
 	}
 
 	return products, err

@@ -22,8 +22,8 @@ type Product struct {
 	Image              string    `json:"-"`
 	ImageUpdatedAt     time.Time `json:"-"`
 	ImageUrl           string    `json:"image_url" sql:"-"`
-	ImageThumbNail     string    `json:"image_thumbnail" sql:"-"`
-	ImageDetail        string    `json:"image_detail" sql:"-"`
+	ImageThumbnailUrl  string    `json:"image_thumbnail_url" sql:"-"`
+	ImageDetailUrl     string    `json:"image_detail_url" sql:"-"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
 }
