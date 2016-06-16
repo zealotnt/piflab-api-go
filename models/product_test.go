@@ -12,9 +12,9 @@ var _ = Describe("Product", func() {
 		response := Request("GET", "/products", "")
 		id := getFirstAvailableId(response)
 		product, _ := (ProductRepository{app.DB}).FindById(id)
-		product.GetImageUrl(ORIGIN)
+		product.GetImageUrlType(ORIGIN)
 
-		url, err := product.GetImageUrl(99)
+		url, err := product.GetImageUrlType(99)
 		Expect(url).To(Equal(""))
 		Expect(err.Error()).To(ContainSubstring("field too short, minimum length 1: Key"))
 	})
@@ -27,6 +27,6 @@ var _ = Describe("ProductWithImgExtension", func() {
 		product, _ := (ProductRepository{app.DB}).FindById(id)
 		// rename Image file name, so we don't use regex's result to give to file name
 		product.Image = "dummyFile"
-		product.GetImageUrl(ORIGIN)
+		product.GetImageUrlType(ORIGIN)
 	})
 })

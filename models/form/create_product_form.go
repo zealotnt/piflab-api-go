@@ -29,6 +29,9 @@ func (form *CreateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Status: binding.Field{
 			Form: "status",
 		},
+		&form.Detail: binding.Field{
+			Form: "detail",
+		},
 		&form.Image: binding.Field{
 			Form: "image",
 		},
@@ -36,15 +39,15 @@ func (form *CreateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 }
 
 func (form *CreateProductForm) Validate() error {
-	if form.Name == nil {
+	if form.Name == nil || *form.Name == "" {
 		return errors.New("Name is required")
 	}
 
-	if form.Price == nil {
+	if form.Price == nil || *form.Price == 0 {
 		return errors.New("Price is required")
 	}
 
-	if form.Provider == nil {
+	if form.Provider == nil || *form.Provider == "" {
 		return errors.New("Provider is required")
 	}
 
@@ -54,20 +57,25 @@ func (form *CreateProductForm) Validate() error {
 	if *form.Rating > float32(5.0) {
 		return errors.New("Rating must be less than or equal to 5")
 	}
+	if *form.Rating == float32(0.0) {
+		return errors.New("Rating must be bigger than 0")
+	}
 
-	if form.Status == nil {
+	if form.Status == nil || *form.Status == "" {
 		return errors.New("Status is required")
 	}
 	if !stringInSlice(*form.Status, STATUS_OPTIONS) {
 		return errors.New("Status is invalid")
 	}
 
-	if form.Image == nil {
-		return errors.New("Image is required")
+	if form.Detail == nil || *form.Detail == "" {
+		return errors.New("Detail is required")
 	}
 
-	if valid, err := (ImageService{}).IsValidImage(form.Image); valid != true {
-		return err
+	if form.Image != nil {
+		if valid, err := (ImageService{}).IsValidImage(form.Image); valid != true {
+			return err
+		}
 	}
 
 	return nil

@@ -21,9 +21,9 @@ type Product struct {
 	ImageDetailData    []byte    `json:"-" sql:"-"`
 	Image              string    `json:"-"`
 	ImageUpdatedAt     time.Time `json:"-"`
-	ImageUrl           string    `json:"image_url" sql:"-"`
-	ImageThumbnailUrl  string    `json:"image_thumbnail_url" sql:"-"`
-	ImageDetailUrl     string    `json:"image_detail_url" sql:"-"`
+	ImageUrl           *string   `json:"image_url" sql:"-"`
+	ImageThumbnailUrl  *string   `json:"image_thumbnail_url" sql:"-"`
+	ImageDetailUrl     *string   `json:"image_detail_url" sql:"-"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
 }
@@ -65,6 +65,23 @@ func (product *Product) GetImagePath(image ImageType) string {
 
 }
 
-func (product *Product) GetImageUrl(image ImageType) (string, error) {
+func (product *Product) GetImageUrlType(image ImageType) (string, error) {
 	return (FileService{}).GetProtectedUrl(product.GetImagePath(image), 15)
+}
+
+func (product *Product) GetImageUrl() error {
+	imageTypeList := [3]ImageType{ORIGIN, THUMBNAIL, DETAIL}
+	urlResult := [3]string{}
+
+	for idx, _ := range imageTypeList {
+		var err error
+		if urlResult[idx], err = product.GetImageUrlType(imageTypeList[idx]); err != nil {
+			return err
+		}
+	}
+	product.ImageUrl = &urlResult[0]
+	product.ImageThumbnailUrl = &urlResult[1]
+	product.ImageDetailUrl = &urlResult[2]
+
+	return nil
 }

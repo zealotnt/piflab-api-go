@@ -30,6 +30,9 @@ func (form *UpdateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Status: binding.Field{
 			Form: "status",
 		},
+		&form.Detail: binding.Field{
+			Form: "detail",
+		},
 		&form.Image: binding.Field{
 			Form: "image",
 		},
@@ -40,6 +43,9 @@ func (form *UpdateProductForm) Validate() error {
 	if form.Rating != nil {
 		if *form.Rating > float32(5.0) {
 			return errors.New("Rating must be less than or equal to 5")
+		}
+		if *form.Rating == float32(0.0) {
+			return errors.New("Rating must be bigger than 0")
 		}
 	}
 
@@ -77,6 +83,10 @@ func (form *UpdateProductForm) Assign(product *Product) {
 
 	if form.Status != nil {
 		product.Status = *form.Status
+	}
+
+	if form.Detail != nil {
+		product.Detail = *form.Detail
 	}
 
 	if form.Image != nil {

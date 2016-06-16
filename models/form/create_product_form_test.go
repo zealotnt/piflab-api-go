@@ -82,12 +82,6 @@ var _ = Describe("ValidateCreateProductForm", func() {
 		Expect(err.Error()).To(ContainSubstring("Status is invalid"))
 	})
 
-	It("requires image", func() {
-		BindForm(&form, extraParams, "")
-		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Image is required"))
-	})
-
 	It("has invalid image extension", func() {
 		path := os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/main.go"
 		err := BindForm(&form, extraParams, path)

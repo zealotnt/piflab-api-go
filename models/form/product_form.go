@@ -16,6 +16,7 @@ type ProductForm struct {
 	Provider *string               `json:"provider"`
 	Rating   *float32              `json:"rating"`
 	Status   *string               `json:"status"`
+	Detail   *string               `json:"detail"`
 	Image    *multipart.FileHeader `json:"image"`
 }
 
@@ -51,6 +52,9 @@ func (form *ProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Status: binding.Field{
 			Form: "status",
 		},
+		&form.Detail: binding.Field{
+			Form: "detail",
+		},
 		&form.Image: binding.Field{
 			Form: "image",
 		},
@@ -76,15 +80,26 @@ func (form *ProductForm) ImageData() []byte {
 }
 
 func (form *ProductForm) Product() *Product {
+	if form.Image != nil {
+		return &Product{
+			Name:               *form.Name,
+			Price:              *form.Price,
+			Provider:           *form.Provider,
+			Rating:             *form.Rating,
+			Status:             *form.Status,
+			Detail:             *form.Detail,
+			Image:              form.Image.Filename,
+			ImageData:          form.ImageData(),
+			ImageThumbnailData: (ImageService{}).GetThumbnail(form.Image, 320),
+			ImageDetailData:    (ImageService{}).GetDetail(form.Image, 550),
+		}
+	}
 	return &Product{
-		Name:               *form.Name,
-		Price:              *form.Price,
-		Provider:           *form.Provider,
-		Rating:             *form.Rating,
-		Status:             *form.Status,
-		Image:              form.Image.Filename,
-		ImageData:          form.ImageData(),
-		ImageThumbnailData: (ImageService{}).GetThumbnail(form.Image, 320),
-		ImageDetailData:    (ImageService{}).GetDetail(form.Image, 550),
+		Name:     *form.Name,
+		Price:    *form.Price,
+		Provider: *form.Provider,
+		Rating:   *form.Rating,
+		Status:   *form.Status,
+		Detail:   *form.Detail,
 	}
 }

@@ -12,6 +12,7 @@ packages=(
 
 if [ "$COVERALLS_TOKEN" == "" ]
 then
+	reset
 	# ginkgo -r -cover -skipPackage=handlers,models,services,repository,form	//skip all
 	ginkgo -r -cover
 fi
