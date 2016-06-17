@@ -30,6 +30,7 @@ var _ = Describe("ValidateCreateProductForm", func() {
 			"provider": provider,
 			"rating":   strconv.FormatFloat(float64(rating), 'f', 1, 32),
 			"status":   status,
+			"detail":   detail,
 		}
 	})
 
@@ -68,6 +69,13 @@ var _ = Describe("ValidateCreateProductForm", func() {
 		Expect(err.Error()).To(ContainSubstring("Rating must be less than or equal to 5"))
 	})
 
+	It("has value of rating equal to 0, which is invalid", func() {
+		extraParams["rating"] = strconv.FormatFloat(float64(ratingZero), 'f', 1, 32)
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring("Rating must be bigger than 0"))
+	})
+
 	It("requires status", func() {
 		delete(extraParams, "status")
 		BindForm(&form, extraParams, "")
@@ -80,6 +88,13 @@ var _ = Describe("ValidateCreateProductForm", func() {
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
 		Expect(err.Error()).To(ContainSubstring("Status is invalid"))
+	})
+
+	It("requires detail", func() {
+		delete(extraParams, "detail")
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring("Detail is required"))
 	})
 
 	It("has invalid image extension", func() {
