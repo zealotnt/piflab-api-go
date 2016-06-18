@@ -33,4 +33,4 @@ if [ -n "$COVERALLS_TOKEN" ]
 then
 	goveralls -coverprofile=piflab-store-api-go.coverprofile -service circleci -repotoken $COVERALLS_TOKEN
 	rm ./piflab-store-api-go.coverprofile
-fi	
+fi

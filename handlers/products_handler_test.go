@@ -6,8 +6,14 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"io/ioutil"
 	"os"
 )
+
+type ParamBindingTest struct {
+	param  string
+	expect string
+}
 
 type BindingTest struct {
 	body   string
@@ -31,7 +37,7 @@ var _ = Describe("prduct_handlers Test", func() {
 		os.Setenv("S3_BUCKET_NAME", GoodBucketName)
 	})
 
-	var _ = Describe("GetProductsHandlerTest", func() {
+	var _ = Describe("GetAllProductsHandlerTest", func() {
 		It("get products successfully, with status code 200", func() {
 			response := Request("GET", "/products", "")
 			Expect(response.Code).To(Equal(200))
@@ -49,6 +55,54 @@ var _ = Describe("prduct_handlers Test", func() {
 			/* Connect again, others test cases still want database connection */
 			app = lib.NewApp()
 			app.AddRoutes(GetRoutes())
+		})
+	})
+
+	var _ = Describe("GetPageProductsHandlerTest", func() {
+		It("has erroneous parameters binding result, returns 400", func() {
+			var test_cases = []ParamBindingTest{
+				{`/products/offset=0&limit=0`, `Limit must bigger than 0`},
+				{`/products/offset=0&limit=-1`, `Limit must bigger than 0`},
+				{`/products/offset=0&limit=-1ab`, `Error when parsing limit parameter`},
+				{`/products/offset=-1&limit=0`, `Offset must bigger than or equal to 0`},
+				{`/products/offset=-1a&limit=0`, `Error when parsing offset parameter`},
+			}
+
+			for _, test := range test_cases {
+				response := Request("GET", test.param, "")
+				Expect(response.Code).To(Equal(400))
+				Expect(response.Body).To(ContainSubstring(test.expect))
+			}
+		})
+
+		It("gets products fail, because connection to db has been closed", func() {
+			/* Close connection to database */
+			app.Close()
+
+			/* Fail to GET products */
+			response := Request("GET", `/products/offset=0&limit=1`, "")
+			Expect(response.Code).To(Equal(500))
+			Expect(response.Body).To(ContainSubstring("database is closed"))
+
+			/* Connect again, others test cases still want database connection */
+			app = lib.NewApp()
+			app.AddRoutes(GetRoutes())
+		})
+
+		It("gets first product successfully", func() {
+			/* Get a product */
+			response := Request("GET", `/products/offset=0&limit=1`, "")
+			Expect(response.Code).To(Equal(200))
+
+			/* Parse response's body */
+			body, _ := ioutil.ReadAll(response.Body)
+
+			/* Deserialize json */
+			products, err := getProducts(body)
+
+			/* Len should be equal to 1, and no error */
+			Expect(len(*products)).To(Equal(1))
+			Expect(err).To(BeNil())
 		})
 	})
 

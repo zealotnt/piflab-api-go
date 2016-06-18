@@ -118,15 +118,23 @@ var _ = Describe("ProductRepositoryTest", func() {
 		Expect(err).To(BeNil())
 	})
 
-	Describe("Test GetAll and CountProduct", func() {
+	Describe("Test GetAll", func() {
 		It("return same number of element", func() {
-			product, err := ProductRepository{app.DB}.GetAll()
+			products, err := ProductRepository{app.DB}.GetAll()
 			Expect(err).To(BeNil())
 
 			count, err := ProductRepository{app.DB}.CountProduct()
 			Expect(err).To(BeNil())
 
-			Expect(len(*product)).To(Equal(count))
+			Expect(len(*products)).To(Equal(count))
+		})
+	})
+
+	Describe("Test GetPage", func() {
+		It("get one product successffully", func() {
+			products, err := ProductRepository{app.DB}.GetPage(0, 1)
+			Expect(err).To(BeNil())
+			Expect(len(*products)).To(Equal(1))
 		})
 	})
 

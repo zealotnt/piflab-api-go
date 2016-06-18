@@ -8,9 +8,32 @@ import (
 	"net/http"
 )
 
-func GetProductsHandler(app *App) HandlerFunc {
+func GetAllProductsHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
 		products, err := ProductRepository{app.DB}.GetAll()
+
+		if err != nil {
+			JSON(w, err, 500)
+			return
+		}
+
+		JSON(w, products)
+	}
+}
+
+func GetPageProductsHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		offset, err := c.Offset()
+		if err != nil {
+			JSON(w, err, 400)
+			return
+		}
+		limit, err := c.Limit()
+		if err != nil {
+			JSON(w, err, 400)
+			return
+		}
+		products, err := ProductRepository{app.DB}.GetPage(offset, limit)
 
 		if err != nil {
 			JSON(w, err, 500)

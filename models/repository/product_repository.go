@@ -35,6 +35,17 @@ func (repo ProductRepository) GetAll() (*[]Product, error) {
 	return products, err
 }
 
+func (repo ProductRepository) GetPage(offset uint, limit uint) (*[]Product, error) {
+	products := &[]Product{}
+	err := repo.DB.Order("id asc").Offset(int(offset)).Limit(int(limit)).Find(products).Error
+
+	for idx := range *products {
+		(*products)[idx].GetImageUrl()
+	}
+
+	return products, err
+}
+
 func (repo ProductRepository) saveFile(product *Product) error {
 	if err := (FileService{}).SaveFile(product.ImageData, product.GetImagePath(ORIGIN)); err != nil {
 		return err
