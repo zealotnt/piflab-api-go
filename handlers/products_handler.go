@@ -33,14 +33,14 @@ func GetPageProductsHandler(app *App) HandlerFunc {
 			JSON(w, err, 400)
 			return
 		}
-		products, err := ProductRepository{app.DB}.GetPage(offset, limit)
+		products, total, err := ProductRepository{app.DB}.GetPage(offset, limit)
 
 		if err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		JSON(w, products)
+		JSON(w, products.GetPaging(offset, limit, total))
 	}
 }
 

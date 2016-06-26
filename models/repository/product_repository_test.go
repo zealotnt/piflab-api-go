@@ -126,15 +126,20 @@ var _ = Describe("ProductRepositoryTest", func() {
 			count, err := ProductRepository{app.DB}.CountProduct()
 			Expect(err).To(BeNil())
 
-			Expect(len(*products)).To(Equal(count))
+			Expect(uint(len(*products))).To(Equal(count))
 		})
 	})
 
 	Describe("Test GetPage", func() {
 		It("get one product successffully", func() {
-			products, err := ProductRepository{app.DB}.GetPage(0, 1)
+			products, count, err := ProductRepository{app.DB}.GetPage(0, 1)
 			Expect(err).To(BeNil())
+
+			all, err := ProductRepository{app.DB}.CountProduct()
+			Expect(err).To(BeNil())
+
 			Expect(len(*products)).To(Equal(1))
+			Expect(count).To(Equal(all))
 		})
 	})
 

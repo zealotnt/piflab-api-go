@@ -7,15 +7,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"mime/multipart"
-	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 )
 
@@ -62,29 +57,4 @@ func getFirstAvailableId(response *httptest.ResponseRecorder) uint {
 func getFirstAvailableUrl() string {
 	response := Request("GET", "/products", "")
 	return fmt.Sprintf("/products/%d", getFirstAvailableId(response))
-}
-
-func RequestPost(method string, route string) *httptest.ResponseRecorder {
-	bodyBuf := &bytes.Buffer{}
-	bodyWriter := multipart.NewWriter(bodyBuf)
-	fileWriter, _ := bodyWriter.CreateFormFile("image", "golang.png")
-	fh, _ := os.Open(os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/factory/golang.png")
-	io.Copy(fileWriter, fh)
-	bodyWriter.WriteField("name", "xbox")
-	bodyWriter.WriteField("price", "70000")
-	bodyWriter.WriteField("provider", "Microsoft")
-	bodyWriter.WriteField("rating", "3.5")
-	bodyWriter.WriteField("status", "sale")
-	bodyWriter.Close()
-
-	request, _ := http.NewRequest(method, route, bodyBuf)
-
-	request.RemoteAddr = "127.0.0.1:8080"
-	contentType := bodyWriter.FormDataContentType()
-	request.Header.Set("Content-Type", contentType)
-
-	response := httptest.NewRecorder()
-	app.ServeHTTP(response, request)
-
-	return response
 }

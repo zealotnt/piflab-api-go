@@ -24,8 +24,8 @@ func (repo ProductRepository) FindById(id uint) (*Product, error) {
 	return product, err
 }
 
-func (repo ProductRepository) GetAll() (*[]Product, error) {
-	products := &[]Product{}
+func (repo ProductRepository) GetAll() (*ProductSlice, error) {
+	products := &ProductSlice{}
 	err := repo.DB.Find(products).Error
 
 	for idx := range *products {
@@ -35,15 +35,17 @@ func (repo ProductRepository) GetAll() (*[]Product, error) {
 	return products, err
 }
 
-func (repo ProductRepository) GetPage(offset uint, limit uint) (*[]Product, error) {
-	products := &[]Product{}
+func (repo ProductRepository) GetPage(offset uint, limit uint) (*ProductSlice, uint, error) {
+	products := &ProductSlice{}
 	err := repo.DB.Order("id asc").Offset(int(offset)).Limit(int(limit)).Find(products).Error
 
 	for idx := range *products {
 		(*products)[idx].GetImageUrl()
 	}
 
-	return products, err
+	count, _ := repo.CountProduct()
+
+	return products, count, err
 }
 
 func (repo ProductRepository) saveFile(product *Product) error {
@@ -133,8 +135,8 @@ func (repo ProductRepository) SaveProduct(product *Product) error {
 	return repo.updateProduct(product)
 }
 
-func (repo ProductRepository) CountProduct() (int, error) {
-	count := 0
+func (repo ProductRepository) CountProduct() (uint, error) {
+	count := uint(0)
 
 	err := repo.DB.Table("products").Count(&count).Error
 

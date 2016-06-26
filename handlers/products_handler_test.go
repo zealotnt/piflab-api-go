@@ -3,9 +3,11 @@ package handlers_test
 import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/handlers"
 	"github.com/o0khoiclub0o/piflab-store-api-go/lib"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"encoding/json"
 	"io/ioutil"
 	"os"
 )
@@ -98,10 +100,11 @@ var _ = Describe("prduct_handlers Test", func() {
 			body, _ := ioutil.ReadAll(response.Body)
 
 			/* Deserialize json */
-			products, err := getProducts(body)
+			product_page := ProductPage{}
+			err := json.Unmarshal(body, &product_page)
 
 			/* Len should be equal to 1, and no error */
-			Expect(len(*products)).To(Equal(1))
+			Expect(len(*product_page.Data)).To(Equal(1))
 			Expect(err).To(BeNil())
 		})
 	})

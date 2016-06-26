@@ -28,6 +28,18 @@ type Product struct {
 	UpdatedAt          time.Time `json:"updated_at"`
 }
 
+type ProductSlice []Product
+
+type PageUrl struct {
+	Next     *string `json:"next"`
+	Previous *string `json:"previous"`
+}
+
+type ProductPage struct {
+	Data   *ProductSlice `json:"data"`
+	Paging PageUrl       `json:"paging"`
+}
+
 type ImageType int
 
 const (
@@ -35,6 +47,46 @@ const (
 	THUMBNAIL
 	DETAIL
 )
+
+func getPage(offset uint, limit uint, total uint) PageUrl {
+	prevNum := uint64(offset - limit)
+	nextNum := uint64(offset + limit)
+	if offset < limit {
+		prevNum = 0
+	}
+	if total <= offset {
+		if total > limit {
+			prevNum = uint64(total - limit)
+		} else {
+			prevNum = 0
+		}
+	}
+	next := "/products/offset=" + strconv.FormatUint(nextNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+	previous := "/products/offset=" + strconv.FormatUint(prevNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+
+	if uint64(total) <= nextNum {
+		return PageUrl{
+			Previous: &previous,
+		}
+	}
+	if offset == 0 {
+		return PageUrl{
+			Next: &next,
+		}
+	}
+	return PageUrl{
+		Next:     &next,
+		Previous: &previous,
+	}
+
+}
+
+func (products ProductSlice) GetPaging(offset uint, limit uint, total uint) *ProductPage {
+	return &ProductPage{
+		Data:   &products,
+		Paging: getPage(offset, limit, total),
+	}
+}
 
 func (product *Product) GetImagePath(image ImageType) string {
 	var prefix string
