@@ -40,22 +40,24 @@ func NewProduct(params ...map[string]interface{}) (*Product, error) {
 				Status:   STATUS_OPTIONS[rand.Intn(len(STATUS_OPTIONS))],
 				Detail:   fake.ParagraphsN(1),
 			}
-		}
-	} else {
-		product = &Product{
-			Name:               fake.ProductName(),
-			Price:              rand.Intn(100000),
-			Provider:           fake.Company(),
-			Rating:             rand.Float32() * float32(rand.Intn(5)),
-			Status:             STATUS_OPTIONS[rand.Intn(len(STATUS_OPTIONS))],
-			Detail:             fake.ParagraphsN(1),
-			ImageData:          dataBytes.Bytes(),
-			ImageThumbnailData: dataBytes.Bytes(),
-			ImageDetailData:    dataBytes.Bytes(),
-			Image:              "golang.png",
+			goto ignore_image
 		}
 	}
 
+	product = &Product{
+		Name:               fake.ProductName(),
+		Price:              rand.Intn(100000),
+		Provider:           fake.Company(),
+		Rating:             rand.Float32() * float32(rand.Intn(5)),
+		Status:             STATUS_OPTIONS[rand.Intn(len(STATUS_OPTIONS))],
+		Detail:             fake.ParagraphsN(1),
+		ImageData:          dataBytes.Bytes(),
+		ImageThumbnailData: dataBytes.Bytes(),
+		ImageDetailData:    dataBytes.Bytes(),
+		Image:              "golang.png",
+	}
+
+ignore_image:
 	if params != nil {
 		err := Decode(params[0], product)
 		return product, err
