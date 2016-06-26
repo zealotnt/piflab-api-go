@@ -11,35 +11,77 @@ It lists all products
 + Response 200 (application/json)
 
         [
-          {
-            "id": 1,
-            "name": "XBox",
-            "price": 70000,
-            "provider": "Microsoft",
-            "rating": 3,
-            "status": "sale",
-            "detail": "in maiores non quas ratione voluptatem."
-            "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/origin.png",
-            "image_thumbnail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/thumbnail.png",
-            "image_detail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/detail.png",
-            "created_at": "2016-01-17T07:20:40+0000",
-            "updated_at": "2016-01-17T07:20:40+0000",
-          },
-          {
-            "id": 2,
-            "name": "PS3",
-            "price": 50000,
-            "provider": "Sony",
-            "rating": 4,
-            "status": "out of stock",
-            "detail": "rerum itaque cumque explicabo omnis."
-            "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/2/origin.png",
-            "image_thumbnail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.png",
-            "image_detail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/2/detail.png",
-            "created_at": "2016-01-17T07:20:40+0000",
-            "updated_at": "2016-01-17T07:20:40+0000",
-          }
+            {
+                "id": 1,
+                "name": "XBox",
+                "price": 70000,
+                "provider": "Microsoft",
+                "rating": 3,
+                "status": "sale",
+                "detail": "in maiores non quas ratione voluptatem."
+                "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/origin.png",
+                "image_thumbnail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/thumbnail.png",
+                "image_detail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/detail.png",
+                "created_at": "2016-01-17T07:20:40+0000",
+                "updated_at": "2016-01-17T07:20:40+0000",
+            },
+            {
+                "id": 2,
+                "name": "PS3",
+                "price": 50000,
+                "provider": "Sony",
+                "rating": 4,
+                "status": "out of stock",
+                "detail": "rerum itaque cumque explicabo omnis."
+                "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/2/origin.png",
+                "image_thumbnail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.png",
+                "image_detail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/2/detail.png",
+                "created_at": "2016-01-17T07:20:40+0000",
+                "updated_at": "2016-01-17T07:20:40+0000",
+            }
         ]
+
+### Get Products By Pages API [GET/products/offset={offset}&limit={limit}]
+It lists products by pages
+
++ Response 200 (application/json)
+
+        {
+            "data": [
+                {
+                    "id": 2,
+                    "name": "product",
+                    "price": 12500,
+                    "provider": "Microsoft",
+                    "rating": 4,
+                    "status": "sale",
+                    "detail": "some text",
+                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/origin.14662446.png",
+                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/detail.1466244676.png",
+                    "created_at": "2016-06-18T10:11:16.144073Z",
+                    "updated_at": "2016-06-18T11:24:01.917424Z"
+                },
+                {
+                    "id": 3,
+                    "name": "product",
+                    "price": 22,
+                    "provider": "Microsoft",
+                    "rating": 4,
+                    "status": "sale",
+                    "detail": "some text",
+                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/origin.1466244681.png",
+                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244681.png",
+                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/detail.1466244681.png",
+                    "created_at": "2016-06-18T10:11:21.985591Z",
+                    "updated_at": "2016-06-18T11:38:21.83933Z"
+                }
+            ],
+            "paging": {
+                "next": "/products/offset=3&limit=2",
+                "previous": "/products/offset=0&limit=2"
+            }
+        }
 
 ### Create Product API [POST]
 It creates a product
@@ -51,12 +93,13 @@ It creates a product
             "price": 70000,
             "provider": "Microsoft",
             "rating": 3.5,
-            "status": "sale"
+            "status": "sale",
+            "detail": "some detail of product"
         }
 
 + Request (application/x-www-form-urlencoded)
 
-        name=XBox&price=70000&provider=Microsoft&rating=3.5&status=sale
+        name=XBox&price=70000&provider=Microsoft&rating=3.5&status=sale&detail=some%20detail%20of%20product
 
 + Request (multipart/form-data; boundary=---BOUNDARY)
 
