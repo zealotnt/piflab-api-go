@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/o0khoiclub0o/piflab-store-api-go/db/seeds/factory"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/handlers"
 	"github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
@@ -24,6 +25,15 @@ var app *lib.App
 var _ = BeforeSuite(func() {
 	app = lib.NewApp()
 	app.AddRoutes(GetRoutes())
+
+	By("Automatically create some non-image products")
+	sJson := `{"no-image": "yes"}`
+	extraParams := make(map[string]interface{})
+	factory.Json2Map(sJson, extraParams)
+	for i := 0; i < 10; i++ {
+		_, err := factory.CreateProduct(app.DB, extraParams)
+		Expect(err).To(BeNil())
+	}
 })
 
 var _ = AfterSuite(func() {
