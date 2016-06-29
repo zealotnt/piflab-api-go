@@ -33,7 +33,9 @@ http://docs.piflabstore.apiary.io/
 
 ## Development
 
-``docker run -p 80:80 -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go piflab-store-api-go gin -p 80 run``
+``docker run -p 80:80 -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go --env-file=.env --rm -it piflab-store-api-go bash``
+
+``docker run -p 80:80 -v `pwd`:/go/src/github.com/o0khoiclub0o/piflab-store-api-go --env-file=.env --rm  piflab-store-api-go gin -p 80 run``
 
 ## Testing
 
@@ -60,3 +62,8 @@ http://docs.piflabstore.apiary.io/
 
 ### Manually run piflab-store-api command
 `docker-compose run -p 80:80 api <command you want to run>`
+
+### Practical Docker-compose use
+- cd to root of project directory
+- Start DB `docker-compose up -d db`
+- Start API `docker-compose run -p 80:80 api bash`

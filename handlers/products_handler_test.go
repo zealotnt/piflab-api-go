@@ -227,7 +227,7 @@ var _ = Describe("prduct_handlers Test", func() {
 		It("returns with neccessary headers", func() {
 			response := Request("OPTIONS", "/", "")
 			Expect(response.Code).To(Equal(204))
-			Expect(response.Header().Get("Access-Control-Allow-Origin")).To(Equal(`origin`))
+			Expect(response.Header().Get("Access-Control-Allow-Origin")).To(Equal(`*`))
 			Expect(response.Header().Get("Access-Control-Allow-Methods")).To(Equal(`GET, POST, PUT, DELETE, OPTIONS`))
 			Expect(response.Header().Get("Access-Control-Allow-Headers")).To(Equal(`content-type,accept`))
 			Expect(response.Header().Get("Access-Control-Max-Age")).To(Equal("10"))
@@ -245,7 +245,7 @@ var _ = Describe("prduct_handlers Test", func() {
 			for _, url := range urls_test {
 				response := Request("OPTIONS", url, "")
 				Expect(response.Code).To(Equal(204))
-				Expect(response.Header().Get("Access-Control-Allow-Origin")).To(Equal(`origin`))
+				Expect(response.Header().Get("Access-Control-Allow-Origin")).To(Equal(`*`))
 				Expect(response.Header().Get("Access-Control-Allow-Methods")).To(Equal(`GET, POST, PUT, DELETE, OPTIONS`))
 				Expect(response.Header().Get("Access-Control-Allow-Headers")).To(Equal(`content-type,accept`))
 				Expect(response.Header().Get("Access-Control-Max-Age")).To(Equal("10"))

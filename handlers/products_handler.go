@@ -109,7 +109,7 @@ func DeleteProductHandler(app *App) HandlerFunc {
 
 func OptionHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		w.Header().Add("Access-Control-Allow-Origin", `origin`)
+		w.Header().Add("Access-Control-Allow-Origin", `*`)
 		w.Header().Add("Access-Control-Allow-Methods", `GET, POST, PUT, DELETE, OPTIONS`)
 		w.Header().Add("Access-Control-Allow-Headers", `content-type,accept`)
 		w.Header().Add("Access-Control-Max-Age", "10")
