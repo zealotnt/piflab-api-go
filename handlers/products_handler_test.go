@@ -39,10 +39,11 @@ var _ = Describe("prduct_handlers Test", func() {
 		os.Setenv("S3_BUCKET_NAME", GoodBucketName)
 	})
 
-	var _ = Describe("GetAllProductsHandlerTest", func() {
+	var _ = Describe("GetAllProductsHandler Test", func() {
 		It("get products successfully, with status code 200", func() {
 			response := Request("GET", "/products", "")
 			Expect(response.Code).To(Equal(200))
+			Expect(response.Header().Get(`Content-Type`)).To(Equal(`application/json`))
 		})
 
 		It("gets products fail, because connection to db has been closed", func() {
@@ -60,7 +61,7 @@ var _ = Describe("prduct_handlers Test", func() {
 		})
 	})
 
-	var _ = Describe("GetPageProductsHandlerTest", func() {
+	var _ = Describe("GetPageProductsHandler Test", func() {
 		It("has erroneous parameters binding result, returns 400", func() {
 			var test_cases = []ParamBindingTest{
 				{`/products/offset=0&limit=0`, `Limit must bigger than 0`},
@@ -95,6 +96,7 @@ var _ = Describe("prduct_handlers Test", func() {
 			/* Get a product */
 			response := Request("GET", `/products/offset=0&limit=1`, "")
 			Expect(response.Code).To(Equal(200))
+			Expect(response.Header().Get(`Content-Type`)).To(Equal(`application/json`))
 
 			/* Parse response's body */
 			body, _ := ioutil.ReadAll(response.Body)
@@ -109,7 +111,7 @@ var _ = Describe("prduct_handlers Test", func() {
 		})
 	})
 
-	var _ = Describe("CreateProductHandlerTest", func() {
+	var _ = Describe("CreateProductHandler Test", func() {
 		It("has erroneous binding result, and returns 400", func() {
 			var test_cases = []BindingTest{
 				{`{"name": "XBox","price": "70000","provider": "Microsoft","rating": 3.5,"status": "sale"}`, `"json: cannot unmarshal string into Go value of type int"`},
@@ -150,7 +152,7 @@ var _ = Describe("prduct_handlers Test", func() {
 		})
 	})
 
-	var _ = Describe("UpdateProductHandlerTest", func() {
+	var _ = Describe("UpdateProductHandler Test", func() {
 		It("has invalid product id request, and returns 404", func() {
 			response := Request("PUT", "/products/abc", `{"name": "XBox"}`)
 
@@ -194,6 +196,7 @@ var _ = Describe("prduct_handlers Test", func() {
 		It("updates success, and returns 200", func() {
 			response := Request("PUT", getFirstAvailableUrl(), `{"rating": 4.0}`)
 			Expect(response.Code).To(Equal(200))
+			Expect(response.Header().Get(`Content-Type`)).To(Equal(`application/json`))
 		})
 
 		It("can't update a product, due to wrong AWS Bucket name (can't delete image)", func() {
@@ -205,7 +208,7 @@ var _ = Describe("prduct_handlers Test", func() {
 		})
 	})
 
-	var _ = Describe("DeleteProductHandlerTest", func() {
+	var _ = Describe("DeleteProductHandler Test", func() {
 		It("delete fail, because no record invalid, and returns 500", func() {
 			response := Request("DELETE", "/products/0", "")
 			Expect(response.Code).To(Equal(500))
@@ -217,6 +220,36 @@ var _ = Describe("prduct_handlers Test", func() {
 			response := MultipartRequest("DELETE", getFirstAvailableUrl(), extraParams, "image", path)
 			Expect(response.Code).To(Equal(500))
 			Expect(response.Body).To(ContainSubstring("NoSuchBucket: The specified bucket does not exist"))
+		})
+	})
+
+	var _ = Describe("OptionHandler Test", func() {
+		It("returns with neccessary headers", func() {
+			response := Request("OPTIONS", "/", "")
+			Expect(response.Code).To(Equal(204))
+			Expect(response.Header().Get("Access-Control-Allow-Origin")).To(Equal(`origin`))
+			Expect(response.Header().Get("Access-Control-Allow-Methods")).To(Equal(`GET, POST, PUT, DELETE, OPTIONS`))
+			Expect(response.Header().Get("Access-Control-Allow-Headers")).To(Equal(`content-type,accept`))
+			Expect(response.Header().Get("Access-Control-Max-Age")).To(Equal("10"))
+		})
+
+		It("returns with any format of request url", func() {
+			urls_test := []string{
+				`/`,
+				`/123`,
+				`/abc`,
+				`/abc/123`,
+				`/some+space`,
+				`/some%20space`,
+			}
+			for _, url := range urls_test {
+				response := Request("OPTIONS", url, "")
+				Expect(response.Code).To(Equal(204))
+				Expect(response.Header().Get("Access-Control-Allow-Origin")).To(Equal(`origin`))
+				Expect(response.Header().Get("Access-Control-Allow-Methods")).To(Equal(`GET, POST, PUT, DELETE, OPTIONS`))
+				Expect(response.Header().Get("Access-Control-Allow-Headers")).To(Equal(`content-type,accept`))
+				Expect(response.Header().Get("Access-Control-Max-Age")).To(Equal("10"))
+			}
 		})
 	})
 })
