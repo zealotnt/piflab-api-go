@@ -110,6 +110,7 @@ func (repo ProductRepository) updateProduct(product *Product) error {
 			return err
 		}
 
+		product.Image = product.NewImage
 		product.ImageUpdatedAt = time.Now()
 
 		if err := repo.saveFile(product); err != nil {

@@ -1,6 +1,6 @@
 # PIFLab Store API
 [![CircleCI](https://circleci.com/gh/zealotnt/piflab-store-api-go.svg?style=svg)](https://circleci.com/gh/zealotnt/piflab-store-api-go)  
-[![Coverage Status](https://coveralls.io/repos/github/zealotnt/piflab-store-api-go/badge.svg?branch=master)](https://coveralls.io/github/zealotnt/piflab-store-api-go?branch=master)  
+[![Coverage Status](https://coveralls.io/repos/github/zealotnt/piflab-store-api-go/badge.svg)](https://coveralls.io/github/zealotnt/piflab-store-api-go)  
 
 ## API Docs
 http://docs.piflabstore.apiary.io/

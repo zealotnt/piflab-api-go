@@ -20,6 +20,7 @@ type Product struct {
 	ImageThumbnailData []byte    `json:"-" sql:"-"`
 	ImageDetailData    []byte    `json:"-" sql:"-"`
 	Image              string    `json:"-"`
+	NewImage           string    `json:"-" sql:"-"`
 	ImageUpdatedAt     time.Time `json:"-"`
 	ImageUrl           *string   `json:"image_url" sql:"-"`
 	ImageThumbnailUrl  *string   `json:"image_thumbnail_url" sql:"-"`
