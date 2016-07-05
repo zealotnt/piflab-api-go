@@ -116,6 +116,7 @@ func (repo ProductRepository) updateProduct(product *Product) error {
 			tx.Rollback()
 			return err
 		}
+		product.GetImageUrl()
 	}
 
 	if err := tx.Save(product).Error; err != nil {

@@ -92,5 +92,7 @@ func (form *UpdateProductForm) Assign(product *Product) {
 	if form.Image != nil {
 		product.Image = form.Image.Filename
 		product.ImageData = form.ImageData()
+		product.ImageThumbnailData = (ImageService{}).GetThumbnail(form.Image, 320)
+		product.ImageDetailData = (ImageService{}).GetDetail(form.Image, 550)
 	}
 }
