@@ -38,63 +38,63 @@ var _ = Describe("ValidateCreateProductForm", func() {
 		delete(extraParams, "name")
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Name is required"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Name"]))
 	})
 
 	It("requires price", func() {
 		delete(extraParams, "price")
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Price is required"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Price"]))
 	})
 
 	It("requires provider", func() {
 		delete(extraParams, "provider")
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Provider is required"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Provider"]))
 	})
 
 	It("requires rating", func() {
 		delete(extraParams, "rating")
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Rating is required"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Rating"]))
 	})
 
 	It("has exceeded the rating limit", func() {
 		extraParams["rating"] = strconv.FormatFloat(float64(ratingBig), 'f', 1, 32)
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Rating must be less than or equal to 5"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Big"]))
 	})
 
 	It("has value of rating equal to 0, which is invalid", func() {
-		extraParams["rating"] = strconv.FormatFloat(float64(ratingZero), 'f', 1, 32)
+		extraParams["rating"] = strconv.FormatFloat(float64(ratingLessThanZero), 'f', 1, 32)
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Rating must be bigger than 0"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Small"]))
 	})
 
 	It("requires status", func() {
 		delete(extraParams, "status")
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Status is required"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Status"]))
 	})
 
 	It("has invalid status", func() {
 		extraParams["status"] = invalidStatus
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Status is invalid"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Status"]))
 	})
 
 	It("requires detail", func() {
 		delete(extraParams, "detail")
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Detail is required"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Detail"]))
 	})
 
 	It("has invalid image extension", func() {

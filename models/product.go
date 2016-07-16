@@ -123,6 +123,10 @@ func (product *Product) GetImageUrlType(image ImageType) (string, error) {
 }
 
 func (product *Product) GetImageUrl() error {
+	if product.Image == "" {
+		return nil
+	}
+
 	imageTypeList := [3]ImageType{ORIGIN, THUMBNAIL, DETAIL}
 	urlResult := [3]string{}
 

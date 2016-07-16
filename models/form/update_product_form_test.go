@@ -39,21 +39,21 @@ var _ = Describe("ValidateUpdateProductForm", func() {
 		extraParams["rating"] = strconv.FormatFloat(float64(ratingBig), 'f', 1, 32)
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Rating must be less than or equal to 5"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Big"]))
 	})
 
 	It("has zero rating value", func() {
-		extraParams["rating"] = strconv.FormatFloat(float64(ratingZero), 'f', 1, 32)
+		extraParams["rating"] = strconv.FormatFloat(float64(ratingLessThanZero), 'f', 1, 32)
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Rating must be bigger than 0"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Small"]))
 	})
 
 	It("has invalid status", func() {
 		extraParams["status"] = invalidStatus
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Status is invalid"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Status"]))
 	})
 
 	It("has invalid image extension", func() {

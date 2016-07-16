@@ -39,10 +39,20 @@ var _ = BeforeSuite(func() {
 	app = lib.NewApp()
 	app.AddRoutes(GetRoutes())
 
+	// Create a product with image
 	path := os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/factory/golang.png"
 	response := MultipartRequest("POST", "/products", extraParams, "image", path)
-	response = MultipartRequest("POST", "/products", extraParams, "image", path)
 	Expect(response.Code).To(Equal(201))
+	Expect(response.Body).To(ContainSubstring(`"image_url":"https://`))
+	Expect(response.Body).To(ContainSubstring(`"image_thumbnail_url":"https://`))
+	Expect(response.Body).To(ContainSubstring(`"image_detail_url":"https://`))
+
+	// Create a product without image
+	response = MultipartRequest("POST", "/products", extraParams, "", "")
+	Expect(response.Code).To(Equal(201))
+	Expect(response.Body).To(ContainSubstring(`"image_url":null`))
+	Expect(response.Body).To(ContainSubstring(`"image_thumbnail_url":null`))
+	Expect(response.Body).To(ContainSubstring(`"image_detail_url":null`))
 
 	body, _ := ioutil.ReadAll(response.Body)
 	err := json.Unmarshal(body, initialize_product)
@@ -80,6 +90,21 @@ func getFirstAvailableId(response *httptest.ResponseRecorder) uint {
 func getFirstAvailableUrl() string {
 	response := Request("GET", "/products", "")
 	return fmt.Sprintf("/products/%d", getFirstAvailableId(response))
+}
+
+func getFirstImagelessProductUrl() string {
+	response := Request("GET", "/products", "")
+	body, _ := ioutil.ReadAll(response.Body)
+
+	if products, _ := getProducts(body); products != nil {
+		for idx, product := range *products {
+			if product.ImageUrl == nil {
+				return fmt.Sprintf("/products/%d", (*products)[idx].Id)
+			}
+		}
+	}
+
+	return "/products/0"
 }
 
 func MultipartRequest(method string, route string, params map[string]string, paramName, path string) *httptest.ResponseRecorder {

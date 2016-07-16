@@ -26,6 +26,18 @@ var STATUS_OPTIONS = []string{
 	"available",
 }
 
+var VALIDATE_ERROR_MESSAGE = map[string]string{
+	"Required_Name":        "Name is required",
+	"Required_Price":       "Price is required",
+	"Required_Provider":    "Provider is required",
+	"Required_Rating":      "Rating is required",
+	"Required_Status":      "Status is required",
+	"Required_Detail":      "Detail is required",
+	"Invalid_Rating_Big":   "Rating must be less than or equal to 5",
+	"Invalid_Rating_Small": "Rating must be bigger than or equal to 0",
+	"Invalid_Status":       "Status is invalid",
+}
+
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {

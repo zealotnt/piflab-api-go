@@ -40,36 +40,36 @@ func (form *CreateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 
 func (form *CreateProductForm) Validate() error {
 	if form.Name == nil || *form.Name == "" {
-		return errors.New("Name is required")
+		return errors.New(VALIDATE_ERROR_MESSAGE["Required_Name"])
 	}
 
 	if form.Price == nil || *form.Price == 0 {
-		return errors.New("Price is required")
+		return errors.New(VALIDATE_ERROR_MESSAGE["Required_Price"])
 	}
 
 	if form.Provider == nil || *form.Provider == "" {
-		return errors.New("Provider is required")
+		return errors.New(VALIDATE_ERROR_MESSAGE["Required_Provider"])
 	}
 
 	if form.Rating == nil {
-		return errors.New("Rating is required")
+		return errors.New(VALIDATE_ERROR_MESSAGE["Required_Rating"])
 	}
 	if *form.Rating > float32(5.0) {
-		return errors.New("Rating must be less than or equal to 5")
+		return errors.New(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Big"])
 	}
-	if *form.Rating == float32(0.0) {
-		return errors.New("Rating must be bigger than 0")
+	if *form.Rating < float32(0.0) {
+		return errors.New(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Small"])
 	}
 
 	if form.Status == nil || *form.Status == "" {
-		return errors.New("Status is required")
+		return errors.New(VALIDATE_ERROR_MESSAGE["Required_Status"])
 	}
 	if !stringInSlice(*form.Status, STATUS_OPTIONS) {
-		return errors.New("Status is invalid")
+		return errors.New(VALIDATE_ERROR_MESSAGE["Invalid_Status"])
 	}
 
 	if form.Detail == nil || *form.Detail == "" {
-		return errors.New("Detail is required")
+		return errors.New(VALIDATE_ERROR_MESSAGE["Required_Detail"])
 	}
 
 	if form.Image != nil {

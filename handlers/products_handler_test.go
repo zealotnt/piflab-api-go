@@ -27,7 +27,7 @@ type ValidateTest struct {
 	expect string
 }
 
-var _ = Describe("prduct_handlers Test", func() {
+var _ = Describe("product_handlers Test", func() {
 	GoodBucketName := os.Getenv("S3_BUCKET_NAME")
 	BadBucketName := "wrong!!!"
 
@@ -150,6 +150,14 @@ var _ = Describe("prduct_handlers Test", func() {
 			Expect(response.Code).To(Equal(500))
 			Expect(response.Body).To(ContainSubstring("NoSuchBucket: The specified bucket does not exist"))
 		})
+
+		It("create a product succesfully, without image", func() {
+			response := MultipartRequest("POST", "/products", extraParams, "", "")
+			Expect(response.Code).To(Equal(201))
+			Expect(response.Body).To(ContainSubstring(`"image_url":null`))
+			Expect(response.Body).To(ContainSubstring(`"image_thumbnail_url":null`))
+			Expect(response.Body).To(ContainSubstring(`"image_detail_url":null`))
+		})
 	})
 
 	var _ = Describe("UpdateProductHandler Test", func() {
@@ -182,7 +190,11 @@ var _ = Describe("prduct_handlers Test", func() {
 
 		It("has erroneous validation result, and returns 422", func() {
 			var test_cases = []ValidateTest{
+				{`{"name": ""}`, `"Name is required"`},
+				{`{"provider": ""}`, `"Provider is required"`},
 				{`{"rating": 5.1}`, `"Rating must be less than or equal to 5"`},
+				{`{"rating": -0.5}`, `"Rating must be bigger than or equal to 0"`},
+				{`{"status": ""}`, `"Status is required"`},
 				{`{"status": "on sale"}`, `"Status is invalid"`},
 			}
 
@@ -197,6 +209,15 @@ var _ = Describe("prduct_handlers Test", func() {
 			response := Request("PUT", getFirstAvailableUrl(), `{"rating": 4.0}`)
 			Expect(response.Code).To(Equal(200))
 			Expect(response.Header().Get(`Content-Type`)).To(Equal(`application/json`))
+		})
+
+		It("updates success, image should return null (the product created without an image)", func() {
+			response := Request("PUT", getFirstImagelessProductUrl(), `{"rating": 4.0}`)
+			Expect(response.Code).To(Equal(200))
+			Expect(response.Header().Get(`Content-Type`)).To(Equal(`application/json`))
+			Expect(response.Body).To(ContainSubstring(`"image_url":null`))
+			Expect(response.Body).To(ContainSubstring(`"image_thumbnail_url":null`))
+			Expect(response.Body).To(ContainSubstring(`"image_detail_url":null`))
 		})
 
 		It("can't update a product, due to wrong AWS Bucket name (can't delete image)", func() {
