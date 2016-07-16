@@ -67,3 +67,9 @@ http://docs.piflabstore.apiary.io/
 - cd to root of project directory
 - Start DB `docker-compose up -d db`
 - Start API `docker-compose run -p 80:80 api bash`
+
+### Golang dump
+```
+import "github.com/davecgh/go-spew/spew"
+spew.Dump(structure_to_be_dump)
+```
