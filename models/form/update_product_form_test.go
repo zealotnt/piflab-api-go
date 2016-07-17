@@ -35,6 +35,20 @@ var _ = Describe("ValidateUpdateProductForm", func() {
 		}
 	})
 
+	It(`tries to update with empty "name" field`, func() {
+		extraParams["name"] = ""
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Name"]))
+	})
+
+	It(`tries to update with empty "provider" field`, func() {
+		extraParams["provider"] = ""
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Provider"]))
+	})
+
 	It("has exceeded rating limit", func() {
 		extraParams["rating"] = strconv.FormatFloat(float64(ratingBig), 'f', 1, 32)
 		BindForm(&form, extraParams, "")
@@ -49,11 +63,25 @@ var _ = Describe("ValidateUpdateProductForm", func() {
 		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Small"]))
 	})
 
+	It(`tries to update with empty "status" field`, func() {
+		extraParams["status"] = ""
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Status"]))
+	})
+
 	It("has invalid status", func() {
 		extraParams["status"] = invalidStatus
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
 		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Status"]))
+	})
+
+	It(`tries to update with empty "detail" field`, func() {
+		extraParams["detail"] = ""
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Detail"]))
 	})
 
 	It("has invalid image extension", func() {

@@ -15,7 +15,9 @@ import (
 type FileService struct {
 }
 
-func (service FileService) SaveFile(data []byte, key string) error {
+func (service FileService) SaveFile(data []byte, key string, contentType ...string) error {
+	var err error
+
 	if data == nil {
 		return errors.New("File content is required")
 	} else if key == "" {
@@ -24,12 +26,21 @@ func (service FileService) SaveFile(data []byte, key string) error {
 
 	uploader := s3manager.NewUploader(session.New(&aws.Config{Region: aws.String(os.Getenv("S3_REGION"))}))
 
-	_, err := uploader.Upload(&s3manager.UploadInput{
-		Body:        bytes.NewReader(data),
-		Bucket:      aws.String((os.Getenv("S3_BUCKET_NAME"))),
-		Key:         aws.String(key),
-		ContentType: aws.String("image"),
-	})
+	if contentType != nil {
+		_, err = uploader.Upload(&s3manager.UploadInput{
+			Body:        bytes.NewReader(data),
+			Bucket:      aws.String((os.Getenv("S3_BUCKET_NAME"))),
+			Key:         aws.String(key),
+			ContentType: aws.String(contentType[0]),
+		})
+	} else {
+		_, err = uploader.Upload(&s3manager.UploadInput{
+			Body:   bytes.NewReader(data),
+			Bucket: aws.String((os.Getenv("S3_BUCKET_NAME"))),
+			Key:    aws.String(key),
+		})
+	}
+
 	return err
 }
 

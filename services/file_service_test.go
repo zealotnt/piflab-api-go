@@ -36,6 +36,29 @@ var _ = Describe("FileSeriveTestSuccessFlow", func() {
 		Expect(err).To(BeNil())
 	})
 
+	It(`saves a Content-Type: "image/png" file to S3 successfully`, func() {
+		err := service.SaveFile(testData, testKey, "image/png")
+		Expect(err).To(BeNil())
+
+		data, err := service.GetFile(testKey)
+		Expect(err).To(BeNil())
+		Expect(data).To(Equal(testData))
+
+		url, err := service.GetProtectedUrl(testKey, 15)
+		Expect(err).To(BeNil())
+
+		response, err := http.Get(url)
+		defer response.Body.Close()
+		Expect(err).To(BeNil())
+		contents, err := ioutil.ReadAll(response.Body)
+		Expect(err).To(BeNil())
+		Expect(testData).To(Equal(contents))
+		Expect(response.Header.Get("Content-Type")).To(Equal(`image/png`))
+
+		err = service.DeleteFile(testKey)
+		Expect(err).To(BeNil())
+	})
+
 	It("Will fail due to invalid param", func() {
 		err := service.SaveFile(nil, testKey)
 		Expect(err.Error()).To(ContainSubstring("File content is required"))

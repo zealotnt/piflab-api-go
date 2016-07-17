@@ -49,15 +49,24 @@ func (repo ProductRepository) GetPage(offset uint, limit uint) (*ProductSlice, u
 }
 
 func (repo ProductRepository) saveFile(product *Product) error {
-	if err := (FileService{}).SaveFile(product.ImageData, product.GetImagePath(ORIGIN)); err != nil {
+	if err := (FileService{}).SaveFile(
+		product.ImageData,
+		product.GetImagePath(ORIGIN),
+		product.GetImageContentType(ORIGIN)); err != nil {
 		return err
 	}
 
-	if err := (FileService{}).SaveFile(product.ImageThumbnailData, product.GetImagePath(THUMBNAIL)); err != nil {
+	if err := (FileService{}).SaveFile(
+		product.ImageThumbnailData,
+		product.GetImagePath(THUMBNAIL),
+		product.GetImageContentType(THUMBNAIL)); err != nil {
 		return err
 	}
 
-	if err := (FileService{}).SaveFile(product.ImageDetailData, product.GetImagePath(DETAIL)); err != nil {
+	if err := (FileService{}).SaveFile(
+		product.ImageDetailData,
+		product.GetImagePath(DETAIL),
+		product.GetImageContentType(DETAIL)); err != nil {
 		return err
 	}
 	return nil

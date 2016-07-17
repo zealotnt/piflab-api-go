@@ -70,7 +70,7 @@ func (form *UpdateProductForm) Validate() error {
 		}
 	}
 
-	if form.Provider != nil {
+	if form.Detail != nil {
 		if *form.Detail == "" {
 			return errors.New(VALIDATE_ERROR_MESSAGE["Required_Detail"])
 		}

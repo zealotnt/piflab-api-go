@@ -41,10 +41,10 @@ type ProductPage struct {
 	Paging PageUrl       `json:"paging"`
 }
 
-type ImageType int
+type ImageSize int
 
 const (
-	ORIGIN ImageType = iota
+	ORIGIN ImageSize = iota
 	THUMBNAIL
 	DETAIL
 )
@@ -89,7 +89,7 @@ func (products ProductSlice) GetPaging(offset uint, limit uint, total uint) *Pro
 	}
 }
 
-func (product *Product) GetImagePath(image ImageType) string {
+func (product *Product) GetImagePath(image ImageSize) string {
 	var prefix string
 	var extension string
 
@@ -115,10 +115,31 @@ func (product *Product) GetImagePath(image ImageType) string {
 	}
 
 	return "products/" + strconv.FormatUint(uint64(product.Id), 10) + prefix + strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10)
-
 }
 
-func (product *Product) GetImageUrlType(image ImageType) (string, error) {
+func (product *Product) GetImageContentType(image ImageSize) string {
+	var extension string
+
+	switch image {
+	case ORIGIN:
+		re, _ := regexp.Compile(`.+\.(.+$)`)
+		if res := re.FindStringSubmatch(product.Image); res != nil {
+			extension = res[1]
+		} else {
+			return "image"
+		}
+	case THUMBNAIL:
+		extension = "png"
+	case DETAIL:
+		extension = "png"
+	default:
+		return ""
+	}
+
+	return "image/" + extension
+}
+
+func (product *Product) GetImageUrlType(image ImageSize) (string, error) {
 	return (FileService{}).GetProtectedUrl(product.GetImagePath(image), 15)
 }
 
@@ -127,12 +148,12 @@ func (product *Product) GetImageUrl() error {
 		return nil
 	}
 
-	imageTypeList := [3]ImageType{ORIGIN, THUMBNAIL, DETAIL}
+	imageSizeList := [3]ImageSize{ORIGIN, THUMBNAIL, DETAIL}
 	urlResult := [3]string{}
 
-	for idx, _ := range imageTypeList {
+	for idx, _ := range imageSizeList {
 		var err error
-		if urlResult[idx], err = product.GetImageUrlType(imageTypeList[idx]); err != nil {
+		if urlResult[idx], err = product.GetImageUrlType(imageSizeList[idx]); err != nil {
 			return err
 		}
 	}
