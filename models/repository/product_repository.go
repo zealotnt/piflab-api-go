@@ -37,7 +37,7 @@ func (repo ProductRepository) GetAll() (*ProductSlice, error) {
 
 func (repo ProductRepository) GetPage(offset uint, limit uint) (*ProductSlice, uint, error) {
 	products := &ProductSlice{}
-	err := repo.DB.Order("id asc").Offset(int(offset)).Limit(int(limit)).Find(products).Error
+	err := repo.DB.Order("id DESC").Offset(int(offset)).Limit(int(limit)).Find(products).Error
 
 	for idx := range *products {
 		(*products)[idx].GetImageUrl()
