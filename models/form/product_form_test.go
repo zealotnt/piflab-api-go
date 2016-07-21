@@ -26,27 +26,32 @@ var _ = Describe("ProductTest", func() {
 	var _ = Describe("Tests ImageData function", func() {
 		It("return nil, because there's no image field in form", func() {
 			form := new(ProductForm)
-			err := BindForm(form, nil, "")
+			err := BindForm(form, nil, "", "")
 			Expect(err).To(BeNil())
 			Expect(form.ImageData()).To(BeNil())
+			Expect(form.AvatarData()).To(BeNil())
 		})
 
 		It("returns sucessfully", func() {
 			form := new(ProductForm)
 			path := os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/factory/golang.jpeg"
-			err := BindForm(form, nil, path)
+			err := BindForm(form, nil, path, path)
 			Expect(err).To(BeNil())
 			Expect(len(form.ImageData())).To(Equal(getFileSize(path)))
+			Expect(len(form.AvatarData())).To(Equal(getFileSize(path)))
 		})
 	})
 
 	It("TestGetDataFunc without Image, so the image relating fields are nil", func() {
 		form := new(ProductForm)
-		err := BindForm(form, extraParams, "")
+		err := BindForm(form, extraParams, "", "")
 		Expect(err).To(BeNil())
 		product := form.Product()
 		Expect(product.ImageUrl).To(BeNil())
 		Expect(product.ImageThumbnailUrl).To(BeNil())
 		Expect(product.ImageDetailUrl).To(BeNil())
+		Expect(product.AvatarUrl).To(BeNil())
+		Expect(product.AvatarThumbnailUrl).To(BeNil())
+		Expect(product.AvatarDetailUrl).To(BeNil())
 	})
 })
