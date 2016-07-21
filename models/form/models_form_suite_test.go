@@ -48,13 +48,20 @@ func getFileSize(path string) int {
 	return int(fi.Size())
 }
 
-func createHttpRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {
+func createHttpRequest(uri string, params map[string]string, image, image_path, avatar, avatar_path string) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	file, err := os.Open(path)
+	file, err := os.Open(image_path)
 	if err == nil {
-		part, _ := writer.CreateFormFile(paramName, filepath.Base(path))
+		part, _ := writer.CreateFormFile(image, filepath.Base(image_path))
+		io.Copy(part, file)
+	}
+	defer file.Close()
+
+	file, err = os.Open(avatar_path)
+	if err == nil {
+		part, _ := writer.CreateFormFile(avatar, filepath.Base(avatar_path))
 		io.Copy(part, file)
 	}
 	defer file.Close()
@@ -73,8 +80,8 @@ func createHttpRequest(uri string, params map[string]string, paramName, path str
 	return request, err
 }
 
-func BindForm(form binding.FieldMapper, params map[string]string, image_path string) error {
-	request, err := createHttpRequest("", params, "image", image_path)
+func BindForm(form binding.FieldMapper, params map[string]string, image_path, avatar_path string) error {
+	request, err := createHttpRequest("", params, "image", image_path, "avatar", avatar_path)
 	if err != nil {
 		return err
 	}

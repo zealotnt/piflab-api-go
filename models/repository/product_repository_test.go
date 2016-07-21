@@ -22,23 +22,30 @@ var _ = Describe("ProductRepositoryTest", func() {
 	testImageData := []byte("Some miscellaneous data")
 	testImageThumbnail := []byte("Some miscellaneous thumbnail data")
 	testImageDetail := []byte("Some miscellaneous detail data")
-
+	testAvatarName := "golang_ava.png"
+	testAvatarData := []byte("AVA Some miscellaneous data")
+	testAvatarThumbnail := []byte("AVA ome miscellaneous thumbnail data")
+	testAvatarDetail := []byte("AVA ome miscellaneous detail data")
 	GoodBucketName := os.Getenv("S3_BUCKET_NAME")
 	BadBucketName := "wrong!!!"
 
 	var product Product
 	BeforeEach(func() {
 		product = Product{
-			Name:               testName,
-			Price:              testPrice,
-			Provider:           testProvider,
-			Rating:             testRating,
-			Status:             testStatus,
-			Detail:             testDetail,
-			Image:              testImageName,
-			ImageData:          testImageData,
-			ImageThumbnailData: testImageThumbnail,
-			ImageDetailData:    testImageDetail,
+			Name:                testName,
+			Price:               testPrice,
+			Provider:            testProvider,
+			Rating:              testRating,
+			Status:              testStatus,
+			Detail:              testDetail,
+			Image:               testImageName,
+			ImageData:           testImageData,
+			ImageThumbnailData:  testImageThumbnail,
+			ImageDetailData:     testImageDetail,
+			Avatar:              testAvatarName,
+			AvatarData:          testAvatarData,
+			AvatarThumbnailData: testAvatarThumbnail,
+			AvatarDetailData:    testAvatarDetail,
 		}
 	})
 

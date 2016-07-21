@@ -9,13 +9,14 @@ import (
 )
 
 type Product struct {
-	Id                 uint      `json:"id"`
-	Name               string    `json:"name"`
-	Price              int       `json:"price"`
-	Provider           string    `json:"provider"`
-	Rating             float32   `json:"rating"`
-	Status             string    `json:"status"`
-	Detail             string    `json:"detail"`
+	Id       uint    `json:"id"`
+	Name     string  `json:"name"`
+	Price    int     `json:"price"`
+	Provider string  `json:"provider"`
+	Rating   float32 `json:"rating"`
+	Status   string  `json:"status"`
+	Detail   string  `json:"detail"`
+
 	ImageData          []byte    `json:"-" sql:"-"`
 	ImageThumbnailData []byte    `json:"-" sql:"-"`
 	ImageDetailData    []byte    `json:"-" sql:"-"`
@@ -25,8 +26,19 @@ type Product struct {
 	ImageUrl           *string   `json:"image_url" sql:"-"`
 	ImageThumbnailUrl  *string   `json:"image_thumbnail_url" sql:"-"`
 	ImageDetailUrl     *string   `json:"image_detail_url" sql:"-"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
+
+	AvatarData          []byte    `json:"-" sql:"-"`
+	AvatarThumbnailData []byte    `json:"-" sql:"-"`
+	AvatarDetailData    []byte    `json:"-" sql:"-"`
+	Avatar              string    `json:"-"`
+	NewAvatar           string    `json:"-" sql:"-"`
+	AvatarUpdatedAt     time.Time `json:"-"`
+	AvatarUrl           *string   `json:"avatar_url" sql:"-"`
+	AvatarThumbnailUrl  *string   `json:"avatar_thumbnail_url" sql:"-"`
+	AvatarDetailUrl     *string   `json:"avatar_detail_url" sql:"-"`
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type ProductSlice []Product
@@ -40,6 +52,13 @@ type ProductPage struct {
 	Data   *ProductSlice `json:"data"`
 	Paging PageUrl       `json:"paging"`
 }
+
+type ImageField int
+
+const (
+	IMAGE ImageField = iota
+	AVATAR
+)
 
 type ImageSize int
 
@@ -89,41 +108,67 @@ func (products ProductSlice) GetPaging(offset uint, limit uint, total uint) *Pro
 	}
 }
 
-func (product *Product) GetImagePath(image ImageSize) string {
-	var prefix string
+func (product *Product) GetImagePath(field ImageField, image ImageSize) string {
+	var img_size string
 	var extension string
+	var img_field string
+	var img_name string
+	var img_updated_at string
+
+	switch field {
+	case IMAGE:
+		img_field = "/image_"
+		img_name = product.Image
+		img_updated_at = strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10)
+	case AVATAR:
+		img_field = "/avatar_"
+		img_name = product.Avatar
+		img_updated_at = strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10)
+	default:
+		return ""
+	}
 
 	switch image {
 	case ORIGIN:
-		prefix = "/origin."
+		img_size = "origin_"
 		re, _ := regexp.Compile(`.+(\..+$)`)
-		if res := re.FindStringSubmatch(product.Image); res != nil {
+		if res := re.FindStringSubmatch(img_name); res != nil {
 			extension = res[1]
 		}
 	case THUMBNAIL:
-		prefix = "/thumbnail."
+		img_size = "thumbnail_"
 		extension = ".png"
 	case DETAIL:
-		prefix = "/detail."
+		img_size = "detail_"
 		extension = ".png"
 	default:
 		return ""
 	}
 
 	if extension != "" {
-		return "products/" + strconv.FormatUint(uint64(product.Id), 10) + prefix + strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10) + extension
+		return "products/" + strconv.FormatUint(uint64(product.Id), 10) + img_field + img_size + img_updated_at + extension
 	}
 
-	return "products/" + strconv.FormatUint(uint64(product.Id), 10) + prefix + strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10)
+	return "products/" + strconv.FormatUint(uint64(product.Id), 10) + img_field + img_size + img_updated_at
 }
 
-func (product *Product) GetImageContentType(image ImageSize) string {
+func (product *Product) GetImageContentType(field ImageField, image ImageSize) string {
 	var extension string
+	var img_name string
+
+	switch field {
+	case IMAGE:
+		img_name = product.Image
+	case AVATAR:
+		img_name = product.Avatar
+	default:
+		return ""
+	}
 
 	switch image {
 	case ORIGIN:
 		re, _ := regexp.Compile(`.+\.(.+$)`)
-		if res := re.FindStringSubmatch(product.Image); res != nil {
+		if res := re.FindStringSubmatch(img_name); res != nil {
 			extension = res[1]
 		} else {
 			return "image"
@@ -139,27 +184,36 @@ func (product *Product) GetImageContentType(image ImageSize) string {
 	return "image/" + extension
 }
 
-func (product *Product) GetImageUrlType(image ImageSize) (string, error) {
-	return (FileService{}).GetProtectedUrl(product.GetImagePath(image), 15)
+func (product *Product) GetImageUrlType(field ImageField, image ImageSize) (string, error) {
+	return (FileService{}).GetProtectedUrl(product.GetImagePath(field, image), 15)
 }
 
 func (product *Product) GetImageUrl() error {
-	if product.Image == "" {
-		return nil
-	}
-
 	imageSizeList := [3]ImageSize{ORIGIN, THUMBNAIL, DETAIL}
 	urlResult := [3]string{}
 
+	if product.Image == "" {
+		goto check_avatar
+	}
+
 	for idx, _ := range imageSizeList {
-		var err error
-		if urlResult[idx], err = product.GetImageUrlType(imageSizeList[idx]); err != nil {
-			return err
-		}
+		urlResult[idx], _ = product.GetImageUrlType(IMAGE, imageSizeList[idx])
 	}
 	product.ImageUrl = &urlResult[0]
 	product.ImageThumbnailUrl = &urlResult[1]
 	product.ImageDetailUrl = &urlResult[2]
+
+check_avatar:
+	if product.Avatar == "" {
+		return nil
+	}
+
+	for idx, _ := range imageSizeList {
+		urlResult[idx], _ = product.GetImageUrlType(IMAGE, imageSizeList[idx])
+	}
+	product.AvatarUrl = &urlResult[0]
+	product.AvatarThumbnailUrl = &urlResult[1]
+	product.AvatarDetailUrl = &urlResult[2]
 
 	return nil
 }

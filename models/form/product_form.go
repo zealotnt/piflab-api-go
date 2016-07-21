@@ -18,6 +18,7 @@ type ProductForm struct {
 	Status   *string               `json:"status"`
 	Detail   *string               `json:"detail"`
 	Image    *multipart.FileHeader `json:"image"`
+	Avatar   *multipart.FileHeader `json:"avatar"`
 }
 
 var STATUS_OPTIONS = []string{
@@ -70,6 +71,9 @@ func (form *ProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Image: binding.Field{
 			Form: "image",
 		},
+		&form.Avatar: binding.Field{
+			Form: "avatar",
+		},
 	}
 }
 
@@ -91,27 +95,47 @@ func (form *ProductForm) ImageData() []byte {
 	return dataBytes.Bytes()
 }
 
+func (form *ProductForm) AvatarData() []byte {
+	if form.Avatar == nil {
+		return nil
+	}
+
+	fh, err := form.Avatar.Open()
+	if err != nil {
+		return nil
+	}
+	defer fh.Close()
+
+	dataBytes := bytes.Buffer{}
+
+	dataBytes.ReadFrom(fh)
+
+	return dataBytes.Bytes()
+}
+
 func (form *ProductForm) Product() *Product {
+	var product = new(Product)
+
 	if form.Image != nil {
-		return &Product{
-			Name:               *form.Name,
-			Price:              *form.Price,
-			Provider:           *form.Provider,
-			Rating:             *form.Rating,
-			Status:             *form.Status,
-			Detail:             *form.Detail,
-			Image:              form.Image.Filename,
-			ImageData:          form.ImageData(),
-			ImageThumbnailData: (ImageService{}).GetThumbnail(form.Image, 320),
-			ImageDetailData:    (ImageService{}).GetDetail(form.Image, 550),
-		}
+		product.Image = form.Image.Filename
+		product.ImageData = form.ImageData()
+		product.ImageThumbnailData = (ImageService{}).GetThumbnail(form.Image, 320)
+		product.ImageDetailData = (ImageService{}).GetDetail(form.Image, 550)
 	}
-	return &Product{
-		Name:     *form.Name,
-		Price:    *form.Price,
-		Provider: *form.Provider,
-		Rating:   *form.Rating,
-		Status:   *form.Status,
-		Detail:   *form.Detail,
+
+	if form.Avatar != nil {
+		product.Avatar = form.Avatar.Filename
+		product.AvatarData = form.AvatarData()
+		product.AvatarThumbnailData = (ImageService{}).GetThumbnail(form.Avatar, 320)
+		product.AvatarDetailData = (ImageService{}).GetDetail(form.Avatar, 550)
 	}
+
+	product.Name = *form.Name
+	product.Price = *form.Price
+	product.Provider = *form.Provider
+	product.Rating = *form.Rating
+	product.Status = *form.Status
+	product.Detail = *form.Detail
+
+	return product
 }

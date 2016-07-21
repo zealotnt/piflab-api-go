@@ -32,12 +32,12 @@ var _ = Describe("Product Test", func() {
 
 	var _ = Describe("GetImageUrlType Test", func() {
 		It("returns valid image url, base on ORIGIN ImageType", func() {
-			_, err := product.GetImageUrlType(ORIGIN)
+			_, err := product.GetImageUrlType(IMAGE, ORIGIN)
 			Expect(err).To(BeNil())
 		})
 
 		It("returns error when trying to get image url, because the param is out of scope of enum ImageType", func() {
-			url, err := product.GetImageUrlType(99)
+			url, err := product.GetImageUrlType(IMAGE, 99)
 			Expect(url).To(Equal(""))
 			Expect(err.Error()).To(ContainSubstring("field too short, minimum length 1: Key"))
 		})
@@ -57,66 +57,141 @@ var _ = Describe("Product Test", func() {
 			test_cases := []TestStruct_ImageSize_Expected_Extension{{
 				// Origin will follow origin file's extension
 				ORIGIN,
-				"/origin.",
+				"/image_origin_",
 				".png",
 				"image/png"}, {
 
 				// thumbnail always have png extension
 				THUMBNAIL,
-				"/thumbnail.",
+				"/image_thumbnail_",
 				".png",
 				"image/png"}, {
 
 				// detail always have png extension
 				DETAIL,
-				"/detail.",
+				"/image_detail_",
 				".png",
 				"image/png"},
 			}
 			for _, test := range test_cases {
-				path := product.GetImagePath(test.size)
+				path := product.GetImagePath(IMAGE, test.size)
 				expected := "products/" +
 					strconv.FormatUint(uint64(product.Id), 10) +
 					test.expectedExt
 				Expect(path).To(ContainSubstring(expected))
 				Expect(path).To(ContainSubstring(test.extension))
 
-				retContentType := product.GetImageContentType(test.size)
+				retContentType := product.GetImageContentType(IMAGE, test.size)
 				Expect(retContentType).To(Equal(test.contentType))
 			}
 
 			// try again with jpg extension
 			product.Image = "dummyFile.jpg"
-			path := product.GetImagePath(ORIGIN)
+			path := product.GetImagePath(IMAGE, ORIGIN)
 			expected := "products/" +
 				strconv.FormatUint(uint64(product.Id), 10) +
-				"/origin."
+				"/image_origin_"
 			Expect(path).To(ContainSubstring(expected))
 			Expect(path).To(ContainSubstring(".jpg"))
 
-			retContentType := product.GetImageContentType(ORIGIN)
+			retContentType := product.GetImageContentType(IMAGE, ORIGIN)
+			Expect(retContentType).To(Equal("image/jpg"))
+		})
+
+		It("returns avatar url with image extension", func() {
+			// rename Image file name to contain png extension
+			product.Avatar = "dummyFile.png"
+			type TestStruct_ImageSize_Expected_Extension struct {
+				size        ImageSize
+				expectedExt string
+				extension   string
+				contentType string
+			}
+
+			test_cases := []TestStruct_ImageSize_Expected_Extension{{
+				// Origin will follow origin file's extension
+				ORIGIN,
+				"/avatar_origin_",
+				".png",
+				"image/png"}, {
+
+				// thumbnail always have png extension
+				THUMBNAIL,
+				"/avatar_thumbnail_",
+				".png",
+				"image/png"}, {
+
+				// detail always have png extension
+				DETAIL,
+				"/avatar_detail_",
+				".png",
+				"image/png"},
+			}
+			for _, test := range test_cases {
+				path := product.GetImagePath(AVATAR, test.size)
+				expected := "products/" +
+					strconv.FormatUint(uint64(product.Id), 10) +
+					test.expectedExt
+				Expect(path).To(ContainSubstring(expected))
+				Expect(path).To(ContainSubstring(test.extension))
+
+				retContentType := product.GetImageContentType(AVATAR, test.size)
+				Expect(retContentType).To(Equal(test.contentType))
+			}
+
+			// try again with jpg extension
+			product.Avatar = "dummyFile.jpg"
+			path := product.GetImagePath(AVATAR, ORIGIN)
+			expected := "products/" +
+				strconv.FormatUint(uint64(product.Id), 10) +
+				"/avatar_origin_"
+			Expect(path).To(ContainSubstring(expected))
+			Expect(path).To(ContainSubstring(".jpg"))
+
+			retContentType := product.GetImageContentType(AVATAR, ORIGIN)
 			Expect(retContentType).To(Equal("image/jpg"))
 		})
 
 		It("returns image url without image extension", func() {
-			// rename Image file name, so we don't use regex's result to give to file name
-			product.Image = "dummyFile"
-			path := product.GetImagePath(ORIGIN)
-			expected := "products/" +
-				strconv.FormatUint(uint64(product.Id), 10) +
-				"/origin."
-			Expect(path).To(ContainSubstring(expected))
-			Expect(path).NotTo(ContainSubstring(".png"))
+			var fields = []ImageField{IMAGE, AVATAR}
+			for _, field := range fields {
+				// rename Image file name, so we don't use regex's result to give to file name
+				product.Image = "dummyFile"
+				product.Avatar = "dummyFile"
+				path := product.GetImagePath(field, ORIGIN)
+				expected_image := "products/" +
+					strconv.FormatUint(uint64(product.Id), 10) +
+					"/image_origin_"
+				expected_avatar := "products/" +
+					strconv.FormatUint(uint64(product.Id), 10) +
+					"/avatar_origin_"
+				if field == IMAGE {
+					Expect(path).To(ContainSubstring(expected_image))
+				} else {
+					Expect(path).To(ContainSubstring(expected_avatar))
+				}
+				Expect(path).NotTo(ContainSubstring(".png"))
 
-			retContentType := product.GetImageContentType(ORIGIN)
-			Expect(retContentType).To(Equal("image"))
+				retContentType := product.GetImageContentType(field, ORIGIN)
+				Expect(retContentType).To(Equal("image"))
+			}
 		})
 
 		It("returns empty string, because the param is out of scope of enum ImageType", func() {
-			url := product.GetImagePath(99)
+			var fields = []ImageField{IMAGE, AVATAR}
+			for _, field := range fields {
+				url := product.GetImagePath(field, 99)
+				Expect(url).To(Equal(""))
+
+				retContentType := product.GetImageContentType(field, 99)
+				Expect(retContentType).To(Equal(""))
+			}
+
+			// finally, it will return empty string, because the param is out of scope of enum ImageField
+			url := product.GetImagePath(99, ORIGIN)
 			Expect(url).To(Equal(""))
 
-			retContentType := product.GetImageContentType(99)
+			retContentType := product.GetImageContentType(99, ORIGIN)
 			Expect(retContentType).To(Equal(""))
 		})
 	})
