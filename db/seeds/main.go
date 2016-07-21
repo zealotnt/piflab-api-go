@@ -17,9 +17,13 @@ func main() {
 		panic(err)
 	}
 
+	sJson := `{"no-image": "yes"}`
+	extraParams := make(map[string]interface{})
+	factory.Json2Map(sJson, extraParams)
+
 	if product_counts == 0 {
 		for i := 0; i < 10; i++ {
-			if _, err := factory.CreateProduct(app.DB); err != nil {
+			if _, err := factory.CreateProduct(app.DB, extraParams); err != nil {
 				panic(err)
 			}
 		}

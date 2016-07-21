@@ -30,6 +30,9 @@ func (form *UpdateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Status: binding.Field{
 			Form: "status",
 		},
+		&form.Detail: binding.Field{
+			Form: "detail",
+		},
 		&form.Image: binding.Field{
 			Form: "image",
 		},
@@ -37,15 +40,39 @@ func (form *UpdateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 }
 
 func (form *UpdateProductForm) Validate() error {
+	if form.Name != nil {
+		if *form.Name == "" {
+			return errors.New(VALIDATE_ERROR_MESSAGE["Required_Name"])
+		}
+	}
+
+	if form.Provider != nil {
+		if *form.Provider == "" {
+			return errors.New(VALIDATE_ERROR_MESSAGE["Required_Provider"])
+		}
+	}
+
 	if form.Rating != nil {
 		if *form.Rating > float32(5.0) {
-			return errors.New("Rating must be less than or equal to 5")
+			return errors.New(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Big"])
+		}
+		if *form.Rating < float32(0.0) {
+			return errors.New(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Small"])
 		}
 	}
 
 	if form.Status != nil {
+		if *form.Status == "" {
+			return errors.New(VALIDATE_ERROR_MESSAGE["Required_Status"])
+		}
 		if !stringInSlice(*form.Status, STATUS_OPTIONS) {
-			return errors.New("Status is invalid")
+			return errors.New(VALIDATE_ERROR_MESSAGE["Invalid_Status"])
+		}
+	}
+
+	if form.Detail != nil {
+		if *form.Detail == "" {
+			return errors.New(VALIDATE_ERROR_MESSAGE["Required_Detail"])
 		}
 	}
 
@@ -79,8 +106,14 @@ func (form *UpdateProductForm) Assign(product *Product) {
 		product.Status = *form.Status
 	}
 
+	if form.Detail != nil {
+		product.Detail = *form.Detail
+	}
+
 	if form.Image != nil {
-		product.Image = form.Image.Filename
+		product.NewImage = form.Image.Filename
 		product.ImageData = form.ImageData()
+		product.ImageThumbnailData = (ImageService{}).GetThumbnail(form.Image, 320)
+		product.ImageDetailData = (ImageService{}).GetDetail(form.Image, 550)
 	}
 }

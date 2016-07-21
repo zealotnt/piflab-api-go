@@ -19,8 +19,10 @@ var price = 70000
 var provider = "Microsoft"
 var rating = float32(3.5)
 var ratingBig = float32(5.1)
+var ratingLessThanZero = float32(-0.5)
 var status = "sale"
 var invalidStatus = "on sale"
+var detail = "some text"
 var image = new(multipart.FileHeader)
 
 func TestModels(t *testing.T) {

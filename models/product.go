@@ -20,23 +20,76 @@ type Product struct {
 	ImageThumbnailData []byte    `json:"-" sql:"-"`
 	ImageDetailData    []byte    `json:"-" sql:"-"`
 	Image              string    `json:"-"`
+	NewImage           string    `json:"-" sql:"-"`
 	ImageUpdatedAt     time.Time `json:"-"`
-	ImageUrl           string    `json:"image_url" sql:"-"`
-	ImageThumbnailUrl  string    `json:"image_thumbnail_url" sql:"-"`
-	ImageDetailUrl     string    `json:"image_detail_url" sql:"-"`
+	ImageUrl           *string   `json:"image_url" sql:"-"`
+	ImageThumbnailUrl  *string   `json:"image_thumbnail_url" sql:"-"`
+	ImageDetailUrl     *string   `json:"image_detail_url" sql:"-"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
 }
 
-type ImageType int
+type ProductSlice []Product
+
+type PageUrl struct {
+	Next     *string `json:"next"`
+	Previous *string `json:"previous"`
+}
+
+type ProductPage struct {
+	Data   *ProductSlice `json:"data"`
+	Paging PageUrl       `json:"paging"`
+}
+
+type ImageSize int
 
 const (
-	ORIGIN ImageType = iota
+	ORIGIN ImageSize = iota
 	THUMBNAIL
 	DETAIL
 )
 
-func (product *Product) GetImagePath(image ImageType) string {
+func getPage(offset uint, limit uint, total uint) PageUrl {
+	prevNum := uint64(offset - limit)
+	nextNum := uint64(offset + limit)
+	if offset < limit {
+		prevNum = 0
+	}
+	if total <= offset {
+		if total > limit {
+			prevNum = uint64(total - limit)
+		} else {
+			prevNum = 0
+		}
+	}
+	next := "/products/offset=" + strconv.FormatUint(nextNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+	previous := "/products/offset=" + strconv.FormatUint(prevNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+
+	if uint64(total) <= nextNum {
+		return PageUrl{
+			Previous: &previous,
+		}
+	}
+	if offset == 0 {
+		return PageUrl{
+			Next: &next,
+		}
+	}
+	return PageUrl{
+		Next:     &next,
+		Previous: &previous,
+	}
+
+}
+
+func (products ProductSlice) GetPaging(offset uint, limit uint, total uint) *ProductPage {
+	return &ProductPage{
+		Data:   &products,
+		Paging: getPage(offset, limit, total),
+	}
+}
+
+func (product *Product) GetImagePath(image ImageSize) string {
 	var prefix string
 	var extension string
 
@@ -62,9 +115,51 @@ func (product *Product) GetImagePath(image ImageType) string {
 	}
 
 	return "products/" + strconv.FormatUint(uint64(product.Id), 10) + prefix + strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10)
-
 }
 
-func (product *Product) GetImageUrl(image ImageType) (string, error) {
+func (product *Product) GetImageContentType(image ImageSize) string {
+	var extension string
+
+	switch image {
+	case ORIGIN:
+		re, _ := regexp.Compile(`.+\.(.+$)`)
+		if res := re.FindStringSubmatch(product.Image); res != nil {
+			extension = res[1]
+		} else {
+			return "image"
+		}
+	case THUMBNAIL:
+		extension = "png"
+	case DETAIL:
+		extension = "png"
+	default:
+		return ""
+	}
+
+	return "image/" + extension
+}
+
+func (product *Product) GetImageUrlType(image ImageSize) (string, error) {
 	return (FileService{}).GetProtectedUrl(product.GetImagePath(image), 15)
+}
+
+func (product *Product) GetImageUrl() error {
+	if product.Image == "" {
+		return nil
+	}
+
+	imageSizeList := [3]ImageSize{ORIGIN, THUMBNAIL, DETAIL}
+	urlResult := [3]string{}
+
+	for idx, _ := range imageSizeList {
+		var err error
+		if urlResult[idx], err = product.GetImageUrlType(imageSizeList[idx]); err != nil {
+			return err
+		}
+	}
+	product.ImageUrl = &urlResult[0]
+	product.ImageThumbnailUrl = &urlResult[1]
+	product.ImageDetailUrl = &urlResult[2]
+
+	return nil
 }

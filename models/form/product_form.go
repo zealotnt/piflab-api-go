@@ -16,6 +16,7 @@ type ProductForm struct {
 	Provider *string               `json:"provider"`
 	Rating   *float32              `json:"rating"`
 	Status   *string               `json:"status"`
+	Detail   *string               `json:"detail"`
 	Image    *multipart.FileHeader `json:"image"`
 }
 
@@ -23,6 +24,18 @@ var STATUS_OPTIONS = []string{
 	"sale",
 	"out of stock",
 	"available",
+}
+
+var VALIDATE_ERROR_MESSAGE = map[string]string{
+	"Required_Name":        "Name is required",
+	"Required_Price":       "Price is required",
+	"Required_Provider":    "Provider is required",
+	"Required_Rating":      "Rating is required",
+	"Required_Status":      "Status is required",
+	"Required_Detail":      "Detail is required",
+	"Invalid_Rating_Big":   "Rating must be less than or equal to 5",
+	"Invalid_Rating_Small": "Rating must be bigger than or equal to 0",
+	"Invalid_Status":       "Status is invalid",
 }
 
 func stringInSlice(a string, list []string) bool {
@@ -51,6 +64,9 @@ func (form *ProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Status: binding.Field{
 			Form: "status",
 		},
+		&form.Detail: binding.Field{
+			Form: "detail",
+		},
 		&form.Image: binding.Field{
 			Form: "image",
 		},
@@ -76,15 +92,26 @@ func (form *ProductForm) ImageData() []byte {
 }
 
 func (form *ProductForm) Product() *Product {
+	if form.Image != nil {
+		return &Product{
+			Name:               *form.Name,
+			Price:              *form.Price,
+			Provider:           *form.Provider,
+			Rating:             *form.Rating,
+			Status:             *form.Status,
+			Detail:             *form.Detail,
+			Image:              form.Image.Filename,
+			ImageData:          form.ImageData(),
+			ImageThumbnailData: (ImageService{}).GetThumbnail(form.Image, 320),
+			ImageDetailData:    (ImageService{}).GetDetail(form.Image, 550),
+		}
+	}
 	return &Product{
-		Name:               *form.Name,
-		Price:              *form.Price,
-		Provider:           *form.Provider,
-		Rating:             *form.Rating,
-		Status:             *form.Status,
-		Image:              form.Image.Filename,
-		ImageData:          form.ImageData(),
-		ImageThumbnailData: (ImageService{}).GetThumbnail(form.Image, 320),
-		ImageDetailData:    (ImageService{}).GetDetail(form.Image, 550),
+		Name:     *form.Name,
+		Price:    *form.Price,
+		Provider: *form.Provider,
+		Rating:   *form.Rating,
+		Status:   *form.Status,
+		Detail:   *form.Detail,
 	}
 }

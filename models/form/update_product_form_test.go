@@ -31,21 +31,57 @@ var _ = Describe("ValidateUpdateProductForm", func() {
 			"provider": provider,
 			"rating":   strconv.FormatFloat(float64(rating), 'f', 1, 32),
 			"status":   status,
+			"detail":   detail,
 		}
+	})
+
+	It(`tries to update with empty "name" field`, func() {
+		extraParams["name"] = ""
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Name"]))
+	})
+
+	It(`tries to update with empty "provider" field`, func() {
+		extraParams["provider"] = ""
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Provider"]))
 	})
 
 	It("has exceeded rating limit", func() {
 		extraParams["rating"] = strconv.FormatFloat(float64(ratingBig), 'f', 1, 32)
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Rating must be less than or equal to 5"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Big"]))
+	})
+
+	It("has zero rating value", func() {
+		extraParams["rating"] = strconv.FormatFloat(float64(ratingLessThanZero), 'f', 1, 32)
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Rating_Small"]))
+	})
+
+	It(`tries to update with empty "status" field`, func() {
+		extraParams["status"] = ""
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Status"]))
 	})
 
 	It("has invalid status", func() {
 		extraParams["status"] = invalidStatus
 		BindForm(&form, extraParams, "")
 		err := form.Validate()
-		Expect(err.Error()).To(ContainSubstring("Status is invalid"))
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Invalid_Status"]))
+	})
+
+	It(`tries to update with empty "detail" field`, func() {
+		extraParams["detail"] = ""
+		BindForm(&form, extraParams, "")
+		err := form.Validate()
+		Expect(err.Error()).To(ContainSubstring(VALIDATE_ERROR_MESSAGE["Required_Detail"]))
 	})
 
 	It("has invalid image extension", func() {
@@ -81,6 +117,7 @@ var _ = Describe("ValidateUpdateProductForm", func() {
 		Expect(product.Provider).To(Equal(provider))
 		Expect(product.Rating).To(Equal(rating))
 		Expect(product.Status).To(Equal(status))
+		Expect(product.Detail).To(Equal(detail))
 		Expect(len(product.ImageData)).To(Equal(len(form.ImageData())))
 	})
 

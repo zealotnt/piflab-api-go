@@ -1,21 +1,17 @@
 package models_test
 
 import (
+	"github.com/o0khoiclub0o/piflab-store-api-go/db/seeds/factory"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/handlers"
 	"github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"mime/multipart"
-	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 )
 
@@ -29,6 +25,15 @@ var app *lib.App
 var _ = BeforeSuite(func() {
 	app = lib.NewApp()
 	app.AddRoutes(GetRoutes())
+
+	By("Automatically create some non-image products")
+	sJson := `{"no-image": "yes"}`
+	extraParams := make(map[string]interface{})
+	factory.Json2Map(sJson, extraParams)
+	for i := 0; i < 10; i++ {
+		_, err := factory.CreateProduct(app.DB, extraParams)
+		Expect(err).To(BeNil())
+	}
 })
 
 var _ = AfterSuite(func() {
@@ -62,29 +67,4 @@ func getFirstAvailableId(response *httptest.ResponseRecorder) uint {
 func getFirstAvailableUrl() string {
 	response := Request("GET", "/products", "")
 	return fmt.Sprintf("/products/%d", getFirstAvailableId(response))
-}
-
-func RequestPost(method string, route string) *httptest.ResponseRecorder {
-	bodyBuf := &bytes.Buffer{}
-	bodyWriter := multipart.NewWriter(bodyBuf)
-	fileWriter, _ := bodyWriter.CreateFormFile("image", "golang.png")
-	fh, _ := os.Open(os.Getenv("FULL_IMPORT_PATH") + "/db/seeds/factory/golang.png")
-	io.Copy(fileWriter, fh)
-	bodyWriter.WriteField("name", "xbox")
-	bodyWriter.WriteField("price", "70000")
-	bodyWriter.WriteField("provider", "Microsoft")
-	bodyWriter.WriteField("rating", "3.5")
-	bodyWriter.WriteField("status", "sale")
-	bodyWriter.Close()
-
-	request, _ := http.NewRequest(method, route, bodyBuf)
-
-	request.RemoteAddr = "127.0.0.1:8080"
-	contentType := bodyWriter.FormDataContentType()
-	request.Header.Set("Content-Type", contentType)
-
-	response := httptest.NewRecorder()
-	app.ServeHTTP(response, request)
-
-	return response
 }

@@ -18,6 +18,7 @@ var _ = Describe("ProductRepositoryTest", func() {
 	testRating := float32(3.0)
 	testStatus := "sale"
 	testDetail := "Lorem Ipsum"
+	testImageName := "golang.png"
 	testImageData := []byte("Some miscellaneous data")
 	testImageThumbnail := []byte("Some miscellaneous thumbnail data")
 	testImageDetail := []byte("Some miscellaneous detail data")
@@ -34,6 +35,7 @@ var _ = Describe("ProductRepositoryTest", func() {
 			Rating:             testRating,
 			Status:             testStatus,
 			Detail:             testDetail,
+			Image:              testImageName,
 			ImageData:          testImageData,
 			ImageThumbnailData: testImageThumbnail,
 			ImageDetailData:    testImageDetail,
@@ -89,7 +91,7 @@ var _ = Describe("ProductRepositoryTest", func() {
 		Expect(err.Error()).To(ContainSubstring("record not found"))
 	})
 
-	It("Fail to create/update/delete due to wrong AWS key", func() {
+	It("Fail to create/update/delete due to wrong AWS Bucket name", func() {
 		/* Create a temporary record */
 		err := ProductRepository{app.DB}.SaveProduct(&product)
 		Expect(err).To(BeNil())
@@ -116,15 +118,28 @@ var _ = Describe("ProductRepositoryTest", func() {
 		Expect(err).To(BeNil())
 	})
 
-	Describe("Test GetAll and CountProduct", func() {
+	Describe("Test GetAll", func() {
 		It("return same number of element", func() {
-			product, err := ProductRepository{app.DB}.GetAll()
+			products, err := ProductRepository{app.DB}.GetAll()
 			Expect(err).To(BeNil())
 
 			count, err := ProductRepository{app.DB}.CountProduct()
 			Expect(err).To(BeNil())
 
-			Expect(len(*product)).To(Equal(count))
+			Expect(uint(len(*products))).To(Equal(count))
+		})
+	})
+
+	Describe("Test GetPage", func() {
+		It("get one product successffully", func() {
+			products, count, err := ProductRepository{app.DB}.GetPage(0, 1)
+			Expect(err).To(BeNil())
+
+			all, err := ProductRepository{app.DB}.CountProduct()
+			Expect(err).To(BeNil())
+
+			Expect(len(*products)).To(Equal(1))
+			Expect(count).To(Equal(all))
 		})
 	})
 

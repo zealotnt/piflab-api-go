@@ -12,7 +12,8 @@ packages=(
 
 if [ "$COVERALLS_TOKEN" == "" ]
 then
-	# ginkgo -r -cover -skipPackage=handlers,models,services,repository,form	//skip all
+	reset
+	# ginkgo -r -cover -skipPackage=handlers,models,services,repository,form	# skip all
 	ginkgo -r -cover
 fi
 
@@ -32,4 +33,4 @@ if [ -n "$COVERALLS_TOKEN" ]
 then
 	goveralls -coverprofile=piflab-store-api-go.coverprofile -service circleci -repotoken $COVERALLS_TOKEN
 	rm ./piflab-store-api-go.coverprofile
-fi	
+fi

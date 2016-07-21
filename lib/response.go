@@ -37,7 +37,8 @@ func Image(w http.ResponseWriter, img image.Image) {
 
 func setHTTPStatus(w http.ResponseWriter, params []interface{}) {
 	w.Header().Add("Access-Control-Allow-Origin", `*`)
-	w.Header().Add("Access-Control-Allow-Methods", `GET, POST, PUT, DELETE`)
+	w.Header().Add("Access-Control-Allow-Methods", `GET, POST, PUT, DELETE, OPTIONS`)
+	w.Header().Set("Content-Type", `application/json`)
 
 	if len(params) == 2 {
 		status := params[1].(int)

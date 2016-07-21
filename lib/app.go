@@ -39,12 +39,19 @@ func (app *App) Close() {
 func (app *App) AddRoutes(routes Routes) {
 	for _, route := range routes {
 		handler := Logger(route.Handler(app))
+		if route.Method == "OPTIONS" {
+			app.router.
+				// Match all url
+				Methods(route.Method).
+				Handler(handler)
+		} else {
+			app.router.
+				// Name(route.Name).
+				Methods(route.Method).
+				Path(route.Pattern).
+				Handler(handler)
+		}
 
-		app.router.
-			// Name(route.Name).
-			Methods(route.Method).
-			Path(route.Pattern).
-			Handler(handler)
 	}
 }
 
@@ -72,9 +79,6 @@ func (app *App) Request(method string, route string, body interface{}) *httptest
 	}
 
 	request.RemoteAddr = "127.0.0.1:8080"
-
-	if method == "POST" || method == "PUT" {
-	}
 
 	response := httptest.NewRecorder()
 	app.ServeHTTP(response, request)
