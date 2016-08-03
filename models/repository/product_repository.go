@@ -19,7 +19,7 @@ func (repo ProductRepository) FindById(id uint) (*Product, error) {
 		return nil, err
 	}
 
-	err = product.GetImageUrl()
+	product.GetImageUrl()
 
 	return product, err
 }
@@ -49,49 +49,41 @@ func (repo ProductRepository) GetPage(offset uint, limit uint) (*ProductSlice, u
 }
 
 func (repo ProductRepository) saveFile(product *Product) error {
+	type image_to_save struct {
+		data  *[]byte
+		field ImageField
+		size  ImageSize
+	}
+
 	if product.Image != "" {
-		if err := (FileService{}).SaveFile(
-			product.ImageData,
-			product.GetImagePath(IMAGE, ORIGIN),
-			product.GetImageContentType(IMAGE, ORIGIN)); err != nil {
-			return err
-		}
+		var images = []image_to_save{
+			{&product.ImageData, IMAGE, ORIGIN},
+			{&product.ImageThumbnailData, IMAGE, THUMBNAIL},
+			{&product.ImageDetailData, IMAGE, DETAIL}}
 
-		if err := (FileService{}).SaveFile(
-			product.ImageThumbnailData,
-			product.GetImagePath(IMAGE, THUMBNAIL),
-			product.GetImageContentType(IMAGE, THUMBNAIL)); err != nil {
-			return err
-		}
-
-		if err := (FileService{}).SaveFile(
-			product.ImageDetailData,
-			product.GetImagePath(IMAGE, DETAIL),
-			product.GetImageContentType(IMAGE, DETAIL)); err != nil {
-			return err
+		for _, image := range images {
+			if err := (FileService{}).SaveFile(
+				*image.data,
+				product.GetImagePath(image.field, image.size),
+				product.GetImageContentType(image.field, image.size)); err != nil {
+				return err
+			}
 		}
 	}
 
 	if product.Avatar != "" {
-		if err := (FileService{}).SaveFile(
-			product.AvatarData,
-			product.GetImagePath(AVATAR, ORIGIN),
-			product.GetImageContentType(AVATAR, ORIGIN)); err != nil {
-			return err
-		}
+		var images = []image_to_save{
+			{&product.AvatarData, AVATAR, ORIGIN},
+			{&product.AvatarThumbnailData, AVATAR, THUMBNAIL},
+			{&product.AvatarDetailData, AVATAR, DETAIL}}
 
-		if err := (FileService{}).SaveFile(
-			product.AvatarThumbnailData,
-			product.GetImagePath(AVATAR, THUMBNAIL),
-			product.GetImageContentType(AVATAR, THUMBNAIL)); err != nil {
-			return err
-		}
-
-		if err := (FileService{}).SaveFile(
-			product.AvatarDetailData,
-			product.GetImagePath(AVATAR, DETAIL),
-			product.GetImageContentType(AVATAR, DETAIL)); err != nil {
-			return err
+		for _, image := range images {
+			if err := (FileService{}).SaveFile(
+				*image.data,
+				product.GetImagePath(image.field, image.size),
+				product.GetImageContentType(image.field, image.size)); err != nil {
+				return err
+			}
 		}
 	}
 

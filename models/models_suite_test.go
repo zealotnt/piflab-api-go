@@ -44,13 +44,13 @@ func Request(method string, route string, body string) *httptest.ResponseRecorde
 	return app.Request(method, route, body)
 }
 
-func getProducts(body []byte) (*[]Product, error) {
-	products := &[]Product{}
-	if err := json.Unmarshal(body, &products); err != nil {
+func getProducts(body []byte) (*ProductSlice, error) {
+	products_pages := ProductPage{}
+	if err := json.Unmarshal(body, &products_pages); err != nil {
 		return nil, err
 	}
 
-	return products, nil
+	return products_pages.Data, nil
 }
 
 func getFirstAvailableId(response *httptest.ResponseRecorder) uint {
@@ -62,6 +62,21 @@ func getFirstAvailableId(response *httptest.ResponseRecorder) uint {
 	}
 
 	return 0
+}
+
+func getProductThatHasImage() *Product {
+	response := Request("GET", "/products?offset=0&limit=100", "")
+	body, _ := ioutil.ReadAll(response.Body)
+
+	if products, _ := getProducts(body); products != nil {
+		for _, product := range *products {
+			if product.ImageUrl != nil {
+				return &product
+			}
+		}
+	}
+
+	return nil
 }
 
 func getFirstAvailableUrl() string {

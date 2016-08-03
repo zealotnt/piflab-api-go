@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	// "strconv"
 )
 
 type ParamBindingTest struct {
@@ -62,19 +63,31 @@ var _ = Describe("product_handlers Test", func() {
 	})
 
 	var _ = Describe("GetPageProductsHandler Test", func() {
-		It("has erroneous parameters binding result, returns 400", func() {
+		It(`has erroneous parameters binding result, 
+			returns 200, 
+			returns with assume default value of offset=0, limit=10`, func() {
 			var test_cases = []ParamBindingTest{
-				{`/products/offset=0&limit=0`, `Limit must bigger than 0`},
-				{`/products/offset=0&limit=-1`, `Limit must bigger than 0`},
-				{`/products/offset=0&limit=-1ab`, `Error when parsing limit parameter`},
-				{`/products/offset=-1&limit=0`, `Offset must bigger than or equal to 0`},
-				{`/products/offset=-1a&limit=0`, `Error when parsing offset parameter`},
+				{`/products?offset=0&limit=0`, ``},
+				{`/products?offset=0&limit=-1`, ``},
+				{`/products?offset=0&limit=-1ab`, ``},
+				{`/products?offset=-1&limit=0`, ``},
+				{`/products?offset=-1a&limit=0`, ``},
 			}
 
 			for _, test := range test_cases {
 				response := Request("GET", test.param, "")
-				Expect(response.Code).To(Equal(400))
-				Expect(response.Body).To(ContainSubstring(test.expect))
+				Expect(response.Code).To(Equal(200))
+
+				/* Parse response's body */
+				// body, _ := ioutil.ReadAll(response.Body)
+
+				/* Deserialize json */
+				// product_page := ProductPage{}
+				// err := json.Unmarshal(body, &product_page)
+
+				// next_num, _ := strconv.Atoi(*product_page.Paging.Next)
+				// Expect(len(*product_page.Data)).To(Equal(next_num))
+				// Expect(err).To(BeNil())
 			}
 		})
 
@@ -83,7 +96,7 @@ var _ = Describe("product_handlers Test", func() {
 			app.Close()
 
 			/* Fail to GET products */
-			response := Request("GET", `/products/offset=0&limit=1`, "")
+			response := Request("GET", `/products?offset=0&limit=1`, "")
 			Expect(response.Code).To(Equal(500))
 			Expect(response.Body).To(ContainSubstring("database is closed"))
 
@@ -94,7 +107,7 @@ var _ = Describe("product_handlers Test", func() {
 
 		It("gets first product successfully", func() {
 			/* Get a product */
-			response := Request("GET", `/products/offset=0&limit=1`, "")
+			response := Request("GET", `/products?offset=0&limit=1`, "")
 			Expect(response.Code).To(Equal(200))
 			Expect(response.Header().Get(`Content-Type`)).To(Equal(`application/json`))
 

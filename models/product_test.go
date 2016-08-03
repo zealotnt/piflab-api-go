@@ -30,6 +30,16 @@ var _ = Describe("Product Test", func() {
 		}
 	})
 
+	var _ = Describe("GetImageUrl Test", func() {
+		It("returns valid image url", func() {
+			product_that_has_image := getProductThatHasImage()
+			product_that_has_image.GetImageUrl()
+			Expect(*product_that_has_image.ImageUrl).NotTo(BeNil())
+			Expect(*product_that_has_image.ImageThumbnailUrl).NotTo(BeNil())
+			Expect(*product_that_has_image.ImageDetailUrl).NotTo(BeNil())
+		})
+	})
+
 	var _ = Describe("GetImageUrlType Test", func() {
 		It("returns valid image url, base on ORIGIN ImageType", func() {
 			_, err := product.GetImageUrlType(IMAGE, ORIGIN)
@@ -206,8 +216,8 @@ var _ = Describe("ProductSlice Test", func() {
 			/*1*/
 			description: `Get only 1 product per page, with offset=0.` +
 				`Return val should contain valid "next" field, and null "previous" field`,
-			url:    `/products/offset=0&limit=1`,
-			expect: `"paging":{"next":"/products/offset=1\u0026limit=1","previous":null}`}, {
+			url:    `/products?offset=0&limit=1`,
+			expect: `"paging":{"next":"/products?offset=1\u0026limit=1","previous":null}`}, {
 
 			/*2*/
 			description: `Get page with very big offset (bigger than maximum current product).
@@ -215,9 +225,9 @@ var _ = Describe("ProductSlice Test", func() {
 				+ Return all of the products, if "limit" > "product_counts"
 				+ Return "limit" number of products, if "limit" < "products_counts"
 				--> Return "limit" number of products, if "limit" < "products_counts"`,
-			url: `/products/offset=` + strconv.FormatUint(uint64(product_counts), 10) +
+			url: `/products?offset=` + strconv.FormatUint(uint64(product_counts), 10) +
 				`&limit=1`,
-			expect: `"paging":{"next":null,"previous":"/products/offset=` +
+			expect: `"paging":{"next":null,"previous":"/products?offset=` +
 				strconv.FormatUint(uint64(product_counts-1), 10) +
 				`\u0026limit=1"}`}, {
 
@@ -227,22 +237,22 @@ var _ = Describe("ProductSlice Test", func() {
 				+ Return all of the products, if "limit" > "product_counts"
 				+ Return "limit" number of products, if "limit" < "products_counts"
 				--> Return all of the products, if "limit" > "product_counts"`,
-			url: `/products/offset=` +
+			url: `/products?offset=` +
 				strconv.FormatUint(uint64(product_counts), 10) +
 				`&limit=` +
 				strconv.FormatUint(uint64(product_counts), 10),
-			expect: `"paging":{"next":null,"previous":"/products/offset=0\u0026limit=` +
+			expect: `"paging":{"next":null,"previous":"/products?offset=0\u0026limit=` +
 				strconv.FormatUint(uint64(product_counts), 10)}, {
 
 			/*4*/
 			description: `Get page with offset in the "middle" position of products
 				with the "limit" value that doesn't exceed the maximum "product_counts".
 				So the result will contain both "next" field, and "previous" field`,
-			url: `/products/offset=` + strconv.FormatUint(uint64(product_counts/2), 10) +
+			url: `/products?offset=` + strconv.FormatUint(uint64(product_counts/2), 10) +
 				`&limit=1`,
-			expect: `"paging":{"next":"/products/offset=` +
+			expect: `"paging":{"next":"/products?offset=` +
 				strconv.FormatUint(uint64(product_counts/2+1), 10) + `\u0026limit=1",` +
-				`"previous":"/products/offset=` +
+				`"previous":"/products?offset=` +
 				strconv.FormatUint(uint64(product_counts/2-1), 10) + `\u0026limit=1`},
 		}
 
