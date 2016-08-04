@@ -3,6 +3,79 @@ HOST: https://store-api.piflab.io/
 
 # PIF Lab Store API
 
+## Cart Colllection [/cart]
+
+### Get Cart API [GET/cart/item?access_token="abc"]
+
++ Response 200 (application/json)
+        {
+            "items": [
+                {
+                    "id": 1,
+                    "product_id": 1,
+                    "name": "ABC",
+                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                    "price": 10000,
+                    "quantity": 1
+                }
+            ],
+            "amounts": {
+                total: 70000
+            },
+            "access_token": "2"
+        }
+
+### Create Cart API [PUT/cart/item]
+It creates a cart
+
++ Request (application/x-www-form-urlencoded)
+
+        product_id=1&quantity=1
+
++ Response 201 (application/json)
+
+        {
+            "access_token": "def",
+            "items": [
+                {
+                    "id": 11,
+                    "product_id": 1,
+                    "name": "XBox",
+                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                    "price": 70000,
+                    "quantity": 1
+                }
+            ],
+            "amounts": {
+                total: 70000
+            },
+        }
+
+### Update Cart API [PUT/cart/item{?access_token}]
+It updates a cart
+
++ Request (application/x-www-form-urlencoded)
+
+        product_id=1&quantity=1&access_token="def"
+
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 11,
+                    "product_id": 1,
+                    "name": "XBox",
+                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                    "price": 70000,
+                    "quantity": 2
+                }
+            ],
+            "amounts": {
+                total: 70000
+            },
+        }
+
 ## Products Colllection [/products]
 
 ### Get Products API [GET]

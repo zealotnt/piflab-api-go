@@ -12,5 +12,7 @@ func GetRoutes() Routes {
 		Route{"PUT", "/products/{id}", UpdateProductHandler},
 		Route{"DELETE", "/products/{id}", DeleteProductHandler},
 		Route{"OPTIONS", "", OptionHandler},
+		Route{"GET", "/cart", GetCartHandler},
+		Route{"PUT", "/cart/items", UpdateCartHandler},
 	}
 }
