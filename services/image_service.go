@@ -47,7 +47,7 @@ func (service ImageService) GetThumbnail(file ImageFile, size int) []byte {
 		return nil
 	}
 
-	dstImage := imaging.Fit(srcImage, size, size, imaging.Lanczos)
+	dstImage := imaging.Fill(srcImage, size, size, imaging.Center, imaging.Lanczos)
 
 	dataBytes := new(bytes.Buffer)
 

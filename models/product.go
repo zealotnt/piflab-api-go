@@ -81,8 +81,8 @@ func getPage(offset uint, limit uint, total uint) PageUrl {
 			prevNum = 0
 		}
 	}
-	next := "/products/offset=" + strconv.FormatUint(nextNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
-	previous := "/products/offset=" + strconv.FormatUint(prevNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+	next := "/products?offset=" + strconv.FormatUint(nextNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+	previous := "/products?offset=" + strconv.FormatUint(prevNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
 
 	if uint64(total) <= nextNum {
 		return PageUrl{
@@ -188,7 +188,7 @@ func (product *Product) GetImageUrlType(field ImageField, image ImageSize) (stri
 	return (FileService{}).GetProtectedUrl(product.GetImagePath(field, image), 15)
 }
 
-func (product *Product) GetImageUrl() error {
+func (product *Product) GetImageUrl() {
 	imageSizeList := [3]ImageSize{ORIGIN, THUMBNAIL, DETAIL}
 	urlResult := [3]string{}
 
@@ -205,7 +205,7 @@ func (product *Product) GetImageUrl() error {
 
 check_avatar:
 	if product.Avatar == "" {
-		return nil
+		return
 	}
 
 	for idx, _ := range imageSizeList {
@@ -214,6 +214,4 @@ check_avatar:
 	product.AvatarUrl = &urlResult[0]
 	product.AvatarThumbnailUrl = &urlResult[1]
 	product.AvatarDetailUrl = &urlResult[2]
-
-	return nil
 }

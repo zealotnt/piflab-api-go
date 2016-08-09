@@ -8,39 +8,22 @@ import (
 	"net/http"
 )
 
-func GetAllProductsHandler(app *App) HandlerFunc {
+func GetProductsHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		products, err := ProductRepository{app.DB}.GetAll()
+		form := new(GetProductForm)
 
+		if err := Bind(form, r); err != nil {
+			form.Offset = 0
+			form.Limit = 10
+		}
+
+		products, total, err := ProductRepository{app.DB}.GetPage(form.Offset, form.Limit)
 		if err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		JSON(w, products)
-	}
-}
-
-func GetPageProductsHandler(app *App) HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		offset, err := c.Offset()
-		if err != nil {
-			JSON(w, err, 400)
-			return
-		}
-		limit, err := c.Limit()
-		if err != nil {
-			JSON(w, err, 400)
-			return
-		}
-		products, total, err := ProductRepository{app.DB}.GetPage(offset, limit)
-
-		if err != nil {
-			JSON(w, err, 500)
-			return
-		}
-
-		JSON(w, products.GetPaging(offset, limit, total))
+		JSON(w, products.GetPaging(form.Offset, form.Limit, total))
 	}
 }
 
