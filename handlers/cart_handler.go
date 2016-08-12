@@ -55,6 +55,9 @@ func UpdateCartHandler(app *App) HandlerFunc {
 			JSON(w, err, 500)
 			return
 		}
+
+		cart.RemoveZeroQuantityItems()
+
 		cart.CalculateAmount()
 
 		JSON(w, cart)

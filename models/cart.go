@@ -52,3 +52,12 @@ func (cart *Cart) CalculateAmount() {
 		cart.Amounts += uint(item.ProductPrice) * uint(item.Quantity)
 	}
 }
+
+func (cart *Cart) RemoveZeroQuantityItems() {
+	for idx, _ := range cart.Items {
+		if cart.Items[idx].Quantity <= 0 {
+			cart.Items = append(cart.Items[:idx], cart.Items[idx+1:]...)
+			return
+		}
+	}
+}
