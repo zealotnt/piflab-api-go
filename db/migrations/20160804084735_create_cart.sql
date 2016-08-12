@@ -4,7 +4,7 @@
 -- +goose StatementBegin
 CREATE TABLE carts (
 	id SERIAL PRIMARY KEY,
-	access_token TEXT NOT NULL,
+	access_token TEXT NOT NULL UNIQUE,
 	status varchar(50)
 );
 CREATE TABLE cart_items (

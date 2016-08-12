@@ -1,17 +1,41 @@
 package repository
 
 import (
+	"github.com/icrowley/fake"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 
-	"strconv"
+	"errors"
+	"math/rand"
+	"time"
 )
 
 type CartRepository struct {
 	*DB
 }
 
-func (repo CartRepository) GetCartItemsInfo(cart *Cart) {
+func (repo CartRepository) generateAccessToken(cart *Cart) error {
+	rand.Seed(time.Now().UTC().UnixNano())
+
+try_gen_other_value:
+	cart.AccessToken = fake.CharactersN(32)
+
+	temp_cart := &Cart{}
+	if err := repo.DB.Where("access_token = ?", cart.AccessToken).Find(temp_cart).Error; err != nil {
+		// Check if err is not found -> access_token is unique
+		if err.Error() == "record not found" {
+			return nil
+		}
+
+		// Otherwise, this is database operation error
+		return errors.New("Database error")
+	}
+
+	// duplicate, try again
+	goto try_gen_other_value
+}
+
+func (repo CartRepository) getCartItemsInfo(cart *Cart) {
 	for idx, item := range cart.Items {
 		product := &Product{}
 		product.Id = item.ProductId
@@ -28,16 +52,17 @@ func (repo CartRepository) clearNullQuantity() {
 }
 
 func (repo CartRepository) createCart(cart *Cart) error {
+	if err := repo.generateAccessToken(cart); err != nil {
+		return err
+	}
+
 	if err := repo.DB.Create(cart).Error; err != nil {
 		return err
 	}
-	cart.AccessToken = strconv.FormatUint(uint64(cart.Id), 10)
 
-	err := repo.DB.Save(cart).Error
+	repo.getCartItemsInfo(cart)
 
-	repo.GetCartItemsInfo(cart)
-
-	return err
+	return nil
 }
 
 func (repo CartRepository) updateCart(cart *Cart) error {
@@ -55,6 +80,8 @@ func (repo CartRepository) updateCart(cart *Cart) error {
 	// Don't return access_token when updating
 	cart.AccessToken = ""
 
+	repo.getCartItemsInfo(cart)
+
 	return nil
 }
 
@@ -62,16 +89,19 @@ func (repo CartRepository) GetCart(access_token string) (*Cart, error) {
 	cart := &Cart{}
 	items := &[]CartItem{}
 
+	// find a cart by its access_token
 	if err := repo.DB.Where("access_token = ?", access_token).Find(cart).Error; err != nil {
 		return nil, err
 	}
 
+	// use cart.Id to find its CartItem data (cart.Id is its forein key)
 	if err := repo.DB.Where("cart_id = ?", cart.Id).Find(items).Error; err != nil {
 		return nil, err
 	}
 
+	// use the cart.Items to update products information
 	cart.Items = *items
-	repo.GetCartItemsInfo(cart)
+	repo.getCartItemsInfo(cart)
 
 	return cart, nil
 }

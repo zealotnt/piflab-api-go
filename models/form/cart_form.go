@@ -59,12 +59,18 @@ func (form *CartForm) GenerateToken() string {
 
 func (form *CartForm) Cart(app *App) (*Cart, error) {
 	var cart = new(Cart)
+	var err error
 
 	if form.AccessToken != nil {
-		cart, _ = (CartRepository{app.DB}).GetCart(*form.AccessToken)
+		if cart, err = (CartRepository{app.DB}).GetCart(*form.AccessToken); err != nil {
+			if err.Error() == "record not found" {
+				return cart, errors.New("Access Token is invalid")
+			}
+			return cart, err
+		}
 	}
 
-	err := cart.UpdateItems(*form.Product_Id, *form.Quantity)
+	err = cart.UpdateItems(*form.Product_Id, *form.Quantity)
 
 	return cart, err
 }
