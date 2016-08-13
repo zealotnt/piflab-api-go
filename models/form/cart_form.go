@@ -37,7 +37,7 @@ func (form *CartForm) Validate(method string) error {
 		}
 	}
 
-	if method == "PUT" {
+	if method == "PUT_CART" {
 		if form.Product_Id == nil {
 			return errors.New("No Product selected")
 		}
@@ -53,6 +53,20 @@ func (form *CartForm) Validate(method string) error {
 	if method == "DELETE" {
 		if form.AccessToken == nil {
 			return errors.New("Access Token is required")
+		}
+	}
+
+	if method == "PUT_ITEM" {
+		// don't use product_id when update Cart Item
+		if form.Product_Id != nil {
+			form.Product_Id = nil
+		}
+
+		if form.Quantity == nil {
+			return errors.New("No Quantity specified")
+		}
+		if *form.Quantity < 0 {
+			return errors.New("Quantity should bigger or equal to 0")
 		}
 	}
 
@@ -79,6 +93,11 @@ func (form *CartForm) Cart(app *App) (*Cart, error) {
 	// DELETE method should not update
 	if form.Product_Id != nil && form.Quantity != nil {
 		err = cart.UpdateItems(*form.Product_Id, *form.Quantity)
+	}
+
+	// PUT CartItem, should retrieve ProductId based on ItemId
+	if form.Product_Id == nil && form.Quantity != nil {
+
 	}
 
 	return cart, err
