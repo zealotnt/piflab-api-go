@@ -15,8 +15,8 @@ type Cart struct {
 }
 
 type CartItem struct {
-	Id                       uint    `json:"-"`
-	CartId                   uint    `json:"id" sql:"REFERENCES carts(id)"`
+	Id                       uint    `json:"item_id" sql:"id"`
+	CartId                   uint    `json:"-" sql:"REFERENCES carts(id)"`
 	ProductId                uint    `json:"product_id" sql:"REFERENCES products(id)"`
 	ProductName              string  `json:"name" sql:"-"`
 	ProductImageThumbnailUrl *string `json:"image_thumbnail_url" sql:"-"`

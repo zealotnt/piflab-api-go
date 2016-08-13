@@ -112,3 +112,25 @@ func (repo CartRepository) SaveCart(cart *Cart) error {
 	}
 	return repo.updateCart(cart)
 }
+
+func (repo CartRepository) DeleteCartItem(cart *Cart, item_id uint) error {
+	item := CartItem{}
+
+	// use cart.Id to find its CartItem data (cart.Id is its forein key)
+	if err := repo.DB.Where("id = ? AND cart_id = ?", item_id, cart.Id).Find(&item).Error; err != nil {
+		if err.Error() == "record not found" {
+			return errors.New("Not found Item Id in Cart")
+		}
+
+		return err
+	}
+
+	repo.DB.Delete(&item)
+
+	// use cart.Id to find its CartItem data (cart.Id is its forein key)
+	items := &[]CartItem{}
+	repo.DB.Where("cart_id = ?", cart.Id).Find(items)
+	cart.Items = *items
+
+	return nil
+}

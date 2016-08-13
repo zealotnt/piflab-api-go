@@ -5,13 +5,15 @@ HOST: https://store-api.piflab.io/
 
 ## Cart Colllection [/cart]
 
-### Get Cart API [GET/cart/item?access_token="abc"]
+### Get Cart API [GET/cart?access_token="abc"]
+It retrieve Cart information, Access Token must be provided
 
 + Response 200 (application/json)
+
         {
             "items": [
                 {
-                    "id": 1,
+                    "item_id": 1,
                     "product_id": 1,
                     "name": "ABC",
                     "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
@@ -22,10 +24,16 @@ HOST: https://store-api.piflab.io/
             "amounts": {
                 total: 70000
             },
-            "access_token": "2"
+            "access_token": "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm"
         }
 
-### Create Cart API [PUT/cart/item]
++ Response 401 (application/json)
+
+        {
+            error: "Access Token is required"
+        }
+
+### Create Cart API [PUT/cart]
 It creates a cart
 
 + Request (application/x-www-form-urlencoded)
@@ -35,10 +43,10 @@ It creates a cart
 + Response 201 (application/json)
 
         {
-            "access_token": "def",
+            "access_token": "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm",
             "items": [
                 {
-                    "id": 11,
+                    "item_id": 11,
                     "product_id": 1,
                     "name": "XBox",
                     "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
@@ -51,29 +59,114 @@ It creates a cart
             },
         }
 
-### Update Cart API [PUT/cart/item{?access_token}]
+### Update Cart API [PUT/cart{?access_token}]
 It updates a cart
+
++ Parameters
+    + access_token: "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm" (string) - Acess Token of Cart to be updated
 
 + Request (application/x-www-form-urlencoded)
 
-        product_id=1&quantity=1&access_token="def"
+        product_id=2&quantity=1
 
 + Response 200 (application/json)
 
         {
             "items": [
                 {
-                    "id": 11,
+                    "item_id": 11,
+                    "product_id": 1,
+                    "name": "XBox",
+                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                    "price": 70000,
+                    "quantity": 1
+                },
+               {
+                    "item_id": 12,
+                    "product_id": 2,
+                    "name": "PS3",
+                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244676.png",
+                    "price": 50000,
+                    "quantity": 1
+                }                
+            ],
+            "amounts": {
+                total: 120000
+            },
+        }
+
+### Update Cart Item API [PUT/cart/{item}{?access_token}]
+It updates quantity of item in a cart
+
++ Parameters
+    + item: `1` (number) - ID of Item to be updated
+    + access_token: "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm" (string) - Acess Token of Cart to be updated
+
++ Request (application/x-www-form-urlencoded)
+
+        quantity=2
+
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "item_id": 11,
                     "product_id": 1,
                     "name": "XBox",
                     "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
                     "price": 70000,
                     "quantity": 2
+                },
+                {
+                    "item_id": 12,
+                    "product_id": 2,
+                    "name": "PS3",
+                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244676.png",
+                    "price": 50000,
+                    "quantity": 1
                 }
             ],
             "amounts": {
-                total: 70000
+                total: 190000
             },
+        }
+        
++ Response 404 (application/json)
+
+        {
+            error: "Not found Item Id in a Cart"
+        }
+
++ Response 401 (application/json)
+
+        {
+            error: "Access Token is required"
+        }
+
+### Delete Cart Item API [DELETE/cart/{item}{?access_token}]
+It deletes a item in a cart
+
++ Parameters
+    + item: `1` (number) - ID of Item to be updated
+    + access_token: "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm" (string) - Acess Token of Cart to be updated
+
++ Response 200 (application/json)
+
+        {
+        
+        }
+
++ Response 404 (application/json)
+
+        {
+            error: "Not found Item Id in a Cart"
+        }
+
++ Response 401 (application/json)
+
+        {
+            error: "Access Token is required"
         }
 
 ## Products Colllection [/products]

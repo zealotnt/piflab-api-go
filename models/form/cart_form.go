@@ -50,6 +50,12 @@ func (form *CartForm) Validate(method string) error {
 		}
 	}
 
+	if method == "DELETE" {
+		if form.AccessToken == nil {
+			return errors.New("Access Token is required")
+		}
+	}
+
 	return nil
 }
 
@@ -70,7 +76,10 @@ func (form *CartForm) Cart(app *App) (*Cart, error) {
 		}
 	}
 
-	err = cart.UpdateItems(*form.Product_Id, *form.Quantity)
+	// DELETE method should not update
+	if form.Product_Id != nil && form.Quantity != nil {
+		err = cart.UpdateItems(*form.Product_Id, *form.Quantity)
+	}
 
 	return cart, err
 }

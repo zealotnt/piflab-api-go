@@ -63,3 +63,40 @@ func UpdateCartHandler(app *App) HandlerFunc {
 		JSON(w, cart)
 	}
 }
+
+func UpdateCartItemHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+
+	}
+}
+
+func DeleteCartItemHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		form := new(CartForm)
+
+		if err := Bind(form, r); err != nil {
+			JSON(w, err, 400)
+		}
+
+		if err := form.Validate("DELETE"); err != nil {
+			JSON(w, err, 422)
+			return
+		}
+
+		cart, err := form.Cart(app)
+		if err != nil {
+			JSON(w, err, 422)
+			return
+		}
+		if err := (CartRepository{app.DB}).DeleteCartItem(cart, c.ID()); err != nil {
+			JSON(w, err, 500)
+			return
+		}
+
+		cart.RemoveZeroQuantityItems()
+
+		cart.CalculateAmount()
+
+		JSON(w, cart)
+	}
+}
