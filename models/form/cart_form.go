@@ -77,27 +77,30 @@ func (form *CartForm) GenerateToken() string {
 	return ""
 }
 
-func (form *CartForm) Cart(app *App) (*Cart, error) {
+func (form *CartForm) Cart(app *App, item_id ...uint) (*Cart, error) {
 	var cart = new(Cart)
 	var err error
 
 	if form.AccessToken != nil {
+		// Get cart info based on AccessToken
 		if cart, err = (CartRepository{app.DB}).GetCart(*form.AccessToken); err != nil {
 			if err.Error() == "record not found" {
 				return cart, errors.New("Access Token is invalid")
 			}
+
+			// unknown err, return anyway
 			return cart, err
 		}
 	}
 
 	// DELETE method should not update
 	if form.Product_Id != nil && form.Quantity != nil {
-		err = cart.UpdateItems(*form.Product_Id, *form.Quantity)
+		err = cart.UpdateItems(form.Product_Id, nil, *form.Quantity)
 	}
 
 	// PUT CartItem, should retrieve ProductId based on ItemId
 	if form.Product_Id == nil && form.Quantity != nil {
-
+		err = cart.UpdateItems(nil, &item_id[0], *form.Quantity)
 	}
 
 	return cart, err

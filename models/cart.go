@@ -24,26 +24,41 @@ type CartItem struct {
 	Quantity                 int     `json:"quantity"`
 }
 
-func (cart *Cart) UpdateItems(product_id uint, quantity int) error {
+func (cart *Cart) UpdateItems(product_id *uint, item_id *uint, quantity int) error {
 	for idx, item := range cart.Items {
-		if item.ProductId == product_id {
-			cart.Items[idx].Quantity += quantity
-			if cart.Items[idx].Quantity < 0 {
-				cart.Items[idx].Quantity = 0
+		if product_id != nil {
+			if item.ProductId == *product_id {
+				cart.Items[idx].Quantity += quantity
+				if cart.Items[idx].Quantity < 0 {
+					cart.Items[idx].Quantity = 0
+				}
+				return nil
 			}
-			return nil
 		}
+		if item_id != nil {
+			if item.Id == *item_id {
+				cart.Items[idx].Quantity = quantity
+				return nil
+			}
+		}
+	}
+
+	if item_id != nil {
+		return errors.New("Item ID not found")
 	}
 
 	if quantity < 0 {
 		return errors.New("Quantity for new item should bigger than 0")
 	}
 
-	cart.Items = append(cart.Items,
-		CartItem{
-			ProductId: product_id,
-			Quantity:  quantity,
-		})
+	if product_id != nil {
+		cart.Items = append(cart.Items,
+			CartItem{
+				ProductId: *product_id,
+				Quantity:  quantity,
+			})
+	}
+
 	return nil
 }
 

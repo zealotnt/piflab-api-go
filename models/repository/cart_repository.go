@@ -132,5 +132,7 @@ func (repo CartRepository) DeleteCartItem(cart *Cart, item_id uint) error {
 	repo.DB.Where("cart_id = ?", cart.Id).Find(items)
 	cart.Items = *items
 
+	repo.getCartItemsInfo(cart)
+
 	return nil
 }

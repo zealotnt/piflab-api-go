@@ -77,7 +77,7 @@ func UpdateCartItemHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := form.Cart(app)
+		cart, err := form.Cart(app, c.ID())
 		if err != nil {
 			JSON(w, err, 422)
 			return
