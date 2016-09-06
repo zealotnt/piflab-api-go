@@ -10,28 +10,34 @@ It retrieve Cart information, Access Token must be provided
 
 + Response 200 (application/json)
 
-        {
-            "items": [
-                {
-                    "item_id": 1,
-                    "product_id": 1,
-                    "name": "ABC",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
-                    "price": 10000,
-                    "quantity": 1
-                }
-            ],
-            "amounts": {
-                total: 70000
-            },
-            "access_token": "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm"
-        }
+    + Body
+
+            {
+                "items": [
+                    {
+                        "id": 1,
+                        "product_id": 1,
+                        "name": "ABC",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                        "price": 10000,
+                        "quantity": 1
+                    }
+                ],
+                "amounts": {
+                    "subtotal": 70000,
+                    "shipping": 0,
+                    "total": 70000
+                },
+                "access_token": "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm"
+            }
 
 + Response 401 (application/json)
 
-        {
-            error: "Access Token is required"
-        }
+    + Body
+
+            {
+                "error": "Access Token is required"
+            }
 
 ### Create Cart API [PUT/cart]
 It creates a cart
@@ -42,22 +48,26 @@ It creates a cart
 
 + Response 201 (application/json)
 
-        {
-            "access_token": "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm",
-            "items": [
-                {
-                    "item_id": 11,
-                    "product_id": 1,
-                    "name": "XBox",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
-                    "price": 70000,
-                    "quantity": 1
-                }
-            ],
-            "amounts": {
-                total: 70000
-            },
-        }
+    + Body
+
+            {
+                "access_token": "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm",
+                "items": [
+                    {
+                        "id": 11,
+                        "product_id": 1,
+                        "name": "XBox",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                        "price": 70000,
+                        "quantity": 1
+                    }
+                ],
+                "amounts": {
+                    "subtotal": 70000,
+                    "shipping": 0,
+                    "total": 70000
+                },
+            }
 
 ### Update Cart API [PUT/cart{?access_token}]
 It updates a cart
@@ -71,29 +81,33 @@ It updates a cart
 
 + Response 200 (application/json)
 
-        {
-            "items": [
-                {
-                    "item_id": 11,
-                    "product_id": 1,
-                    "name": "XBox",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
-                    "price": 70000,
-                    "quantity": 1
+    + Body
+
+            {
+                "items": [
+                    {
+                        "id": 11,
+                        "product_id": 1,
+                        "name": "XBox",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                        "price": 70000,
+                        "quantity": 1
+                    },
+                   {
+                        "id": 12,
+                        "product_id": 2,
+                        "name": "PS3",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244676.png",
+                        "price": 50000,
+                        "quantity": 1
+                    }
+                ],
+                "amounts": {
+                    "subtotal": 120000,
+                    "shipping": 0,
+                    "total": 120000
                 },
-               {
-                    "item_id": 12,
-                    "product_id": 2,
-                    "name": "PS3",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244676.png",
-                    "price": 50000,
-                    "quantity": 1
-                }                
-            ],
-            "amounts": {
-                total: 120000
-            },
-        }
+            }
 
 ### Update Cart Item API [PUT/cart/{item}{?access_token}]
 It updates quantity of item in a cart
@@ -108,41 +122,49 @@ It updates quantity of item in a cart
 
 + Response 200 (application/json)
 
-        {
-            "items": [
-                {
-                    "item_id": 11,
-                    "product_id": 1,
-                    "name": "XBox",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
-                    "price": 70000,
-                    "quantity": 2
+    + Body
+
+            {
+                "items": [
+                    {
+                        "id": 11,
+                        "product_id": 1,
+                        "name": "XBox",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                        "price": 70000,
+                        "quantity": 2
+                    },
+                    {
+                        "id": 12,
+                        "product_id": 2,
+                        "name": "PS3",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244676.png",
+                        "price": 50000,
+                        "quantity": 1
+                    }
+                ],
+                "amounts": {
+                    "subtotal": 190000,
+                    "shipping": 0,
+                    "total": 120000
                 },
-                {
-                    "item_id": 12,
-                    "product_id": 2,
-                    "name": "PS3",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244676.png",
-                    "price": 50000,
-                    "quantity": 1
-                }
-            ],
-            "amounts": {
-                total: 190000
-            },
-        }
-        
+            }
+
 + Response 404 (application/json)
 
-        {
-            error: "Not found Item Id in a Cart"
-        }
+    + Body
+
+            {
+                "error": "Not found Item Id in a Cart"
+            }
 
 + Response 401 (application/json)
 
-        {
-            error: "Access Token is required"
-        }
+    + Body
+
+            {
+                "error": "Access Token is required"
+            }
 
 ### Delete Cart Item API [DELETE/cart/{item}{?access_token}]
 It deletes a item in a cart
@@ -154,20 +176,106 @@ It deletes a item in a cart
 + Response 200 (application/json)
 
         {
-        
+
         }
 
 + Response 404 (application/json)
 
-        {
-            error: "Not found Item Id in a Cart"
-        }
+    + Body
+
+            {
+                "error": "Not found Item Id in a Cart"
+            }
 
 + Response 401 (application/json)
 
-        {
-            error: "Access Token is required"
-        }
+    + Body
+
+            {
+                "error": "Access Token is required"
+            }
+
+### Checkout API [POST/cart/checkout{?access_token}]
+It checkout a cart
+
++ Parameters
+    + access_token: "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm" (string) - Acess Token of Cart to be updated
+
++ Request (application/x-www-form-urlencoded)
+
+        name=Tran%20Van%20A&adress=Ho%20Chi%20Minh%20City&phone=01679931234&email=tranvana@abc.com
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "name": "Tran Van A",
+                "address": "Ho Chi Minh City",
+                "phone": 01679931234,
+                "email": "tranvana@abc.com",
+                "note": "Some optional note"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "checkout_uuid_code",
+                "status": "processing"
+            }
+
+### Get Order detail API [GET/orders/{?id}]
+It return detail of Order
+
++ Parameters
+    + id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" (string) - Id of Order
+
++ Request (application/json)
+
+        {}
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+                "items": [
+                    {
+                        "id": 11,
+                        "product_id": 1,
+                        "name": "XBox",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                        "price": 70000,
+                        "quantity": 2
+                    },
+                    {
+                        "id": 12,
+                        "product_id": 2,
+                        "name": "PS3",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244676.png",
+                        "price": 50000,
+                        "quantity": 1
+                    }
+                ],
+                "amounts": {
+                    "subtotal": 190000,
+                    "shipping": 0,
+                    "total": 120000
+                },
+                "customer": {
+                    "name": "Tran Van A",
+                    "address": "Ho Chi Minh City",
+                    "phone": 01679931234,
+                    "email": "tranvana@abc.com",
+                    "note": "Some optional note"
+                },
+                "status": "processing",
+                "created_at": "2016-06-18T10:11:16.144073Z",
+                "updated_at": "2016-06-18T11:24:01.917424Z"
+            }
 
 ## Products Colllection [/products]
 
@@ -176,112 +284,118 @@ It lists at least 10 products
 
 + Response 200 (application/json)
 
-        {
-            "data": [
-                {
-                    "id": 2,
-                    "name": "product",
-                    "price": 12500,
-                    "provider": "Microsoft",
-                    "rating": 4,
-                    "status": "sale",
-                    "detail": "some text",
-                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/origin.14662446.png",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
-                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/detail.1466244676.png",
-                    "created_at": "2016-06-18T10:11:16.144073Z",
-                    "updated_at": "2016-06-18T11:24:01.917424Z"
-                },
-                {
-                    "id": 1,
-                    "name": "product",
-                    "price": 22,
-                    "provider": "Microsoft",
-                    "rating": 4,
-                    "status": "sale",
-                    "detail": "some text",
-                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/1/origin.1466244681.png",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/1/thumbnail.1466244681.png",
-                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/1/detail.1466244681.png",
-                    "created_at": "2016-06-18T10:11:21.985591Z",
-                    "updated_at": "2016-06-18T11:38:21.83933Z"
-                },
-                {
-                    "id": 0,
-                    "name": "product",
-                    "price": 22,
-                    "provider": "Microsoft",
-                    "rating": 4,
-                    "status": "sale",
-                    "detail": "some text",
-                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/0/origin.1466244681.png",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/0/thumbnail.1466244681.png",
-                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/0/detail.1466244681.png",
-                    "created_at": "2016-06-18T10:11:21.985591Z",
-                    "updated_at": "2016-06-18T11:38:21.83933Z"
-                }                
-            ],
-            "paging": {
-                "next": null,
-                "previous": "/products/offset=0&limit=10"
+    + Body
+
+            {
+                "data": [
+                    {
+                        "id": 2,
+                        "name": "product",
+                        "price": 12500,
+                        "provider": "Microsoft",
+                        "rating": 4,
+                        "status": "sale",
+                        "detail": "some text",
+                        "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/origin.14662446.png",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                        "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/detail.1466244676.png",
+                        "created_at": "2016-06-18T10:11:16.144073Z",
+                        "updated_at": "2016-06-18T11:24:01.917424Z"
+                    },
+                    {
+                        "id": 1,
+                        "name": "product",
+                        "price": 22,
+                        "provider": "Microsoft",
+                        "rating": 4,
+                        "status": "sale",
+                        "detail": "some text",
+                        "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/1/origin.1466244681.png",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/1/thumbnail.1466244681.png",
+                        "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/1/detail.1466244681.png",
+                        "created_at": "2016-06-18T10:11:21.985591Z",
+                        "updated_at": "2016-06-18T11:38:21.83933Z"
+                    },
+                    {
+                        "id": 0,
+                        "name": "product",
+                        "price": 22,
+                        "provider": "Microsoft",
+                        "rating": 4,
+                        "status": "sale",
+                        "detail": "some text",
+                        "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/0/origin.1466244681.png",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/0/thumbnail.1466244681.png",
+                        "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/0/detail.1466244681.png",
+                        "created_at": "2016-06-18T10:11:21.985591Z",
+                        "updated_at": "2016-06-18T11:38:21.83933Z"
+                    }
+                ],
+                "paging": {
+                    "next": null,
+                    "previous": "/products/offset=0&limit=10"
+                }
             }
-        }
 
 ### Get Products By Pages API [GET/products?offset={offset}&limit={limit}]
 It lists products by pages
 
 + Response 200 (application/json)
 
-        {
-            "data": [
-                {
-                    "id": 2,
-                    "name": "product",
-                    "price": 12500,
-                    "provider": "Microsoft",
-                    "rating": 4,
-                    "status": "sale",
-                    "detail": "some text",
-                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/origin.14662446.png",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
-                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/detail.1466244676.png",
-                    "created_at": "2016-06-18T10:11:16.144073Z",
-                    "updated_at": "2016-06-18T11:24:01.917424Z"
-                },
-                {
-                    "id": 3,
-                    "name": "product",
-                    "price": 22,
-                    "provider": "Microsoft",
-                    "rating": 4,
-                    "status": "sale",
-                    "detail": "some text",
-                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/origin.1466244681.png",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244681.png",
-                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/detail.1466244681.png",
-                    "created_at": "2016-06-18T10:11:21.985591Z",
-                    "updated_at": "2016-06-18T11:38:21.83933Z"
+    + Body
+
+            {
+                "data": [
+                    {
+                        "id": 2,
+                        "name": "product",
+                        "price": 12500,
+                        "provider": "Microsoft",
+                        "rating": 4,
+                        "status": "sale",
+                        "detail": "some text",
+                        "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/origin.14662446.png",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
+                        "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/detail.1466244676.png",
+                        "created_at": "2016-06-18T10:11:16.144073Z",
+                        "updated_at": "2016-06-18T11:24:01.917424Z"
+                    },
+                    {
+                        "id": 3,
+                        "name": "product",
+                        "price": 22,
+                        "provider": "Microsoft",
+                        "rating": 4,
+                        "status": "sale",
+                        "detail": "some text",
+                        "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/origin.1466244681.png",
+                        "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244681.png",
+                        "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/detail.1466244681.png",
+                        "created_at": "2016-06-18T10:11:21.985591Z",
+                        "updated_at": "2016-06-18T11:38:21.83933Z"
+                    }
+                ],
+                "paging": {
+                    "next": "/products/offset=3&limit=2",
+                    "previous": "/products/offset=0&limit=2"
                 }
-            ],
-            "paging": {
-                "next": "/products/offset=3&limit=2",
-                "previous": "/products/offset=0&limit=2"
             }
-        }
 
 ### Create Product API [POST]
 It creates a product
 
 + Request (application/json)
 
-        {
-            "name": "XBox",
-            "price": 70000,
-            "provider": "Microsoft",
-            "rating": 3.5,
-            "status": "sale",
-            "detail": "some detail of product"
-        }
+    + Body
+
+            {
+                "name": "XBox",
+                "price": 70000,
+                "provider": "Microsoft",
+                "rating": 3.5,
+                "status": "sale",
+                "detail": "some detail of product"
+            }
 
 + Request (application/x-www-form-urlencoded)
 
@@ -375,7 +489,7 @@ It updates a product
                 "created_at": "2016-01-17T07:20:40+0000",
                 "updated_at": "2016-01-17T07:20:40+0000",
             }
-            
+
 ### Delete Products API [DELETE/products/{id}]
 It deletes a product
 
@@ -397,4 +511,36 @@ It deletes a product
                 "created_at": "2016-01-17T07:20:40+0000",
                 "updated_at": "2016-01-17T07:20:40+0000",
             }
-            
+
+### Get Product details API [GET/products/{id}]
+It returns details of a product
+
++ Parameters
+    + id: 1 (integer) - Id of a product to get details from
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": 1,
+                "name": "XBox",
+                "price": 70000,
+                "provider": "Microsoft",
+                "rating": 3.5,
+                "status": "sale",
+                "detail": "rerum itaque cumque explicabo omnis."
+                "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/origin.png",
+                "image_thumbnail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/thumbnail.png",
+                "image_detail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/detail.png",
+                "created_at": "2016-01-17T07:20:40+0000",
+                "updated_at": "2016-01-17T07:20:40+0000",
+            }
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "error": "Record not found"
+            }
