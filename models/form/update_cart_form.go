@@ -73,17 +73,13 @@ func (form *CartForm) Validate(method string) error {
 	return nil
 }
 
-func (form *CartForm) GenerateToken() string {
-	return ""
-}
-
-func (form *CartForm) Cart(app *App, item_id ...uint) (*Cart, error) {
-	var cart = new(Cart)
+func (form *CartForm) Order(app *App, item_id ...uint) (*Order, error) {
+	var cart = new(Order)
 	var err error
 
 	if form.AccessToken != nil {
 		// Get cart info based on AccessToken
-		if cart, err = (CartRepository{app.DB}).GetCart(*form.AccessToken); err != nil {
+		if cart, err = (OrderRepository{app.DB}).GetOrder(*form.AccessToken); err != nil {
 			if err.Error() == "record not found" {
 				return cart, errors.New("Access Token is invalid")
 			}
