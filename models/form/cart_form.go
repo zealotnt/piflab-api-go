@@ -103,5 +103,12 @@ func (form *CartForm) Cart(app *App, item_id ...uint) (*Cart, error) {
 		err = cart.UpdateItems(nil, &item_id[0], *form.Quantity)
 	}
 
+	// If this is the first time craete cart,
+	// this will avoid error when create cart
+	// (pq: invalid input value for enum order_status: "")
+	if cart.Status == "" {
+		cart.Status = "cart"
+	}
+
 	return cart, err
 }

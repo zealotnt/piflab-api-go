@@ -2,10 +2,11 @@
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
 -- +goose StatementBegin
+CREATE TYPE order_status AS ENUM ('cart', 'processing', 'canceled', 'done');
 CREATE TABLE carts (
 	id SERIAL PRIMARY KEY,
 	access_token TEXT NOT NULL UNIQUE,
-	status varchar(50)
+	status order_status DEFAULT 'cart'
 );
 CREATE TABLE cart_items (
 	id SERIAL PRIMARY KEY,

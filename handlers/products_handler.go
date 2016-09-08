@@ -8,6 +8,18 @@ import (
 	"net/http"
 )
 
+func GetProductsDetailHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		product, err := (ProductRepository{app.DB}).FindById(c.ID())
+		if err != nil {
+			JSON(w, err, 404)
+			return
+		}
+
+		JSON(w, product)
+	}
+}
+
 func GetProductsHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
 		form := new(GetProductForm)
