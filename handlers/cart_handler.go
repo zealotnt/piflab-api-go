@@ -22,16 +22,16 @@ func GetCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := (OrderRepository{app.DB}).GetOrder(*form.AccessToken)
+		order, err := (OrderRepository{app.DB}).GetOrder(*form.AccessToken)
 		if err != nil {
 			JSON(w, err, 500)
 			return
 		}
-		cart.CalculateAmount()
+		order.CalculateAmount()
 
-		cart.EraseAccessToken()
+		order.EraseAccessToken()
 
-		JSON(w, cart)
+		JSON(w, order)
 	}
 }
 
@@ -48,21 +48,21 @@ func UpdateCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := form.Order(app)
+		order, err := form.Order(app)
 		if err != nil {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (OrderRepository{app.DB}).SaveOrder(cart); err != nil {
+		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		cart.RemoveZeroQuantityItems()
+		order.RemoveZeroQuantityItems()
 
-		cart.CalculateAmount()
+		order.CalculateAmount()
 
-		JSON(w, cart)
+		JSON(w, order)
 	}
 }
 
@@ -79,21 +79,21 @@ func UpdateCartItemHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := form.Order(app, c.ID())
+		order, err := form.Order(app, c.ID())
 		if err != nil {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (OrderRepository{app.DB}).SaveOrder(cart); err != nil {
+		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		cart.RemoveZeroQuantityItems()
+		order.RemoveZeroQuantityItems()
 
-		cart.CalculateAmount()
+		order.CalculateAmount()
 
-		JSON(w, cart)
+		JSON(w, order)
 	}
 }
 
@@ -110,21 +110,21 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := form.Order(app)
+		order, err := form.Order(app)
 		if err != nil {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (OrderRepository{app.DB}).DeleteOrderItem(cart, c.ID()); err != nil {
+		if err := (OrderRepository{app.DB}).DeleteOrderItem(order, c.ID()); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		cart.RemoveZeroQuantityItems()
+		order.RemoveZeroQuantityItems()
 
-		cart.CalculateAmount()
+		order.CalculateAmount()
 
-		JSON(w, cart)
+		JSON(w, order)
 	}
 }
 
@@ -142,18 +142,33 @@ func CheckoutCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := form.Order(app)
+		order, err := form.Order(app)
 		if err != nil {
 			JSON(w, err, 422)
 			return
 		}
 
-		if err := (OrderRepository{app.DB}).CheckoutOrder(cart); err != nil {
+		if err := (OrderRepository{app.DB}).CheckoutOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		ret := cart.ReturnCheckoutRequest()
+		order.CalculateAmount()
+		ret := order.ReturnCheckoutRequest()
+		JSON(w, ret)
+	}
+}
+
+func GetCheckoutHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		order, err := (OrderRepository{app.DB}).FindByOrderId(c.Params["id"])
+		if err != nil {
+			JSON(w, err, 404)
+			return
+		}
+
+		order.CalculateAmount()
+		ret := order.ReturnCheckoutRequest()
 		JSON(w, ret)
 	}
 }

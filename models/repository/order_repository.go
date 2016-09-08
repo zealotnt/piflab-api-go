@@ -106,6 +106,27 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 	return nil
 }
 
+func (repo OrderRepository) FindByOrderId(order_code string) (*Order, error) {
+	order := &Order{}
+	items := &[]OrderItem{}
+
+	// find a order by its access_token
+	if err := repo.DB.Where("order_code = ?", order_code).Find(order).Error; err != nil {
+		return nil, err
+	}
+
+	// use order.Id to find its OrderItem data (order.Id is its forein key)
+	if err := repo.DB.Where("order_id = ?", order.Id).Find(items).Error; err != nil {
+		return nil, err
+	}
+
+	// use the order.Items to update products information
+	order.Items = *items
+	repo.getOrderItemsInfo(order)
+
+	return order, nil
+}
+
 func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	order := &Order{}
 	items := &[]OrderItem{}
