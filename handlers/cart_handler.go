@@ -22,7 +22,7 @@ func GetCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := (CartRepository{app.DB}).GetCart(*form.AccessToken)
+		cart, err := (OrderRepository{app.DB}).GetOrder(*form.AccessToken)
 		if err != nil {
 			JSON(w, err, 500)
 			return
@@ -48,12 +48,12 @@ func UpdateCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := form.Cart(app)
+		cart, err := form.Order(app)
 		if err != nil {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (CartRepository{app.DB}).SaveCart(cart); err != nil {
+		if err := (OrderRepository{app.DB}).SaveOrder(cart); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -79,12 +79,12 @@ func UpdateCartItemHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := form.Cart(app, c.ID())
+		cart, err := form.Order(app, c.ID())
 		if err != nil {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (CartRepository{app.DB}).SaveCart(cart); err != nil {
+		if err := (OrderRepository{app.DB}).SaveOrder(cart); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -110,12 +110,12 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 			return
 		}
 
-		cart, err := form.Cart(app)
+		cart, err := form.Order(app)
 		if err != nil {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (CartRepository{app.DB}).DeleteCartItem(cart, c.ID()); err != nil {
+		if err := (OrderRepository{app.DB}).DeleteOrderItem(cart, c.ID()); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -125,5 +125,11 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 		cart.CalculateAmount()
 
 		JSON(w, cart)
+	}
+}
+
+func CheckoutCartHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+
 	}
 }

@@ -73,42 +73,38 @@ func (form *CartForm) Validate(method string) error {
 	return nil
 }
 
-func (form *CartForm) GenerateToken() string {
-	return ""
-}
-
-func (form *CartForm) Cart(app *App, item_id ...uint) (*Cart, error) {
-	var cart = new(Cart)
+func (form *CartForm) Order(app *App, item_id ...uint) (*Order, error) {
+	var order = new(Order)
 	var err error
 
 	if form.AccessToken != nil {
-		// Get cart info based on AccessToken
-		if cart, err = (CartRepository{app.DB}).GetCart(*form.AccessToken); err != nil {
+		// Get order info based on AccessToken
+		if order, err = (OrderRepository{app.DB}).GetOrder(*form.AccessToken); err != nil {
 			if err.Error() == "record not found" {
-				return cart, errors.New("Access Token is invalid")
+				return order, errors.New("Access Token is invalid")
 			}
 
 			// unknown err, return anyway
-			return cart, err
+			return order, err
 		}
 	}
 
 	// DELETE method should not update
 	if form.Product_Id != nil && form.Quantity != nil {
-		err = cart.UpdateItems(form.Product_Id, nil, *form.Quantity)
+		err = order.UpdateItems(form.Product_Id, nil, *form.Quantity)
 	}
 
 	// PUT CartItem, should retrieve ProductId based on ItemId
 	if form.Product_Id == nil && form.Quantity != nil {
-		err = cart.UpdateItems(nil, &item_id[0], *form.Quantity)
+		err = order.UpdateItems(nil, &item_id[0], *form.Quantity)
 	}
 
-	// If this is the first time craete cart,
-	// this will avoid error when create cart
+	// If this is the first time craete order,
+	// this will avoid error when create order
 	// (pq: invalid input value for enum order_status: "")
-	if cart.Status == "" {
-		cart.Status = "cart"
+	if order.Status == "" {
+		order.Status = "order"
 	}
 
-	return cart, err
+	return order, err
 }

@@ -10,19 +10,19 @@ type Amount struct {
 	Total    uint `json:"total"`
 }
 
-type Cart struct {
+type Order struct {
 	Id          uint   `json:"-"`
 	AccessToken string `json:"access_token,omitempty"`
 	Status      string `json:"-"`
 
-	Items []CartItem `json:"items"`
+	Items []OrderItem `json:"items" sql:"order_items"`
 
 	Amounts Amount `json:"amounts" sql:"-"`
 }
 
-type CartItem struct {
+type OrderItem struct {
 	Id                       uint    `json:"id" sql:"id"`
-	CartId                   uint    `json:"-" sql:"REFERENCES carts(id)"`
+	OrderId                  uint    `json:"-" sql:"REFERENCES Orders(id)"`
 	ProductId                uint    `json:"product_id" sql:"REFERENCES products(id)"`
 	ProductName              string  `json:"name" sql:"-"`
 	ProductImageThumbnailUrl *string `json:"image_thumbnail_url" sql:"-"`
@@ -30,20 +30,20 @@ type CartItem struct {
 	Quantity                 int     `json:"quantity"`
 }
 
-func (cart *Cart) UpdateItems(product_id *uint, item_id *uint, quantity int) error {
-	for idx, item := range cart.Items {
+func (Order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) error {
+	for idx, item := range Order.Items {
 		if product_id != nil {
 			if item.ProductId == *product_id {
-				cart.Items[idx].Quantity += quantity
-				if cart.Items[idx].Quantity < 0 {
-					cart.Items[idx].Quantity = 0
+				Order.Items[idx].Quantity += quantity
+				if Order.Items[idx].Quantity < 0 {
+					Order.Items[idx].Quantity = 0
 				}
 				return nil
 			}
 		}
 		if item_id != nil {
 			if item.Id == *item_id {
-				cart.Items[idx].Quantity = quantity
+				Order.Items[idx].Quantity = quantity
 				return nil
 			}
 		}
@@ -58,8 +58,8 @@ func (cart *Cart) UpdateItems(product_id *uint, item_id *uint, quantity int) err
 	}
 
 	if product_id != nil {
-		cart.Items = append(cart.Items,
-			CartItem{
+		Order.Items = append(Order.Items,
+			OrderItem{
 				ProductId: *product_id,
 				Quantity:  quantity,
 			})
@@ -68,22 +68,22 @@ func (cart *Cart) UpdateItems(product_id *uint, item_id *uint, quantity int) err
 	return nil
 }
 
-func (cart *Cart) CalculateAmount() {
-	for _, item := range cart.Items {
-		cart.Amounts.Subtotal += uint(item.ProductPrice) * uint(item.Quantity)
+func (Order *Order) CalculateAmount() {
+	for _, item := range Order.Items {
+		Order.Amounts.Subtotal += uint(item.ProductPrice) * uint(item.Quantity)
 	}
-	cart.Amounts.Shipping = 0
-	cart.Amounts.Total = cart.Amounts.Shipping + cart.Amounts.Subtotal
+	Order.Amounts.Shipping = 0
+	Order.Amounts.Total = Order.Amounts.Shipping + Order.Amounts.Subtotal
 }
 
-func (cart *Cart) EraseAccessToken() {
-	cart.AccessToken = ""
+func (Order *Order) EraseAccessToken() {
+	Order.AccessToken = ""
 }
 
-func (cart *Cart) RemoveZeroQuantityItems() {
-	for idx, _ := range cart.Items {
-		if cart.Items[idx].Quantity <= 0 {
-			cart.Items = append(cart.Items[:idx], cart.Items[idx+1:]...)
+func (Order *Order) RemoveZeroQuantityItems() {
+	for idx, _ := range Order.Items {
+		if Order.Items[idx].Quantity <= 0 {
+			Order.Items = append(Order.Items[:idx], Order.Items[idx+1:]...)
 			return
 		}
 	}
