@@ -10,12 +10,22 @@ type Amount struct {
 	Total    uint `json:"total"`
 }
 
+type OrderInfo struct {
+	CustomerName    string `json:"customer_name,omitempty"`
+	CustomerAddress string `json:"customer_address,omitempty"`
+	CustomerPhone   string `json:"customer_phone,omitempty"`
+	CustomerEmail   string `json:"customer_email,omitempty"`
+	Note            string `json:"note,omitempty"`
+}
+
 type Order struct {
 	Id          uint   `json:"-"`
 	AccessToken string `json:"access_token,omitempty"`
 	Status      string `json:"-"`
 
 	Items []OrderItem `json:"items" sql:"order_items"`
+
+	OrderInfo `sql:"-"`
 
 	Amounts Amount `json:"amounts" sql:"-"`
 }

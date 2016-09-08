@@ -136,3 +136,8 @@ func (repo OrderRepository) DeleteOrderItem(order *Order, item_id uint) error {
 
 	return nil
 }
+
+func (repo OrderRepository) CheckoutOrder(order *Order) error {
+
+	return nil
+}

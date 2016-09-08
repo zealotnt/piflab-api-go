@@ -130,6 +130,29 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 
 func CheckoutCartHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		form := new(CheckoutCartForm)
 
+		if err := Bind(form, r); err != nil {
+			JSON(w, err, 400)
+			return
+		}
+
+		if err := form.Validate(); err != nil {
+			JSON(w, err, 422)
+			return
+		}
+
+		cart, err := form.Order(app)
+		if err != nil {
+			JSON(w, err, 422)
+			return
+		}
+
+		if err := (OrderRepository{app.DB}).CheckoutOrder(cart); err != nil {
+			JSON(w, err, 500)
+			return
+		}
+
+		JSON(w, cart)
 	}
 }
