@@ -67,6 +67,7 @@ http://docs.piflabstore.apiary.io/
 - cd to root of project directory
 - Start DB `docker-compose up -d db`
 - Start API `docker-compose run -p 80:80 api bash`
+- Start bash instance of DB `sudo docker exec -it <container_id> bash`
 
 ### Golang dump
 ```

@@ -4,6 +4,12 @@ import (
 	"errors"
 )
 
+type Amount struct {
+	Subtotal uint `json:"subtotal"`
+	Shipping uint `json:"shipping"`
+	Total    uint `json:"total"`
+}
+
 type Cart struct {
 	Id          uint   `json:"-"`
 	AccessToken string `json:"access_token,omitempty"`
@@ -11,11 +17,11 @@ type Cart struct {
 
 	Items []CartItem `json:"items"`
 
-	Amounts uint `json:"amounts" sql:"-"`
+	Amounts Amount `json:"amounts" sql:"-"`
 }
 
 type CartItem struct {
-	Id                       uint    `json:"item_id" sql:"id"`
+	Id                       uint    `json:"id" sql:"id"`
 	CartId                   uint    `json:"-" sql:"REFERENCES carts(id)"`
 	ProductId                uint    `json:"product_id" sql:"REFERENCES products(id)"`
 	ProductName              string  `json:"name" sql:"-"`
@@ -64,8 +70,14 @@ func (cart *Cart) UpdateItems(product_id *uint, item_id *uint, quantity int) err
 
 func (cart *Cart) CalculateAmount() {
 	for _, item := range cart.Items {
-		cart.Amounts += uint(item.ProductPrice) * uint(item.Quantity)
+		cart.Amounts.Subtotal += uint(item.ProductPrice) * uint(item.Quantity)
 	}
+	cart.Amounts.Shipping = 0
+	cart.Amounts.Total = cart.Amounts.Shipping + cart.Amounts.Subtotal
+}
+
+func (cart *Cart) EraseAccessToken() {
+	cart.AccessToken = ""
 }
 
 func (cart *Cart) RemoveZeroQuantityItems() {

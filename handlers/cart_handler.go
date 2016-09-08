@@ -29,6 +29,8 @@ func GetCartHandler(app *App) HandlerFunc {
 		}
 		cart.CalculateAmount()
 
+		cart.EraseAccessToken()
+
 		JSON(w, cart)
 	}
 }

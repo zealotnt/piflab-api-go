@@ -78,7 +78,7 @@ func (repo CartRepository) updateCart(cart *Cart) error {
 	repo.clearNullQuantity()
 
 	// Don't return access_token when updating
-	cart.AccessToken = ""
+	cart.EraseAccessToken()
 
 	repo.getCartItemsInfo(cart)
 
