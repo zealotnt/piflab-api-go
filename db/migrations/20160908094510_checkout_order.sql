@@ -2,7 +2,7 @@
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
 ALTER TABLE orders
-ADD order_code TEXT NOT NULL UNIQUE,
+ADD order_code varchar(255),
 ADD customer_name varchar(100),
 ADD customer_address varchar(255),
 ADD customer_phone varchar(20),

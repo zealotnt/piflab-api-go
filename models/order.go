@@ -20,6 +20,13 @@ type OrderInfo struct {
 	OrderCode       string `sql:"order_code"`
 }
 
+type CheckoutReturn struct {
+	Items   []OrderItem `json:"items"`
+	Amounts Amount      `json:"amounts" sql:"-"`
+	OrderInfo
+	Status string `json:"status"`
+}
+
 type Order struct {
 	Id          uint   `json:"-"`
 	AccessToken string `json:"access_token,omitempty"`
@@ -45,20 +52,20 @@ type OrderItem struct {
 	Quantity                 int     `json:"quantity"`
 }
 
-func (Order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) error {
-	for idx, item := range Order.Items {
+func (order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) error {
+	for idx, item := range order.Items {
 		if product_id != nil {
 			if item.ProductId == *product_id {
-				Order.Items[idx].Quantity += quantity
-				if Order.Items[idx].Quantity < 0 {
-					Order.Items[idx].Quantity = 0
+				order.Items[idx].Quantity += quantity
+				if order.Items[idx].Quantity < 0 {
+					order.Items[idx].Quantity = 0
 				}
 				return nil
 			}
 		}
 		if item_id != nil {
 			if item.Id == *item_id {
-				Order.Items[idx].Quantity = quantity
+				order.Items[idx].Quantity = quantity
 				return nil
 			}
 		}
@@ -73,7 +80,7 @@ func (Order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) e
 	}
 
 	if product_id != nil {
-		Order.Items = append(Order.Items,
+		order.Items = append(order.Items,
 			OrderItem{
 				ProductId: *product_id,
 				Quantity:  quantity,
@@ -83,23 +90,32 @@ func (Order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) e
 	return nil
 }
 
-func (Order *Order) CalculateAmount() {
-	for _, item := range Order.Items {
-		Order.Amounts.Subtotal += uint(item.ProductPrice) * uint(item.Quantity)
+func (order *Order) CalculateAmount() {
+	for _, item := range order.Items {
+		order.Amounts.Subtotal += uint(item.ProductPrice) * uint(item.Quantity)
 	}
-	Order.Amounts.Shipping = 0
-	Order.Amounts.Total = Order.Amounts.Shipping + Order.Amounts.Subtotal
+	order.Amounts.Shipping = 0
+	order.Amounts.Total = order.Amounts.Shipping + order.Amounts.Subtotal
 }
 
-func (Order *Order) EraseAccessToken() {
-	Order.AccessToken = ""
+func (order *Order) EraseAccessToken() {
+	order.AccessToken = ""
 }
 
-func (Order *Order) RemoveZeroQuantityItems() {
-	for idx, _ := range Order.Items {
-		if Order.Items[idx].Quantity <= 0 {
-			Order.Items = append(Order.Items[:idx], Order.Items[idx+1:]...)
+func (order *Order) RemoveZeroQuantityItems() {
+	for idx, _ := range order.Items {
+		if order.Items[idx].Quantity <= 0 {
+			order.Items = append(order.Items[:idx], order.Items[idx+1:]...)
 			return
 		}
 	}
+}
+
+func (order *Order) ReturnCheckoutRequest() CheckoutReturn {
+	ret := new(CheckoutReturn)
+	ret.Items = order.Items
+	ret.Amounts = order.Amounts
+	ret.OrderInfo = order.OrderInfo
+	ret.Status = order.Status
+	return *ret
 }

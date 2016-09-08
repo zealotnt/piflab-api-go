@@ -153,6 +153,7 @@ func CheckoutCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		JSON(w, cart)
+		ret := cart.ReturnCheckoutRequest()
+		JSON(w, ret)
 	}
 }
