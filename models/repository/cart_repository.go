@@ -39,7 +39,7 @@ func (repo CartRepository) getCartItemsInfo(cart *Cart) {
 	for idx, item := range cart.Items {
 		product := &Product{}
 		product.Id = item.ProductId
-		repo.DB.Select("name, price, image").Find(&product)
+		repo.DB.Select("name, price, image, image_updated_at").Find(&product)
 		cart.Items[idx].ProductPrice = product.Price
 		cart.Items[idx].ProductName = product.Name
 		(*product).GetImageUrl()
