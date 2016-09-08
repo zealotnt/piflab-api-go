@@ -14,6 +14,27 @@ type OrderRepository struct {
 	*DB
 }
 
+func (repo OrderRepository) generateOrderCode(order *Order) error {
+	rand.Seed(time.Now().UTC().UnixNano())
+
+try_gen_other_value:
+	order.OrderInfo.OrderCode = fake.CharactersN(32)
+
+	temp_order := &Order{}
+	if err := repo.DB.Where("order_code = ?", order.OrderInfo.OrderCode).Find(temp_order).Error; err != nil {
+		// Check if err is not found -> order_code is unique
+		if err.Error() == "record not found" {
+			return nil
+		}
+
+		// Otherwise, this is database operation error
+		return errors.New("Database error")
+	}
+
+	// duplicate, try again
+	goto try_gen_other_value
+}
+
 func (repo OrderRepository) generateAccessToken(order *Order) error {
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -138,6 +159,18 @@ func (repo OrderRepository) DeleteOrderItem(order *Order, item_id uint) error {
 }
 
 func (repo OrderRepository) CheckoutOrder(order *Order) error {
+	if err := repo.generateOrderCode(order); err != nil {
+		return err
+	}
+
+	tx := repo.DB.Begin()
+
+	if err := tx.Save(order).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
 
 	return nil
 }

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 )
 
 type Amount struct {
@@ -11,11 +12,12 @@ type Amount struct {
 }
 
 type OrderInfo struct {
-	CustomerName    string `json:"customer_name,omitempty"`
-	CustomerAddress string `json:"customer_address,omitempty"`
-	CustomerPhone   string `json:"customer_phone,omitempty"`
-	CustomerEmail   string `json:"customer_email,omitempty"`
-	Note            string `json:"note,omitempty"`
+	CustomerName    string `sql:"customer_name"`
+	CustomerAddress string `sql:"customer_address"`
+	CustomerPhone   string `sql:"customer_phone"`
+	CustomerEmail   string `sql:"customer_email"`
+	CustomerNote    string `sql:"customer_note"`
+	OrderCode       string `sql:"order_code"`
 }
 
 type Order struct {
@@ -25,9 +27,12 @@ type Order struct {
 
 	Items []OrderItem `json:"items" sql:"order_items"`
 
-	OrderInfo `sql:"-"`
+	OrderInfo `json:"-"`
 
 	Amounts Amount `json:"amounts" sql:"-"`
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type OrderItem struct {

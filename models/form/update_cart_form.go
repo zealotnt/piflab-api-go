@@ -103,7 +103,11 @@ func (form *CartForm) Order(app *App, item_id ...uint) (*Order, error) {
 	// this will avoid error when create order
 	// (pq: invalid input value for enum order_status: "")
 	if order.Status == "" {
-		order.Status = "order"
+		order.Status = "cart"
+	}
+
+	if order.Status != "cart" {
+		return order, errors.New("Order is in " + order.Status + " state, please use another cart")
 	}
 
 	return order, err

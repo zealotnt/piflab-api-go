@@ -12,11 +12,11 @@ import (
 
 type CheckoutCartForm struct {
 	AccessToken     *string `json:"access_token"`
-	CustomerName    *string `json:"customer_name"`
-	CustomerAddress *string `json:"customer_address"`
-	CustomerPhone   *string `json:"customer_phone"`
-	CustomerEmail   *string `json:"customer_email"`
-	Note            *string `json:"note"`
+	CustomerName    *string `json:"name"`
+	CustomerAddress *string `json:"address"`
+	CustomerPhone   *string `json:"phone"`
+	CustomerEmail   *string `json:"email"`
+	CustomerNote    *string `json:"note"`
 }
 
 func (form *CheckoutCartForm) FieldMap(req *http.Request) binding.FieldMap {
@@ -25,18 +25,18 @@ func (form *CheckoutCartForm) FieldMap(req *http.Request) binding.FieldMap {
 			Form: "access_token",
 		},
 		&form.CustomerName: binding.Field{
-			Form: "customer_name",
+			Form: "name",
 		},
 		&form.CustomerAddress: binding.Field{
-			Form: "customer_address",
+			Form: "address",
 		},
 		&form.CustomerPhone: binding.Field{
-			Form: "customer_phone",
+			Form: "phone",
 		},
 		&form.CustomerEmail: binding.Field{
-			Form: "customer_email",
+			Form: "email",
 		},
-		&form.Note: binding.Field{
+		&form.CustomerNote: binding.Field{
 			Form: "note",
 		},
 	}
@@ -92,8 +92,8 @@ func (form *CheckoutCartForm) Order(app *App) (*Order, error) {
 	order.OrderInfo.CustomerPhone = *form.CustomerPhone
 	order.OrderInfo.CustomerEmail = *form.CustomerEmail
 
-	if form.Note != nil {
-		order.OrderInfo.Note = *form.Note
+	if form.CustomerNote != nil {
+		order.OrderInfo.CustomerNote = *form.CustomerNote
 	}
 
 	// Change status to processing, any other change to oder_items is rejected from now on
