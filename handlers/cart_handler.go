@@ -17,7 +17,7 @@ func GetCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		if err := form.Validate("GET"); err != nil {
+		if err := form.Validate("GET", app); err != nil {
 			JSON(w, err, 401)
 			return
 		}

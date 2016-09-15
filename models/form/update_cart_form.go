@@ -30,10 +30,27 @@ func (form *CartForm) FieldMap(req *http.Request) binding.FieldMap {
 	}
 }
 
-func (form *CartForm) Validate(method string) error {
+func (form *CartForm) Validate(method string, app ...*App) error {
 	if method == "GET" {
 		if form.AccessToken == nil {
 			return errors.New("Access Token is required")
+		}
+
+		// If use GET method, the user must provide app interface
+		var order = new(Order)
+		var err error
+		// Get order info based on AccessToken
+		if order, err = (OrderRepository{app[0].DB}).GetOrder(*form.AccessToken); err != nil {
+			if err.Error() == "record not found" {
+				return errors.New("Access Token is invalid")
+			}
+
+			// unknown err, return anyway
+			return err
+		}
+
+		if order.Status != "cart" {
+			return errors.New("Order is in " + order.Status + " state, please use another cart")
 		}
 	}
 

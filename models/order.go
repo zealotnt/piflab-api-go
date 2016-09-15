@@ -12,19 +12,19 @@ type Amount struct {
 }
 
 type OrderInfo struct {
-	CustomerName    string `sql:"customer_name"`
-	CustomerAddress string `sql:"customer_address"`
-	CustomerPhone   string `sql:"customer_phone"`
-	CustomerEmail   string `sql:"customer_email"`
-	CustomerNote    string `sql:"customer_note"`
-	OrderCode       string `sql:"order_code"`
+	OrderCode       string `json:"id" sql:"order_code"`
+	CustomerName    string `json:"name" sql:"customer_name"`
+	CustomerAddress string `json:"address" sql:"customer_address"`
+	CustomerPhone   string `json:"phone" sql:"customer_phone"`
+	CustomerEmail   string `json:"email" sql:"customer_email"`
+	CustomerNote    string `json:"note" sql:"customer_note"`
 }
 
 type CheckoutReturn struct {
-	Items   []OrderItem `json:"items"`
-	Amounts Amount      `json:"amounts" sql:"-"`
-	OrderInfo
-	Status string `json:"status"`
+	Items     []OrderItem `json:"items"`
+	Amounts   Amount      `json:"amounts" sql:"-"`
+	OrderInfo OrderInfo   `json:"customer" sql:"-"`
+	Status    string      `json:"status"`
 }
 
 type Order struct {
