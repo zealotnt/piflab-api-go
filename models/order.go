@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"strconv"
 	"time"
 )
 
@@ -27,6 +28,8 @@ type CheckoutReturn struct {
 	Status    string      `json:"status"`
 }
 
+type OrderSlice []Order
+
 type Order struct {
 	Id          uint   `json:"-"`
 	AccessToken string `json:"access_token,omitempty"`
@@ -50,6 +53,56 @@ type OrderItem struct {
 	ProductImageThumbnailUrl *string `json:"image_thumbnail_url" sql:"-"`
 	ProductPrice             int     `json:"price" sql:"-"`
 	Quantity                 int     `json:"quantity"`
+}
+
+type OrderUrl struct {
+	Next     *string `json:"next"`
+	Previous *string `json:"previous"`
+}
+
+type OrderPage struct {
+	Data   *OrderSlice `json:"data"`
+	Paging OrderUrl    `json:"paging"`
+}
+
+func getOrderPage(offset uint, limit uint, total uint) OrderUrl {
+	prevNum := uint64(offset - limit)
+	nextNum := uint64(offset + limit)
+	if offset < limit {
+		prevNum = 0
+	}
+	if total <= offset {
+		if total > limit {
+			prevNum = uint64(total - limit)
+		} else {
+			prevNum = 0
+		}
+	}
+	next := "/orders?offset=" + strconv.FormatUint(nextNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+	previous := "/orders?offset=" + strconv.FormatUint(prevNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+
+	if uint64(total) <= nextNum {
+		return OrderUrl{
+			Previous: &previous,
+		}
+	}
+	if offset == 0 {
+		return OrderUrl{
+			Next: &next,
+		}
+	}
+	return OrderUrl{
+		Next:     &next,
+		Previous: &previous,
+	}
+
+}
+
+func (orders OrderSlice) GetPaging(offset uint, limit uint, total uint) *OrderPage {
+	return &OrderPage{
+		Data:   &orders,
+		Paging: getOrderPage(offset, limit, total),
+	}
 }
 
 func (order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) error {

@@ -179,6 +179,23 @@ func (repo OrderRepository) DeleteOrderItem(order *Order, item_id uint) error {
 	return nil
 }
 
+func (repo OrderRepository) CountOrders() (uint, error) {
+	count := uint(0)
+
+	err := repo.DB.Table("orders").Count(&count).Error
+
+	return count, err
+}
+
+func (repo OrderRepository) GetPage(offset uint, limit uint, sort_field string, sort_order string) (*OrderSlice, uint, error) {
+	orders := &OrderSlice{}
+	err := repo.DB.Order(sort_field + " " + sort_order).Offset(int(offset)).Limit(int(limit)).Find(orders).Error
+
+	count, _ := repo.CountOrders()
+
+	return orders, count, err
+}
+
 func (repo OrderRepository) CheckoutOrder(order *Order) error {
 	if err := repo.generateOrderCode(order); err != nil {
 		return err

@@ -161,6 +161,30 @@ func CheckoutCartHandler(app *App) HandlerFunc {
 
 func GetCheckoutHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		form := new(GetCheckoutForm)
+
+		if err := Bind(form, r); err != nil {
+			form.Offset = 0
+			form.Limit = 10
+		}
+
+		if err := form.Validate(); err != nil {
+			JSON(w, err, 422)
+			return
+		}
+
+		orders, total, err := OrderRepository{app.DB}.GetPage(form.Offset, form.Limit, form.SortField, form.SortOrder)
+		if err != nil {
+			JSON(w, err, 500)
+			return
+		}
+
+		JSON(w, orders.GetPaging(form.Offset, form.Limit, total))
+	}
+}
+
+func GetCheckoutDetailHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
 		order, err := (OrderRepository{app.DB}).FindByOrderId(c.Params["id"])
 		if err != nil {
 			JSON(w, err, 404)
