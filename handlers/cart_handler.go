@@ -196,3 +196,33 @@ func GetCheckoutDetailHandler(app *App) HandlerFunc {
 		JSON(w, ret)
 	}
 }
+
+func UpdateCheckoutStatusHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		form := new(UpdateCheckoutForm)
+		if err := Bind(form, r); err != nil {
+			JSON(w, err, 400)
+			return
+		}
+
+		if err := form.Validate(); err != nil {
+			JSON(w, err, 422)
+			return
+		}
+
+		order, err := form.Order(app, c.Params["id"])
+		if err != nil {
+			JSON(w, err, 422)
+			return
+		}
+
+		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
+			JSON(w, err, 500)
+			return
+		}
+
+		order.CalculateAmount()
+		ret := order.ReturnCheckoutRequest()
+		JSON(w, ret)
+	}
+}
