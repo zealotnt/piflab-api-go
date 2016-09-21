@@ -22,12 +22,17 @@ type OrderInfo struct {
 }
 
 type CheckoutReturn struct {
+	Id        string      `json:"id,omitempty"`
 	Items     []OrderItem `json:"items"`
 	Amounts   Amount      `json:"amounts" sql:"-"`
-	OrderInfo OrderInfo   `json:"customer" sql:"-"`
+	OrderInfo *OrderInfo  `json:"customer,omitempty" sql:"-"`
 	Status    string      `json:"status"`
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type CheckoutReturnSlice []CheckoutReturn
 type OrderSlice []Order
 
 type Order struct {
@@ -61,11 +66,11 @@ type OrderUrl struct {
 }
 
 type OrderPage struct {
-	Data   *OrderSlice `json:"data"`
-	Paging OrderUrl    `json:"paging"`
+	Data   *CheckoutReturnSlice `json:"data"`
+	Paging OrderUrl             `json:"paging"`
 }
 
-func getOrderPage(offset uint, limit uint, total uint) OrderUrl {
+func getOrderPage(offset uint, limit uint, total uint, sort string) OrderUrl {
 	prevNum := uint64(offset - limit)
 	nextNum := uint64(offset + limit)
 	if offset < limit {
@@ -78,8 +83,8 @@ func getOrderPage(offset uint, limit uint, total uint) OrderUrl {
 			prevNum = 0
 		}
 	}
-	next := "/orders?offset=" + strconv.FormatUint(nextNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
-	previous := "/orders?offset=" + strconv.FormatUint(prevNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10)
+	next := "/orders?offset=" + strconv.FormatUint(nextNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10) + "&" + sort
+	previous := "/orders?offset=" + strconv.FormatUint(prevNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10) + "&" + sort
 
 	if uint64(total) <= nextNum {
 		return OrderUrl{
@@ -98,10 +103,15 @@ func getOrderPage(offset uint, limit uint, total uint) OrderUrl {
 
 }
 
-func (orders OrderSlice) GetPaging(offset uint, limit uint, total uint) *OrderPage {
+func (orders OrderSlice) GetPaging(offset uint, limit uint, total uint, sort string) *OrderPage {
+	orders_return := CheckoutReturnSlice{}
+	for idx, _ := range orders {
+		orders_return = append(orders_return, orders[idx].ReturnCheckoutRequest())
+		orders_return[idx].Id = orders[idx].OrderCode
+	}
 	return &OrderPage{
-		Data:   &orders,
-		Paging: getOrderPage(offset, limit, total),
+		Data:   &orders_return,
+		Paging: getOrderPage(offset, limit, total, sort),
 	}
 }
 
@@ -168,7 +178,11 @@ func (order *Order) ReturnCheckoutRequest() CheckoutReturn {
 	ret := new(CheckoutReturn)
 	ret.Items = order.Items
 	ret.Amounts = order.Amounts
-	ret.OrderInfo = order.OrderInfo
+	if order.OrderInfo.CustomerName != "" {
+		ret.OrderInfo = &order.OrderInfo
+	}
 	ret.Status = order.Status
+	ret.UpdatedAt = order.UpdatedAt
+	ret.CreatedAt = order.CreatedAt
 	return *ret
 }

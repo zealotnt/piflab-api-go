@@ -1,8 +1,8 @@
 
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
-DELETE FROM orders WHERE status = 'canceled';
-DELETE FROM orders WHERE status = 'done';
+DELETE FROM order_items;
+DELETE FROM orders;
 ALTER TABLE orders ALTER COLUMN status TYPE varchar(255);
 ALTER TABLE orders ALTER COLUMN status SET DEFAULT('temp default');
 DROP TYPE order_status;
@@ -13,9 +13,8 @@ ALTER TABLE orders ALTER COLUMN status SET DEFAULT('cart');
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
-DELETE FROM orders WHERE status = 'shipping';
-DELETE FROM orders WHERE status = 'cancelled';
-DELETE FROM orders WHERE status = 'completed';
+DELETE FROM order_items;
+DELETE FROM orders;
 ALTER TABLE orders ALTER COLUMN status TYPE varchar(255);
 ALTER TABLE orders ALTER COLUMN status SET DEFAULT('temp default');
 DROP TYPE order_status;

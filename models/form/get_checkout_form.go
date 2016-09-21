@@ -36,13 +36,16 @@ func (form *GetCheckoutForm) FieldMap(req *http.Request) binding.FieldMap {
 
 func (form *GetCheckoutForm) Validate() error {
 	if form.Status != nil {
-		if *form.Status != "cart" &&
-			*form.Status != "processing" &&
+		if *form.Status != "processing" &&
 			*form.Status != "shipping" &&
 			*form.Status != "completed" &&
 			*form.Status != "cancelled" {
-			return errors.New("Only support cart/processing/shipping/completed/cancelled in status field")
+			return errors.New("Only support processing/shipping/completed/cancelled in status field")
 		}
+	} else {
+		var default_status string
+		default_status = ""
+		form.Status = &default_status
 	}
 
 	if form.Sort != nil {
@@ -74,10 +77,13 @@ func (form *GetCheckoutForm) Validate() error {
 		default:
 			return errors.New("Invalid sort field format, should be: create_at/updated_at/id|desc/asc")
 		}
+	} else {
+		var default_sort string
+		default_sort = "id|desc"
+		form.Sort = &default_sort
+		form.SortField = "id"
+		form.SortOrder = "desc"
 	}
-
-	form.SortField = "id"
-	form.SortOrder = "desc"
 
 	return nil
 }

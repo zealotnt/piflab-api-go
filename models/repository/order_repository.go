@@ -127,6 +127,27 @@ func (repo OrderRepository) FindByOrderId(order_code string) (*Order, error) {
 	return order, nil
 }
 
+func (repo OrderRepository) GetOrderByOrdercode(order_code string) (*Order, error) {
+	order := &Order{}
+	items := &[]OrderItem{}
+
+	// find a order by its order_code
+	if err := repo.DB.Where("order_code = ?", order_code).Find(order).Error; err != nil {
+		return nil, err
+	}
+
+	// use order.Id to find its OrderItem data (order.Id is its forein key)
+	if err := repo.DB.Where("order_id = ?", order.Id).Find(items).Error; err != nil {
+		return nil, err
+	}
+
+	// use the order.Items to update products information
+	order.Items = *items
+	repo.getOrderItemsInfo(order)
+
+	return order, nil
+}
+
 func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	order := &Order{}
 	items := &[]OrderItem{}
@@ -187,9 +208,27 @@ func (repo OrderRepository) CountOrders() (uint, error) {
 	return count, err
 }
 
-func (repo OrderRepository) GetPage(offset uint, limit uint, sort_field string, sort_order string) (*OrderSlice, uint, error) {
+func (repo OrderRepository) GetPage(offset uint, limit uint, status string, sort_field string, sort_order string) (*OrderSlice, uint, error) {
 	orders := &OrderSlice{}
-	err := repo.DB.Order(sort_field + " " + sort_order).Offset(int(offset)).Limit(int(limit)).Find(orders).Error
+	items := &[]OrderItem{}
+	var err error
+
+	if status == "" {
+		err = repo.DB.Order(sort_field + " " + sort_order).Offset(int(offset)).Where("status != 'cart'").Limit(int(limit)).Find(orders).Error
+	} else {
+		err = repo.DB.Order(sort_field + " " + sort_order).Offset(int(offset)).Where("status = '" + status + "'").Limit(int(limit)).Find(orders).Error
+	}
+
+	for idx, order := range *orders {
+		// use order.Id to find its OrderItem data (order.Id is its forein key)
+		if err := repo.DB.Where("order_id = ?", order.Id).Find(items).Error; err != nil {
+			return nil, 0, err
+		}
+		// use the order.Items to update products information
+		(*orders)[idx].Items = *items
+		repo.getOrderItemsInfo(&(*orders)[idx])
+		(*orders)[idx].CalculateAmount()
+	}
 
 	count, _ := repo.CountOrders()
 

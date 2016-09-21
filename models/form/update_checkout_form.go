@@ -37,13 +37,13 @@ func (form *UpdateCheckoutForm) Validate() error {
 	return nil
 }
 
-func (form *UpdateCheckoutForm) Order(app *App, access_token string) (*Order, error) {
+func (form *UpdateCheckoutForm) Order(app *App, order_code string) (*Order, error) {
 	var order = new(Order)
 	var err error
 
-	if order, err = (OrderRepository{app.DB}).GetOrder(access_token); err != nil {
+	if order, err = (OrderRepository{app.DB}).GetOrderByOrdercode(order_code); err != nil {
 		if err.Error() == "record not found" {
-			return order, errors.New("Access Token is invalid")
+			return order, errors.New("Order code is invalid")
 		}
 
 		// unknown err, return anyway
