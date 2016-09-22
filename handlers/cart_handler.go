@@ -62,7 +62,13 @@ func UpdateCartHandler(app *App) HandlerFunc {
 
 		order.CalculateAmount()
 
-		JSON(w, order)
+		maps, err := FieldSelection(order, form.Field)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+
+		JSON(w, maps)
 	}
 }
 

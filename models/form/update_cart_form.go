@@ -14,6 +14,7 @@ type CartForm struct {
 	Product_Id  *uint   `json:"product_id"`
 	Quantity    *int    `json:"quantity"`
 	AccessToken *string `json:"access_token"`
+	Field       string
 }
 
 func (form *CartForm) FieldMap(req *http.Request) binding.FieldMap {
@@ -26,6 +27,9 @@ func (form *CartForm) FieldMap(req *http.Request) binding.FieldMap {
 		},
 		&form.AccessToken: binding.Field{
 			Form: "access_token",
+		},
+		&form.Field: binding.Field{
+			Form: "field",
 		},
 	}
 }
