@@ -74,3 +74,6 @@ http://docs.piflabstore.apiary.io/
 import "github.com/davecgh/go-spew/spew"
 spew.Dump(structure_to_be_dump)
 ```
+
+### Save package
+If use `godep save .` it will remove the pacakges that aren't used in source code (such as `ginkgo`, `gomega`, ...), so use `godep save ./...` save only (no remove).

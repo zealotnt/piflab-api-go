@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/o0khoiclub0o/piflab-store-api-go",
 	"GoVersion": "go1.5",
-	"GodepVersion": "v62",
+	"GodepVersion": "v74",
 	"Packages": [
 		"./..."
 	],
@@ -129,6 +129,10 @@
 		{
 			"ImportPath": "github.com/disintegration/imaging",
 			"Rev": "d8bbae1de109b518dabc98c6c1633eb358c148a4"
+		},
+		{
+			"ImportPath": "github.com/fatih/structs",
+			"Rev": "dc3312cb1a4513a366c4c9e622ad55c32df12ed3"
 		},
 		{
 			"ImportPath": "github.com/go-ini/ini",
