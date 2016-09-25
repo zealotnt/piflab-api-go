@@ -31,7 +31,12 @@ func GetCartHandler(app *App) HandlerFunc {
 
 		order.EraseAccessToken()
 
-		JSON(w, order)
+		maps, err := FieldSelection(order, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }
 
@@ -62,12 +67,11 @@ func UpdateCartHandler(app *App) HandlerFunc {
 
 		order.CalculateAmount()
 
-		maps, err := FieldSelection(order, form.Field)
+		maps, err := FieldSelection(order, form.Fields)
 		if err != nil {
 			JSON(w, err)
 			return
 		}
-
 		JSON(w, maps)
 	}
 }
@@ -99,7 +103,12 @@ func UpdateCartItemHandler(app *App) HandlerFunc {
 
 		order.CalculateAmount()
 
-		JSON(w, order)
+		maps, err := FieldSelection(order, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }
 
@@ -130,7 +139,12 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 
 		order.CalculateAmount()
 
-		JSON(w, order)
+		maps, err := FieldSelection(order, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }
 
@@ -161,7 +175,13 @@ func CheckoutCartHandler(app *App) HandlerFunc {
 
 		order.CalculateAmount()
 		ret := order.ReturnCheckoutRequest()
-		JSON(w, ret)
+
+		maps, err := FieldSelection(ret, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }
 
@@ -185,12 +205,21 @@ func GetCheckoutHandler(app *App) HandlerFunc {
 			return
 		}
 
-		JSON(w, orders.GetPaging(form.Offset, form.Limit, total, *form.Sort))
+		maps, err := FieldSelection(orders.GetPaging(form.Offset, form.Limit, total, *form.Sort), form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }
 
 func GetCheckoutDetailHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		// the purpose of form is to get form.Fields, so don't care about Binding errors
+		form := new(GetCheckoutForm)
+		Bind(form, r)
+
 		order, err := (OrderRepository{app.DB}).FindByOrderId(c.Params["id"])
 		if err != nil {
 			JSON(w, err, 404)
@@ -199,7 +228,13 @@ func GetCheckoutDetailHandler(app *App) HandlerFunc {
 
 		order.CalculateAmount()
 		ret := order.ReturnCheckoutRequest()
-		JSON(w, ret)
+
+		maps, err := FieldSelection(ret, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }
 
@@ -229,6 +264,12 @@ func UpdateCheckoutStatusHandler(app *App) HandlerFunc {
 
 		order.CalculateAmount()
 		ret := order.ReturnCheckoutRequest()
-		JSON(w, ret)
+
+		maps, err := FieldSelection(ret, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }

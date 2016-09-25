@@ -10,13 +10,22 @@ import (
 
 func GetProductsDetailHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		// the purpose of form is to get form.Fields, so don't care about Binding errors
+		form := new(GetProductForm)
+		Bind(form, r)
+
 		product, err := (ProductRepository{app.DB}).FindById(c.ID())
 		if err != nil {
 			JSON(w, err, 404)
 			return
 		}
 
-		JSON(w, product)
+		maps, err := FieldSelection(product, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }
 
@@ -35,7 +44,12 @@ func GetProductsHandler(app *App) HandlerFunc {
 			return
 		}
 
-		JSON(w, products.GetPaging(form.Offset, form.Limit, total))
+		maps, err := FieldSelection(products.GetPaging(form.Offset, form.Limit, total), form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
 	}
 }
 
@@ -58,7 +72,13 @@ func CreateProductHandler(app *App) HandlerFunc {
 			JSON(w, err, 500)
 			return
 		}
-		JSON(w, product, 201)
+
+		maps, err := FieldSelection(product, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps, 201)
 	}
 }
 
@@ -87,7 +107,13 @@ func UpdateProductHandler(app *App) HandlerFunc {
 			JSON(w, err, 500)
 			return
 		}
-		JSON(w, product)
+
+		maps, err := FieldSelection(product, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps, 201)
 	}
 }
 

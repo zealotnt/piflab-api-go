@@ -12,12 +12,16 @@ import (
 
 type UpdateCheckoutForm struct {
 	Status *string
+	Fields string
 }
 
 func (form *UpdateCheckoutForm) FieldMap(req *http.Request) binding.FieldMap {
 	return binding.FieldMap{
 		&form.Status: binding.Field{
 			Form: "status",
+		},
+		&form.Fields: binding.Field{
+			Form: "fields",
 		},
 	}
 }

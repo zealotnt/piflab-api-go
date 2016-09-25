@@ -19,6 +19,7 @@ type ProductForm struct {
 	Detail   *string               `json:"detail"`
 	Image    *multipart.FileHeader `json:"image"`
 	Avatar   *multipart.FileHeader `json:"avatar"`
+	Fields   string
 }
 
 var STATUS_OPTIONS = []string{
@@ -73,6 +74,9 @@ func (form *ProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		},
 		&form.Avatar: binding.Field{
 			Form: "avatar",
+		},
+		&form.Fields: binding.Field{
+			Form: "fields",
 		},
 	}
 }

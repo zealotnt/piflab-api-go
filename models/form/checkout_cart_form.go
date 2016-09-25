@@ -17,6 +17,7 @@ type CheckoutCartForm struct {
 	CustomerPhone   *string `json:"phone"`
 	CustomerEmail   *string `json:"email"`
 	CustomerNote    *string `json:"note"`
+	Fields          string
 }
 
 func (form *CheckoutCartForm) FieldMap(req *http.Request) binding.FieldMap {
@@ -38,6 +39,9 @@ func (form *CheckoutCartForm) FieldMap(req *http.Request) binding.FieldMap {
 		},
 		&form.CustomerNote: binding.Field{
 			Form: "note",
+		},
+		&form.Fields: binding.Field{
+			Form: "fields",
 		},
 	}
 }

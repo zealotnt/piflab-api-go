@@ -38,6 +38,9 @@ func (form *CreateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Avatar: binding.Field{
 			Form: "avatar",
 		},
+		&form.Fields: binding.Field{
+			Form: "fields",
+		},
 	}
 }
 

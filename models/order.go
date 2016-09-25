@@ -176,6 +176,7 @@ func (order *Order) RemoveZeroQuantityItems() {
 
 func (order *Order) ReturnCheckoutRequest() CheckoutReturn {
 	ret := new(CheckoutReturn)
+	ret.Id = order.OrderCode
 	ret.Items = order.Items
 	ret.Amounts = order.Amounts
 	if order.OrderInfo.CustomerName != "" {
