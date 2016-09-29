@@ -16,6 +16,7 @@ type GetCheckoutForm struct {
 	SortField string
 	SortOrder string
 	Fields    string
+	Search    string
 }
 
 func (form *GetCheckoutForm) FieldMap(req *http.Request) binding.FieldMap {
@@ -34,6 +35,9 @@ func (form *GetCheckoutForm) FieldMap(req *http.Request) binding.FieldMap {
 		},
 		&form.Fields: binding.Field{
 			Form: "fields",
+		},
+		&form.Search: binding.Field{
+			Form: "q",
 		},
 	}
 }

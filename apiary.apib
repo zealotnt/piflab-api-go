@@ -6,7 +6,7 @@ HOST: https://store-api.piflab.io/
 ## Cart Collection [/cart]
 
 ### Get Cart API [GET/cart?{access_token}]
-It retrieve Cart information, Access Token must be provided
+It retrieves Cart information, Access Token must be provided
 
 + Parameters
     + access_token: "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm" (required, string) - Acess Token of Cart to be returned
@@ -211,7 +211,7 @@ It deletes a item in a cart
         }
 
 ### Checkout API [POST/cart/checkout?{access_token}]
-It checkout a cart
+It checkouts a cart
 
 + Parameters
     + access_token: hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm (required, string) - Access Token of Cart to be updated
@@ -280,8 +280,69 @@ It checkout a cart
             "updated_at": "2016-09-26T09:08:22.694556863Z"
         }
 
+### Get Orders API [GET/orders]
+It returns lists of Order
+
++ Attributes
+    + offset: `0` (number) - The list of results start from index's value of `offset`
+    + limit: `1` (number) - The maximum number off results returned
+    + q: `An` (string) - The customer's name to search
+    + sort: `created_at|asc` (string) - Sort field with method, support method: `desc`, `asc`, fields: `created_at`, `upated_at`, `id`
+
++ Response 422 (application/json)
+
+        {
+            "error": "Only support created_at/updated_at/id in sort field"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "Only support desc/asc in sort field"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "data": [
+                {
+                    "id": "rvd2e1nm4re8uhmhh60zb2t616yl323o",
+                    "items": [
+                        {
+                            "id": 116,
+                            "product_id": 1,
+                            "name": "Output Viewer",
+                            "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/1/image_thumbnail_1473315177.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIKCGLONYH2QY5BUA%2F20160929%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20160929T040222Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=ce0cde23ed3b7005131e2b18e8f9d62b0f5995c15b9e8f6feb2c75bd6a27518c",
+                            "price": 55644,
+                            "quantity": 1
+                        }
+                    ],
+                    "amounts": {
+                        "subtotal": 55644,
+                        "shipping": 0,
+                        "total": 55644
+                    },
+                    "customer": {
+                        "id": "rvd2e1nm4re8uhmhh60zb2t616yl323o",
+                        "name": "Tran Van A",
+                        "address": "Ho Chi Minh city",
+                        "phone": "01679936867",
+                        "email": "tran_van_a@gmail.com",
+                        "note": "some optional note here"
+                    },
+                    "status": "shipping",
+                    "created_at": "2016-09-25T02:40:47.569511Z",
+                    "updated_at": "2016-09-25T02:40:56.567307Z"
+                }
+            ],
+            "paging": {
+                "next": "/orders?offset=1&limit=1&id|desc",
+                "previous": null
+            }
+        }
+
 ### Get Order detail API [GET/orders/{id}]
-It return detail of Order
+It returns detail of Order
 
 + Parameters
     + id: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11 (required, string) - ID of Order
@@ -329,7 +390,12 @@ It return detail of Order
 ## Products Collection [/products]
 
 ### Get Products API [GET]
-It lists at least 10 products
+It lists products by pages, if the `offset`/`limit` parameters is not valid, it list at least 10 products, at zero `offset`
+
++ Attributes
+    + offset: `0` (number) - The list of results start from index's value of `offset`
+    + limit: `1` (number) - The maximum number off results returned
+    + q: `An` (string) - The product's name to search
 
 + Response 200 (application/json)
 
@@ -381,48 +447,6 @@ It lists at least 10 products
             "paging": {
                 "next": null,
                 "previous": "/products/offset=0&limit=10"
-            }
-        }
-
-### Get Products By Pages API [GET/products?offset={offset}&limit={limit}]
-It lists products by pages
-
-+ Response 200 (application/json)
-
-        {
-            "data": [
-                {
-                    "id": 2,
-                    "name": "product",
-                    "price": 12500,
-                    "provider": "Microsoft",
-                    "rating": 4,
-                    "status": "sale",
-                    "detail": "some text",
-                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/origin.14662446.png",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/thumbnail.1466244676.png",
-                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/2/detail.1466244676.png",
-                    "created_at": "2016-06-18T10:11:16.144073Z",
-                    "updated_at": "2016-06-18T11:24:01.917424Z"
-                },
-                {
-                    "id": 3,
-                    "name": "product",
-                    "price": 22,
-                    "provider": "Microsoft",
-                    "rating": 4,
-                    "status": "sale",
-                    "detail": "some text",
-                    "image_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/origin.1466244681.png",
-                    "image_thumbnail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/thumbnail.1466244681.png",
-                    "image_detail_url": "https://piflab-store-mytest.s3-ap-southeast-1.amazonaws.com/products/3/detail.1466244681.png",
-                    "created_at": "2016-06-18T10:11:21.985591Z",
-                    "updated_at": "2016-06-18T11:38:21.83933Z"
-                }
-            ],
-            "paging": {
-                "next": "/products/offset=3&limit=2",
-                "previous": "/products/offset=0&limit=2"
             }
         }
 

@@ -7,6 +7,7 @@ import (
 
 	"errors"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -208,16 +209,23 @@ func (repo OrderRepository) CountOrders() (uint, error) {
 	return count, err
 }
 
-func (repo OrderRepository) GetPage(offset uint, limit uint, status string, sort_field string, sort_order string) (*OrderSlice, uint, error) {
+func (repo OrderRepository) GetPage(offset uint, limit uint, status string, sort_field string, sort_order string, search string) (*OrderSlice, uint, error) {
 	orders := &OrderSlice{}
 	items := &[]OrderItem{}
 	var err error
+	var where_param string
 
 	if status == "" {
-		err = repo.DB.Order(sort_field + " " + sort_order).Offset(int(offset)).Where("status != 'cart'").Limit(int(limit)).Find(orders).Error
+		where_param = "status!='cart'"
 	} else {
-		err = repo.DB.Order(sort_field + " " + sort_order).Offset(int(offset)).Where("status = '" + status + "'").Limit(int(limit)).Find(orders).Error
+		where_param = "status='" + status + "'"
 	}
+
+	if search != "" {
+		where_param += " AND LOWER(customer_name) LIKE  '%" + strings.ToLower(search) + "%'"
+	}
+
+	err = repo.DB.Order(sort_field + " " + sort_order).Offset(int(offset)).Where(where_param).Limit(int(limit)).Find(orders).Error
 
 	for idx, order := range *orders {
 		// use order.Id to find its OrderItem data (order.Id is its forein key)
