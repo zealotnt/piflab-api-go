@@ -22,8 +22,8 @@ try_gen_other_value:
 	order.OrderInfo.OrderCode = fake.CharactersN(32)
 
 	temp_order := &Order{}
-	if err := repo.DB.Where("order_code = ?", order.OrderInfo.OrderCode).Find(temp_order).Error; err != nil {
-		// Check if err is not found -> order_code is unique
+	if err := repo.DB.Where("code = ?", order.OrderInfo.OrderCode).Find(temp_order).Error; err != nil {
+		// Check if err is not found -> code is unique
 		if err.Error() == "record not found" {
 			return nil
 		}
@@ -126,7 +126,7 @@ func (repo OrderRepository) FindByOrderId(order_code string) (*Order, error) {
 	items := &[]OrderItem{}
 
 	// find a order by its access_token
-	if err := repo.DB.Where("order_code = ?", order_code).Find(order).Error; err != nil {
+	if err := repo.DB.Where("code = ?", order_code).Find(order).Error; err != nil {
 		return nil, err
 	}
 
@@ -147,7 +147,7 @@ func (repo OrderRepository) GetOrderByOrdercode(order_code string) (*Order, erro
 	items := &[]OrderItem{}
 
 	// find a order by its order_code
-	if err := repo.DB.Where("order_code = ?", order_code).Find(order).Error; err != nil {
+	if err := repo.DB.Where("code = ?", order_code).Find(order).Error; err != nil {
 		return nil, err
 	}
 
@@ -197,7 +197,7 @@ func (repo OrderRepository) DeleteOrderItem(order *Order, item_id uint) error {
 	// use order.Id to find its OrderItem data (order.Id is its forein key)
 	if err := repo.DB.Where("id = ? AND order_id = ?", item_id, order.Id).Find(&item).Error; err != nil {
 		if err.Error() == "record not found" {
-			return errors.New("Not found Item Id in Order")
+			return errors.New("Not found Item Id in a Cart")
 		}
 
 		return err

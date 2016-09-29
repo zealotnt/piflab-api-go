@@ -23,6 +23,12 @@ It retrieves Cart information, Access Token must be provided
             "error": "Access Token is invalid"
         }
 
++ Response 401 (application/json)
+
+        {
+            "error": "Order is in processing state, please use another cart"
+        }
+
 + Response 200 (application/json)
 
         {
@@ -50,6 +56,24 @@ It creates a cart
 + Request (application/x-www-form-urlencoded)
 
         product_id=1&quantity=1
+
++ Response 422 (application/json)
+
+        {
+            "error": "No Product selected"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "No Quantity specified"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "Quantity should not be 0"
+        }
 
 + Response 201 (application/json)
 
@@ -92,6 +116,30 @@ It updates a cart
 
         {
             "error": "Access Token is invalid"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "No Product selected"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "No Quantity specified"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "Quantity should not be 0"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "Order is in processing state, please use another cart"
         }
 
 + Response 200 (application/json)
@@ -145,10 +193,22 @@ It updates quantity of item in a cart
             "error": "Access Token is invalid"
         }
 
-+ Response 404 (application/json)
++ Response 422 (application/json)
 
         {
             "error": "Item ID not found"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "Quantity for item should bigger than 0"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "Order is in processing state, please use another cart"
         }
 
 + Response 200 (application/json)
@@ -179,11 +239,11 @@ It updates quantity of item in a cart
             },
         }
 
-### Delete Cart Item API [DELETE/cart/{item}?{access_token}]
+### Delete Cart Item API [DELETE/cart/item/{id}?{access_token}]
 It deletes a item in a cart
 
 + Parameters
-    + item: `1` (number) - ID of Item to be updated
+    + id: `1` (number) - ID of Item to be updated
     + access_token: "hu7ljf7sg6tqmsfoj5xec8exfdqyh2zm" (string) - Acess Token of Cart to be updated
 
 + Response 422 (application/json)
@@ -248,6 +308,36 @@ It checkouts a cart
             "error": "Access Token is required"
         }
 
++ Response 401 (application/json)
+
+        {
+            "error": "Customer's Name is required"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "error": "Customer's Address is required"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "error": "Customer's Phone number is required"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "error": "Customer's Email is required"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "error": "Customer's Email address is invalid"
+        }
+
 + Response 200 (application/json)
 
         {
@@ -280,6 +370,8 @@ It checkouts a cart
             "updated_at": "2016-09-26T09:08:22.694556863Z"
         }
 
+## Order Collection [/orders]
+
 ### Get Orders API [GET/orders]
 It returns lists of Order
 
@@ -292,6 +384,12 @@ It returns lists of Order
 + Response 422 (application/json)
 
         {
+            "error": "Only support processing/shipping/completed/cancelled in status field"
+        }
+
++ Response 422 (application/json)
+
+        {
             "error": "Only support created_at/updated_at/id in sort field"
         }
 
@@ -299,6 +397,12 @@ It returns lists of Order
 
         {
             "error": "Only support desc/asc in sort field"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": "Invalid sort field format, should be: create_at/updated_at/id|desc/asc"
         }
 
 + Response 200 (application/json)
@@ -346,6 +450,11 @@ It returns detail of Order
 
 + Parameters
     + id: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11 (required, string) - ID of Order
++ Response 404 (application/json)
+
+        {
+            "error": "Record not found"
+        }
 
 + Response 200 (application/json)
 
@@ -449,6 +558,39 @@ It lists products by pages, if the `offset`/`limit` parameters is not valid, it 
                 "previous": "/products/offset=0&limit=10"
             }
         }
+
+### Get Product details API [GET/products/{id}]
+It returns details of a product
+
++ Parameters
+    + id: 1 (integer) - Id of a product to get details from
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "error": "Record not found"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": 1,
+                "name": "XBox",
+                "price": 70000,
+                "provider": "Microsoft",
+                "rating": 3.5,
+                "status": "sale",
+                "detail": "rerum itaque cumque explicabo omnis."
+                "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/origin.png",
+                "image_thumbnail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/thumbnail.png",
+                "image_detail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/detail.png",
+                "created_at": "2016-01-17T07:20:40+0000",
+                "updated_at": "2016-01-17T07:20:40+0000",
+            }
 
 ### Create Product API [POST]
 It creates a product
@@ -577,37 +719,4 @@ It deletes a product
                 "image_detail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/detail.png",
                 "created_at": "2016-01-17T07:20:40+0000",
                 "updated_at": "2016-01-17T07:20:40+0000",
-            }
-
-### Get Product details API [GET/products/{id}]
-It returns details of a product
-
-+ Parameters
-    + id: 1 (integer) - Id of a product to get details from
-
-+ Response 200 (application/json)
-
-    + Body
-
-            {
-                "id": 1,
-                "name": "XBox",
-                "price": 70000,
-                "provider": "Microsoft",
-                "rating": 3.5,
-                "status": "sale",
-                "detail": "rerum itaque cumque explicabo omnis."
-                "image_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/origin.png",
-                "image_thumbnail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/thumbnail.png",
-                "image_detail_url": "https://piflab-store.s3-ap-southeast-1.amazonaws.com/products/1/detail.png",
-                "created_at": "2016-01-17T07:20:40+0000",
-                "updated_at": "2016-01-17T07:20:40+0000",
-            }
-
-+ Response 404 (application/json)
-
-    + Body
-
-            {
-                "error": "Record not found"
             }

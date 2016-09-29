@@ -13,12 +13,12 @@ type Amount struct {
 }
 
 type OrderInfo struct {
-	OrderCode       string `json:"id" sql:"code"`
+	OrderCode       string `json:"id" sql:"column:code"`
 	CustomerName    string `json:"name" sql:"customer_name"`
 	CustomerAddress string `json:"address" sql:"customer_address"`
 	CustomerPhone   string `json:"phone" sql:"customer_phone"`
 	CustomerEmail   string `json:"email" sql:"customer_email"`
-	CustomerNote    string `json:"note" sql:"note"`
+	CustomerNote    string `json:"note" sql:"column:note"`
 }
 
 type CheckoutReturn struct {
@@ -146,7 +146,7 @@ func (order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) e
 	}
 
 	if quantity < 0 {
-		return errors.New("Quantity for new item should bigger than 0")
+		return errors.New("Quantity for item should bigger than 0")
 	}
 
 	if product_id != nil {

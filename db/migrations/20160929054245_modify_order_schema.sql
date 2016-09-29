@@ -30,6 +30,7 @@ ALTER TABLE order_items
 DROP COLUMN product_name,
 DROP COLUMN product_price;
 
-ALTER TABLE product_status ALTER COLUMN status TYPE varchar(255);
+ALTER TABLE products ALTER COLUMN status TYPE varchar(255);
+DROP TYPE product_status;
 
 ALTER TABLE products ADD avatar varchar(255), ADD avatar_updated_at timestamp;

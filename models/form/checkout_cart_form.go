@@ -48,8 +48,7 @@ func (form *CheckoutCartForm) FieldMap(req *http.Request) binding.FieldMap {
 
 func (form *CheckoutCartForm) Validate() error {
 	if form.AccessToken == nil {
-		// return errors.New("Access Token is required")
-		return errors.New("Dau ma sao lai thieu")
+		return errors.New("Access Token is required")
 	}
 
 	if form.CustomerName == nil {
