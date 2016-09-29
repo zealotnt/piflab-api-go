@@ -80,22 +80,6 @@ func (repo ProductRepository) saveFile(product *Product) error {
 		}
 	}
 
-	if product.Avatar != "" {
-		var images = []image_to_save{
-			{&product.AvatarData, AVATAR, ORIGIN},
-			{&product.AvatarThumbnailData, AVATAR, THUMBNAIL},
-			{&product.AvatarDetailData, AVATAR, DETAIL}}
-
-		for _, image := range images {
-			if err := (FileService{}).SaveFile(
-				*image.data,
-				product.GetImagePath(image.field, image.size),
-				product.GetImageContentType(image.field, image.size)); err != nil {
-				return err
-			}
-		}
-	}
-
 	return nil
 }
 

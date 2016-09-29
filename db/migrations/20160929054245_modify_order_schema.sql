@@ -19,6 +19,8 @@ CREATE TYPE product_status AS ENUM ('available', 'out_of_stock');
 ALTER TABLE products ALTER COLUMN status TYPE varchar USING status::product_status;
 ALTER TABLE products ALTER COLUMN status SET DEFAULT('available');
 
+ALTER TABLE products DROP COLUMN avatar, DROP COLUMN avatar_updated_at;
+
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
 ALTER TABLE orders RENAME note TO customer_note;
@@ -29,3 +31,5 @@ DROP COLUMN product_name,
 DROP COLUMN product_price;
 
 ALTER TABLE product_status ALTER COLUMN status TYPE varchar(255);
+
+ALTER TABLE products ADD avatar varchar(255), ADD avatar_updated_at timestamp;
