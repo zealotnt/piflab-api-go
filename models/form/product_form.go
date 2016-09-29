@@ -23,8 +23,7 @@ type ProductForm struct {
 }
 
 var STATUS_OPTIONS = []string{
-	"sale",
-	"out of stock",
+	"out_of_stock",
 	"available",
 }
 

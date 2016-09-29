@@ -13,12 +13,12 @@ type Amount struct {
 }
 
 type OrderInfo struct {
-	OrderCode       string `json:"id" sql:"order_code"`
+	OrderCode       string `json:"id" sql:"code"`
 	CustomerName    string `json:"name" sql:"customer_name"`
 	CustomerAddress string `json:"address" sql:"customer_address"`
 	CustomerPhone   string `json:"phone" sql:"customer_phone"`
 	CustomerEmail   string `json:"email" sql:"customer_email"`
-	CustomerNote    string `json:"note" sql:"customer_note"`
+	CustomerNote    string `json:"note" sql:"note"`
 }
 
 type CheckoutReturn struct {
@@ -54,9 +54,9 @@ type OrderItem struct {
 	Id                       uint    `json:"id" sql:"id"`
 	OrderId                  uint    `json:"-" sql:"REFERENCES Orders(id)"`
 	ProductId                uint    `json:"product_id" sql:"REFERENCES products(id)"`
-	ProductName              string  `json:"name" sql:"-"`
+	ProductName              string  `json:"name" sql:"product_name"`
 	ProductImageThumbnailUrl *string `json:"image_thumbnail_url" sql:"-"`
-	ProductPrice             int     `json:"price" sql:"-"`
+	ProductPrice             int     `json:"price" sql:"product_price"`
 	Quantity                 int     `json:"quantity"`
 }
 
