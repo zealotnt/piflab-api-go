@@ -50,6 +50,13 @@ type Order struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type OrderStatusLog struct {
+	Id        uint
+	Code      string
+	Status    string
+	CreatedAt time.Time
+}
+
 type OrderItem struct {
 	Id                       uint    `json:"id" sql:"id"`
 	OrderId                  uint    `json:"-" sql:"REFERENCES Orders(id)"`

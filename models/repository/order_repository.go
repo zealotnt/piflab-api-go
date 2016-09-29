@@ -90,9 +90,23 @@ func (repo OrderRepository) createOrder(order *Order) error {
 func (repo OrderRepository) updateOrder(order *Order) error {
 	tx := repo.DB.Begin()
 
+	// Update the order
 	if err := tx.Save(order).Error; err != nil {
 		tx.Rollback()
 		return err
+	}
+
+	// Check if need to create the order_status_log item
+	if order.Status != "cart" {
+		order_status_log := OrderStatusLog{
+			Code:   order.OrderInfo.OrderCode,
+			Status: order.Status,
+		}
+
+		if err := tx.Create(&order_status_log).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	tx.Commit()
@@ -251,6 +265,16 @@ func (repo OrderRepository) CheckoutOrder(order *Order) error {
 	tx := repo.DB.Begin()
 
 	if err := tx.Save(order).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Create the order_status_log item
+	order_status_log := OrderStatusLog{
+		Code:   order.OrderInfo.OrderCode,
+		Status: order.Status,
+	}
+	if err := tx.Create(&order_status_log).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
