@@ -47,7 +47,6 @@ type ImageField int
 
 const (
 	IMAGE ImageField = iota
-	AVATAR
 )
 
 type ImageSize int

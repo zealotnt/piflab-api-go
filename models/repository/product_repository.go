@@ -84,7 +84,7 @@ func (repo ProductRepository) saveFile(product *Product) error {
 }
 
 func (repo ProductRepository) deleteFile(product *Product) error {
-	var fields = []ImageField{IMAGE, AVATAR}
+	var fields = []ImageField{IMAGE}
 	var sizes = []ImageSize{ORIGIN, THUMBNAIL, DETAIL}
 
 	for _, field := range fields {
