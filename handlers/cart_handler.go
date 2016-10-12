@@ -205,6 +205,10 @@ func GetCheckoutHandler(app *App) HandlerFunc {
 			return
 		}
 
+		// Remove items from the checkout GET
+		for idx, _ := range *orders {
+			(*orders)[idx].Items = nil
+		}
 		maps, err := FieldSelection(orders.GetPaging(form.Offset, form.Limit, total, *form.Sort), form.Fields)
 		if err != nil {
 			JSON(w, err)

@@ -13,7 +13,7 @@ type Amount struct {
 }
 
 type OrderInfo struct {
-	OrderCode       string `json:"id" sql:"column:code"`
+	OrderCode       string `json:"-" sql:"column:code"`
 	CustomerName    string `json:"name" sql:"customer_name"`
 	CustomerAddress string `json:"address" sql:"customer_address"`
 	CustomerPhone   string `json:"phone" sql:"customer_phone"`
@@ -23,7 +23,7 @@ type OrderInfo struct {
 
 type CheckoutReturn struct {
 	Id        string      `json:"id,omitempty"`
-	Items     []OrderItem `json:"items"`
+	Items     []OrderItem `json:"items,omitempty"`
 	Amounts   Amount      `json:"amounts" sql:"-"`
 	OrderInfo *OrderInfo  `json:"customer,omitempty" sql:"-"`
 	Status    string      `json:"status"`
@@ -93,7 +93,14 @@ func getOrderPage(offset uint, limit uint, total uint, sort string) OrderUrl {
 	next := "/orders?offset=" + strconv.FormatUint(nextNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10) + "&" + sort
 	previous := "/orders?offset=" + strconv.FormatUint(prevNum, 10) + "&limit=" + strconv.FormatUint(uint64(limit), 10) + "&" + sort
 
+	// Nothing to show on next_url
 	if uint64(total) <= nextNum {
+		// If offset already zero, not thing to show on previous_url also
+		if offset == 0 {
+			return OrderUrl{}
+		}
+
+		// At least, we have something to show on previous_url
 		return OrderUrl{
 			Previous: &previous,
 		}

@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/fatih/structs"
 
 	"errors"
@@ -9,6 +10,7 @@ import (
 	"strings"
 )
 
+var PR_DUMP = spew.Dump
 var PR_INFO = fmt.Println
 
 func FieldSelection(v interface{}, field string) (map[string]interface{}, error) {
