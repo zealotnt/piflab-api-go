@@ -113,7 +113,7 @@ func UpdateProductHandler(app *App) HandlerFunc {
 			JSON(w, err)
 			return
 		}
-		JSON(w, maps, 201)
+		JSON(w, maps, 200)
 	}
 }
 

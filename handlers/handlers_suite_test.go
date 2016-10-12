@@ -30,7 +30,7 @@ var extraParams = map[string]string{
 	"price":    "70000",
 	"provider": "Microsoft",
 	"rating":   "3.5",
-	"status":   "sale",
+	"status":   "available",
 	"detail":   "some text",
 }
 var initialize_product = &Product{}
