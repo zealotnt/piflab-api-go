@@ -2,6 +2,8 @@ version: '2'
 services:
   db:
     image: postgres
+    ports:
+      - "9000:5432"
   api:
     build: .
     image: piflab-store-api-go
