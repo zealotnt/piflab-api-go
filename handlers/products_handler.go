@@ -8,6 +8,27 @@ import (
 	"net/http"
 )
 
+func GetProductsDetailHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		// the purpose of form is to get form.Fields, so don't care about Binding errors
+		form := new(GetProductForm)
+		Bind(form, r)
+
+		product, err := (ProductRepository{app.DB}).FindById(c.ID())
+		if err != nil {
+			JSON(w, err, 404)
+			return
+		}
+
+		maps, err := FieldSelection(product, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps)
+	}
+}
+
 func GetProductsHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
 		form := new(GetProductForm)
@@ -17,13 +38,34 @@ func GetProductsHandler(app *App) HandlerFunc {
 			form.Limit = 10
 		}
 
-		products, total, err := ProductRepository{app.DB}.GetPage(form.Offset, form.Limit)
+		products, total, err := ProductRepository{app.DB}.GetPage(form.Offset, form.Limit, form.Search)
 		if err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		JSON(w, products.GetPaging(form.Offset, form.Limit, total))
+		products_by_pages := products.GetPaging(form.Offset, form.Limit, total)
+		// Get the fully maps
+		maps, err := FieldSelection(products_by_pages, "")
+		if err != nil {
+			JSON(w, err, 503)
+			return
+		}
+		// Filter the "data"'s fields
+		var data_maps []map[string]interface{}
+		for idx, _ := range *products_by_pages.Data {
+			var data_in_map map[string]interface{}
+			data := (*products_by_pages.Data)[idx]
+			data_in_map, err = FieldSelection(data, form.Fields)
+			if err != nil {
+				JSON(w, err, 503)
+				return
+			}
+			data_maps = append(data_maps, data_in_map)
+		}
+		// Give the filtered data to the output
+		maps["data"] = data_maps
+		JSON(w, maps)
 	}
 }
 
@@ -46,7 +88,13 @@ func CreateProductHandler(app *App) HandlerFunc {
 			JSON(w, err, 500)
 			return
 		}
-		JSON(w, product, 201)
+
+		maps, err := FieldSelection(product, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps, 201)
 	}
 }
 
@@ -75,7 +123,13 @@ func UpdateProductHandler(app *App) HandlerFunc {
 			JSON(w, err, 500)
 			return
 		}
-		JSON(w, product)
+
+		maps, err := FieldSelection(product, form.Fields)
+		if err != nil {
+			JSON(w, err)
+			return
+		}
+		JSON(w, maps, 200)
 	}
 }
 

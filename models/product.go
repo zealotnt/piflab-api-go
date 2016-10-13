@@ -27,16 +27,6 @@ type Product struct {
 	ImageThumbnailUrl  *string   `json:"image_thumbnail_url" sql:"-"`
 	ImageDetailUrl     *string   `json:"image_detail_url" sql:"-"`
 
-	AvatarData          []byte    `json:"-" sql:"-"`
-	AvatarThumbnailData []byte    `json:"-" sql:"-"`
-	AvatarDetailData    []byte    `json:"-" sql:"-"`
-	Avatar              string    `json:"-"`
-	NewAvatar           string    `json:"-" sql:"-"`
-	AvatarUpdatedAt     time.Time `json:"-"`
-	AvatarUrl           *string   `json:"avatar_url" sql:"-"`
-	AvatarThumbnailUrl  *string   `json:"avatar_thumbnail_url" sql:"-"`
-	AvatarDetailUrl     *string   `json:"avatar_detail_url" sql:"-"`
-
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -57,7 +47,6 @@ type ImageField int
 
 const (
 	IMAGE ImageField = iota
-	AVATAR
 )
 
 type ImageSize int
@@ -120,10 +109,6 @@ func (product *Product) GetImagePath(field ImageField, image ImageSize) string {
 		img_field = "/image_"
 		img_name = product.Image
 		img_updated_at = strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10)
-	case AVATAR:
-		img_field = "/avatar_"
-		img_name = product.Avatar
-		img_updated_at = strconv.FormatInt(product.ImageUpdatedAt.Unix(), 10)
 	default:
 		return ""
 	}
@@ -159,8 +144,6 @@ func (product *Product) GetImageContentType(field ImageField, image ImageSize) s
 	switch field {
 	case IMAGE:
 		img_name = product.Image
-	case AVATAR:
-		img_name = product.Avatar
 	default:
 		return ""
 	}
@@ -193,7 +176,7 @@ func (product *Product) GetImageUrl() {
 	urlResult := [3]string{}
 
 	if product.Image == "" {
-		goto check_avatar
+		return
 	}
 
 	for idx, _ := range imageSizeList {
@@ -202,16 +185,4 @@ func (product *Product) GetImageUrl() {
 	product.ImageUrl = &urlResult[0]
 	product.ImageThumbnailUrl = &urlResult[1]
 	product.ImageDetailUrl = &urlResult[2]
-
-check_avatar:
-	if product.Avatar == "" {
-		return
-	}
-
-	for idx, _ := range imageSizeList {
-		urlResult[idx], _ = product.GetImageUrlType(IMAGE, imageSizeList[idx])
-	}
-	product.AvatarUrl = &urlResult[0]
-	product.AvatarThumbnailUrl = &urlResult[1]
-	product.AvatarDetailUrl = &urlResult[2]
 }

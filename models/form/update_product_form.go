@@ -36,8 +36,8 @@ func (form *UpdateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Image: binding.Field{
 			Form: "image",
 		},
-		&form.Avatar: binding.Field{
-			Form: "avatar",
+		&form.Fields: binding.Field{
+			Form: "fields",
 		},
 	}
 }
@@ -85,12 +85,6 @@ func (form *UpdateProductForm) Validate() error {
 		}
 	}
 
-	if form.Avatar != nil {
-		if valid, err := (ImageService{}).IsValidImage(form.Avatar); valid != true {
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -126,10 +120,4 @@ func (form *UpdateProductForm) Assign(product *Product) {
 		product.ImageDetailData = (ImageService{}).GetDetail(form.Image, 550)
 	}
 
-	if form.Avatar != nil {
-		product.NewAvatar = form.Avatar.Filename
-		product.AvatarData = form.AvatarData()
-		product.AvatarThumbnailData = (ImageService{}).GetThumbnail(form.Avatar, 320)
-		product.AvatarDetailData = (ImageService{}).GetDetail(form.Avatar, 550)
-	}
 }

@@ -35,8 +35,8 @@ func (form *CreateProductForm) FieldMap(req *http.Request) binding.FieldMap {
 		&form.Image: binding.Field{
 			Form: "image",
 		},
-		&form.Avatar: binding.Field{
-			Form: "avatar",
+		&form.Fields: binding.Field{
+			Form: "fields",
 		},
 	}
 }
@@ -77,12 +77,6 @@ func (form *CreateProductForm) Validate() error {
 
 	if form.Image != nil {
 		if valid, err := (ImageService{}).IsValidImage(form.Image); valid != true {
-			return err
-		}
-	}
-
-	if form.Avatar != nil {
-		if valid, err := (ImageService{}).IsValidImage(form.Avatar); valid != true {
 			return err
 		}
 	}

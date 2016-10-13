@@ -4,6 +4,8 @@ import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/services"
+
+	"strings"
 	"time"
 )
 
@@ -35,9 +37,16 @@ func (repo ProductRepository) GetAll() (*ProductSlice, error) {
 	return products, err
 }
 
-func (repo ProductRepository) GetPage(offset uint, limit uint) (*ProductSlice, uint, error) {
+func (repo ProductRepository) GetPage(offset uint, limit uint, search string) (*ProductSlice, uint, error) {
 	products := &ProductSlice{}
-	err := repo.DB.Order("id DESC").Offset(int(offset)).Limit(int(limit)).Find(products).Error
+	var err error
+
+	if search == "" {
+		err = repo.DB.Order("id DESC").Offset(int(offset)).Limit(int(limit)).Find(products).Error
+	} else {
+		lower_search := strings.ToLower(search)
+		err = repo.DB.Order("id DESC").Offset(int(offset)).Limit(int(limit)).Where("LOWER(name) LIKE '%" + lower_search + "%'").Find(products).Error
+	}
 
 	for idx := range *products {
 		(*products)[idx].GetImageUrl()
@@ -71,27 +80,11 @@ func (repo ProductRepository) saveFile(product *Product) error {
 		}
 	}
 
-	if product.Avatar != "" {
-		var images = []image_to_save{
-			{&product.AvatarData, AVATAR, ORIGIN},
-			{&product.AvatarThumbnailData, AVATAR, THUMBNAIL},
-			{&product.AvatarDetailData, AVATAR, DETAIL}}
-
-		for _, image := range images {
-			if err := (FileService{}).SaveFile(
-				*image.data,
-				product.GetImagePath(image.field, image.size),
-				product.GetImageContentType(image.field, image.size)); err != nil {
-				return err
-			}
-		}
-	}
-
 	return nil
 }
 
 func (repo ProductRepository) deleteFile(product *Product) error {
-	var fields = []ImageField{IMAGE, AVATAR}
+	var fields = []ImageField{IMAGE}
 	var sizes = []ImageSize{ORIGIN, THUMBNAIL, DETAIL}
 
 	for _, field := range fields {

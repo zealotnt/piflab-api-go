@@ -4,12 +4,12 @@
 CREATE TABLE products (
 	id SERIAL PRIMARY KEY,
 	name varchar(255),
-	price int, 
+	price int,
 	provider varchar(255),
 	rating float,
 	status varchar(80),
 	image varchar(255),
-	detail TEXT,	
+	detail TEXT,
 	created_at timestamp,
 	updated_at timestamp,
 	image_updated_at timestamp
