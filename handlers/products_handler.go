@@ -44,11 +44,27 @@ func GetProductsHandler(app *App) HandlerFunc {
 			return
 		}
 
-		maps, err := FieldSelection(products.GetPaging(form.Offset, form.Limit, total), form.Fields)
+		products_by_pages := products.GetPaging(form.Offset, form.Limit, total)
+		// Get the fully maps
+		maps, err := FieldSelection(products_by_pages, "")
 		if err != nil {
-			JSON(w, err)
+			JSON(w, err, 503)
 			return
 		}
+		// Filter the "data"'s fields
+		var data_maps []map[string]interface{}
+		for idx, _ := range *products_by_pages.Data {
+			var data_in_map map[string]interface{}
+			data := (*products_by_pages.Data)[idx]
+			data_in_map, err = FieldSelection(data, form.Fields)
+			if err != nil {
+				JSON(w, err, 503)
+				return
+			}
+			data_maps = append(data_maps, data_in_map)
+		}
+		// Give the filtered data to the output
+		maps["data"] = data_maps
 		JSON(w, maps)
 	}
 }

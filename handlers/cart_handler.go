@@ -209,11 +209,29 @@ func GetCheckoutHandler(app *App) HandlerFunc {
 		for idx, _ := range *orders {
 			(*orders)[idx].Items = nil
 		}
-		maps, err := FieldSelection(orders.GetPaging(form.Offset, form.Limit, total, *form.Sort), form.Fields)
+
+		orders_by_pages := orders.GetPaging(form.Offset, form.Limit, total, *form.Sort)
+		// Get the fully maps
+		maps, err := FieldSelection(orders_by_pages, "")
 		if err != nil {
-			JSON(w, err)
+			JSON(w, err, 503)
 			return
 		}
+
+		// Filter the "data"'s fields
+		var data_maps []map[string]interface{}
+		for idx, _ := range *orders_by_pages.Data {
+			var data_in_map map[string]interface{}
+			data := (*orders_by_pages.Data)[idx]
+			data_in_map, err = FieldSelection(data, form.Fields)
+			if err != nil {
+				JSON(w, err, 503)
+				return
+			}
+			data_maps = append(data_maps, data_in_map)
+		}
+		// Give the filtered data to the output
+		maps["data"] = data_maps
 		JSON(w, maps)
 	}
 }
