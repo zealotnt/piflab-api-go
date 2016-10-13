@@ -6,6 +6,7 @@ import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 
 	"errors"
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -57,16 +58,23 @@ try_gen_other_value:
 	goto try_gen_other_value
 }
 
-func (repo OrderRepository) getOrderItemsInfo(order *Order) {
+func (repo OrderRepository) getOrderItemsInfo(order *Order) error {
 	for idx, item := range order.Items {
 		product := &Product{}
 		product.Id = item.ProductId
-		repo.DB.Select("name, price, image, image_updated_at").Find(&product)
+
+		if err := repo.DB.Select("image, image_updated_at").Find(&product).Error; err != nil {
+			return fmt.Errorf("Product %v", err)
+		}
+
 		order.Items[idx].ProductPrice = product.Price
 		order.Items[idx].ProductName = product.Name
 		(*product).GetImageUrl()
 		order.Items[idx].ProductImageThumbnailUrl = product.ImageThumbnailUrl
+		return nil
 	}
+
+	return nil
 }
 
 func (repo OrderRepository) clearNullQuantity() {
@@ -78,11 +86,13 @@ func (repo OrderRepository) createOrder(order *Order) error {
 		return err
 	}
 
-	if err := repo.DB.Create(order).Error; err != nil {
+	if err := repo.getOrderItemsInfo(order); err != nil {
 		return err
 	}
 
-	repo.getOrderItemsInfo(order)
+	if err := repo.DB.Create(order).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
