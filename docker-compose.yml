@@ -6,7 +6,7 @@ services:
       - "9000:5432"
   api:
     build: .
-    image: piflab-store-api-go
+    image: zealotnt/piflab-store-api-go
     command: bash api-go-entry.sh postgres
     ports:
       - "80:80"
