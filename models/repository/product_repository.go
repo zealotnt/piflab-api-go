@@ -3,185 +3,193 @@ package repository
 import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
-	. "github.com/o0khoiclub0o/piflab-store-api-go/services"
 
-	"strings"
-	"time"
+	"encoding/json"
+	"errors"
+	"strconv"
+	// "strings"
+	// "time"
 )
 
 type ProductRepository struct {
-	*DB
+	*App
 }
 
 func (repo ProductRepository) FindById(id uint) (*Product, error) {
 	product := &Product{}
+	response, body := repo.App.HttpRequest("GET", "http://product_service:9901/products/"+strconv.Itoa(int(id)), "")
+	if response.Status != "200 OK" {
+		return nil, errors.New(body)
+	}
 
-	err := repo.DB.First(&product, id).Error
-	if err != nil {
+	if err := json.Unmarshal([]byte(body), &product); err != nil {
 		return nil, err
 	}
 
-	product.GetImageUrl()
-
-	return product, err
+	return product, nil
 }
 
-func (repo ProductRepository) GetAll() (*ProductSlice, error) {
-	products := &ProductSlice{}
-	err := repo.DB.Find(products).Error
+func (repo ProductRepository) GetPage(offset uint, limit uint, search string) (*ProductPage, error) {
+	product_by_page := &ProductPage{}
 
-	for idx := range *products {
-		(*products)[idx].GetImageUrl()
+	response, body := repo.App.HttpRequest("GET",
+		"http://product_service:9901/products?offset="+
+			strconv.Itoa(int(offset))+
+			"&limit="+strconv.Itoa(int(limit))+
+			"&q="+search,
+		"")
+	if response.Status != "200 OK" {
+		return nil, errors.New(body)
 	}
 
-	return products, err
-}
-
-func (repo ProductRepository) GetPage(offset uint, limit uint, search string) (*ProductSlice, uint, error) {
-	products := &ProductSlice{}
-	var err error
-
-	if search == "" {
-		err = repo.DB.Order("id DESC").Offset(int(offset)).Limit(int(limit)).Find(products).Error
-	} else {
-		lower_search := strings.ToLower(search)
-		err = repo.DB.Order("id DESC").Offset(int(offset)).Limit(int(limit)).Where("LOWER(name) LIKE '%" + lower_search + "%'").Find(products).Error
+	if err := json.Unmarshal([]byte(body), &product_by_page); err != nil {
+		return nil, err
 	}
 
-	for idx := range *products {
-		(*products)[idx].GetImageUrl()
-	}
-
-	count, _ := repo.CountProduct()
-
-	return products, count, err
+	return product_by_page, nil
 }
 
 func (repo ProductRepository) saveFile(product *Product) error {
-	type image_to_save struct {
-		data  *[]byte
-		field ImageField
-		size  ImageSize
-	}
+	// type image_to_save struct {
+	// 	data  *[]byte
+	// 	field ImageField
+	// 	size  ImageSize
+	// }
 
-	if product.Image != "" {
-		var images = []image_to_save{
-			{&product.ImageData, IMAGE, ORIGIN},
-			{&product.ImageThumbnailData, IMAGE, THUMBNAIL},
-			{&product.ImageDetailData, IMAGE, DETAIL}}
+	// if product.Image != "" {
+	// 	var images = []image_to_save{
+	// 		{&product.ImageData, IMAGE, ORIGIN},
+	// 		{&product.ImageThumbnailData, IMAGE, THUMBNAIL},
+	// 		{&product.ImageDetailData, IMAGE, DETAIL}}
 
-		for _, image := range images {
-			if err := (FileService{}).SaveFile(
-				*image.data,
-				product.GetImagePath(image.field, image.size),
-				product.GetImageContentType(image.field, image.size)); err != nil {
-				return err
-			}
-		}
-	}
+	// 	for _, image := range images {
+	// 		if err := (FileService{}).SaveFile(
+	// 			*image.data,
+	// 			product.GetImagePath(image.field, image.size),
+	// 			product.GetImageContentType(image.field, image.size)); err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// }
+
+	// return nil
 
 	return nil
 }
 
 func (repo ProductRepository) deleteFile(product *Product) error {
-	var fields = []ImageField{IMAGE}
-	var sizes = []ImageSize{ORIGIN, THUMBNAIL, DETAIL}
+	// var fields = []ImageField{IMAGE}
+	// var sizes = []ImageSize{ORIGIN, THUMBNAIL, DETAIL}
 
-	for _, field := range fields {
-		for _, size := range sizes {
-			if err := (FileService{}).DeleteFile(product.GetImagePath(field, size)); err != nil {
-				return err
-			}
-		}
-	}
+	// for _, field := range fields {
+	// 	for _, size := range sizes {
+	// 		if err := (FileService{}).DeleteFile(product.GetImagePath(field, size)); err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// }
+
+	// return nil
 
 	return nil
 }
 
 func (repo ProductRepository) createProduct(product *Product) error {
-	product.ImageUpdatedAt = time.Now()
+	// product.ImageUpdatedAt = time.Now()
 
-	tx := repo.DB.Begin()
+	// tx := repo.DB.Begin()
 
-	if err := tx.Create(product).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
+	// if err := tx.Create(product).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
 
-	if err := repo.saveFile(product); err != nil {
-		tx.Rollback()
-		return err
-	}
-	product.GetImageUrl()
+	// if err := repo.saveFile(product); err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
+	// product.GetImageUrl()
 
-	tx.Commit()
+	// tx.Commit()
+
+	// return nil
 
 	return nil
 }
 
 func (repo ProductRepository) updateProduct(product *Product) error {
-	tx := repo.DB.Begin()
+	// tx := repo.DB.Begin()
 
-	if product.ImageData != nil {
-		if err := repo.deleteFile(product); err != nil {
-			tx.Rollback()
-			return err
-		}
+	// if product.ImageData != nil {
+	// 	if err := repo.deleteFile(product); err != nil {
+	// 		tx.Rollback()
+	// 		return err
+	// 	}
 
-		product.Image = product.NewImage
-		product.ImageUpdatedAt = time.Now()
+	// 	product.Image = product.NewImage
+	// 	product.ImageUpdatedAt = time.Now()
 
-		if err := repo.saveFile(product); err != nil {
-			tx.Rollback()
-			return err
-		}
-		product.GetImageUrl()
-	}
+	// 	if err := repo.saveFile(product); err != nil {
+	// 		tx.Rollback()
+	// 		return err
+	// 	}
+	// 	product.GetImageUrl()
+	// }
 
-	if err := tx.Save(product).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
+	// if err := tx.Save(product).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
 
-	tx.Commit()
+	// tx.Commit()
+
+	// return nil
 
 	return nil
 }
 
 func (repo ProductRepository) SaveProduct(product *Product) error {
-	if product.Id == 0 {
-		return repo.createProduct(product)
-	}
-	return repo.updateProduct(product)
+	// if product.Id == 0 {
+	// 	return repo.createProduct(product)
+	// }
+	// return repo.updateProduct(product)
+
+	return nil
 }
 
 func (repo ProductRepository) CountProduct() (uint, error) {
-	count := uint(0)
+	// count := uint(0)
 
-	err := repo.DB.Table("products").Count(&count).Error
+	// err := repo.DB.Table("products").Count(&count).Error
 
-	return count, err
+	// return count, err
+
+	return 0, nil
 }
 
 func (repo ProductRepository) DeleteProduct(id uint) (*Product, error) {
-	product, err := repo.FindById(id)
-	if err != nil {
-		return product, err
-	}
+	// // product, err := repo.FindById(id)1
+	// product := &Product{}
+	// var err error
+	// if err != nil {
+	// 	return product, err
+	// }
 
-	tx := repo.DB.Begin()
+	// tx := repo.DB.Begin()
 
-	if err := repo.deleteFile(product); err != nil {
-		tx.Rollback()
-		return product, err
-	}
+	// if err := repo.deleteFile(product); err != nil {
+	// 	tx.Rollback()
+	// 	return product, err
+	// }
 
-	if err := repo.DB.Delete(product).Error; err != nil {
-		tx.Rollback()
-		return product, err
-	}
+	// if err := repo.DB.Delete(product).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return product, err
+	// }
 
-	tx.Commit()
+	// tx.Commit()
 
-	return product, nil
+	// return product, nil
+
+	return nil, nil
 }

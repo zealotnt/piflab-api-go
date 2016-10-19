@@ -14,7 +14,7 @@ func GetProductsDetailHandler(app *App) HandlerFunc {
 		form := new(GetProductForm)
 		Bind(form, r)
 
-		product, err := (ProductRepository{app.DB}).FindById(c.ID())
+		product, err := (ProductRepository{app}).FindById(c.ID())
 		if err != nil {
 			JSON(w, err, 404)
 			return
@@ -38,13 +38,12 @@ func GetProductsHandler(app *App) HandlerFunc {
 			form.Limit = 10
 		}
 
-		products, total, err := ProductRepository{app.DB}.GetPage(form.Offset, form.Limit, form.Search)
+		products_by_pages, err := ProductRepository{app}.GetPage(form.Offset, form.Limit, form.Search)
 		if err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		products_by_pages := products.GetPaging(form.Offset, form.Limit, total)
 		// Get the fully maps
 		maps, err := FieldSelection(products_by_pages, "")
 		if err != nil {
@@ -84,7 +83,7 @@ func CreateProductHandler(app *App) HandlerFunc {
 		}
 
 		product := form.Product()
-		if err := (ProductRepository{app.DB}).SaveProduct(product); err != nil {
+		if err := (ProductRepository{app}).SaveProduct(product); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -100,7 +99,7 @@ func CreateProductHandler(app *App) HandlerFunc {
 
 func UpdateProductHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		product, err := (ProductRepository{app.DB}).FindById(c.ID())
+		product, err := (ProductRepository{app}).FindById(c.ID())
 		if err != nil {
 			JSON(w, err, 404)
 			return
@@ -119,7 +118,7 @@ func UpdateProductHandler(app *App) HandlerFunc {
 		}
 
 		form.Assign(product)
-		if err := (ProductRepository{app.DB}).SaveProduct(product); err != nil {
+		if err := (ProductRepository{app}).SaveProduct(product); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -135,7 +134,7 @@ func UpdateProductHandler(app *App) HandlerFunc {
 
 func DeleteProductHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		product, err := (ProductRepository{app.DB}).DeleteProduct(c.ID())
+		product, err := (ProductRepository{app}).DeleteProduct(c.ID())
 		if err != nil {
 			JSON(w, err, 500)
 			return
