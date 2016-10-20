@@ -50,6 +50,13 @@ func GetProductsHandler(app *App) HandlerFunc {
 			JSON(w, err, 503)
 			return
 		}
+
+		// If the product list is nil, return right away
+		if products_by_pages.Data == nil {
+			JSON(w, maps)
+			return
+		}
+
 		// Filter the "data"'s fields
 		var data_maps []map[string]interface{}
 		for idx, _ := range *products_by_pages.Data {
