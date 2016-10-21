@@ -5,6 +5,7 @@ import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -13,7 +14,7 @@ import (
 )
 
 type OrderRepository struct {
-	*DB
+	*App
 }
 
 func (repo OrderRepository) generateOrderCode(order *Order) error {
@@ -175,21 +176,15 @@ func (repo OrderRepository) GetOrderByOrdercode(order_code string) (*Order, erro
 
 func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	order := &Order{}
-	items := &[]OrderItem{}
-
-	// find a order by its access_token
-	if err := repo.DB.Where("access_token = ?", access_token).Find(order).Error; err != nil {
-		return nil, err
+	PR_INFO(repo.ORDER_SERVICE + "/cart?" + access_token)
+	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/cart?"+access_token, "")
+	if response.Status != "200 OK" {
+		return nil, errors.New("Cart not found")
 	}
 
-	// use order.Id to find its OrderItem data (order.Id is its forein key)
-	if err := repo.DB.Where("order_id = ?", order.Id).Find(items).Error; err != nil {
+	if err := json.Unmarshal([]byte(body), &order); err != nil {
 		return nil, err
 	}
-
-	// use the order.Items to update products information
-	order.Items = *items
-	repo.getOrderItemsInfo(order)
 
 	return order, nil
 }

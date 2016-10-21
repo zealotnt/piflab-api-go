@@ -22,7 +22,7 @@ func GetCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		order, err := (OrderRepository{app.DB}).GetOrder(*form.AccessToken)
+		order, err := (OrderRepository{app}).GetOrder(*form.AccessToken)
 		if err != nil {
 			JSON(w, err, 500)
 			return
@@ -58,7 +58,7 @@ func UpdateCartHandler(app *App) HandlerFunc {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
+		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -94,7 +94,7 @@ func UpdateCartItemHandler(app *App) HandlerFunc {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
+		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -130,7 +130,7 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 			JSON(w, err, 422)
 			return
 		}
-		if err := (OrderRepository{app.DB}).DeleteOrderItem(order, c.ID()); err != nil {
+		if err := (OrderRepository{app}).DeleteOrderItem(order, c.ID()); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -168,7 +168,7 @@ func CheckoutCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		if err := (OrderRepository{app.DB}).CheckoutOrder(order); err != nil {
+		if err := (OrderRepository{app}).CheckoutOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
@@ -199,7 +199,7 @@ func GetCheckoutHandler(app *App) HandlerFunc {
 			return
 		}
 
-		orders, total, err := OrderRepository{app.DB}.GetPage(form.Offset, form.Limit, *form.Status, form.SortField, form.SortOrder, form.Search)
+		orders, total, err := OrderRepository{app}.GetPage(form.Offset, form.Limit, *form.Status, form.SortField, form.SortOrder, form.Search)
 		if err != nil {
 			JSON(w, err, 500)
 			return
@@ -242,7 +242,7 @@ func GetCheckoutDetailHandler(app *App) HandlerFunc {
 		form := new(GetCheckoutForm)
 		Bind(form, r)
 
-		order, err := (OrderRepository{app.DB}).FindByOrderId(c.Params["id"])
+		order, err := (OrderRepository{app}).FindByOrderId(c.Params["id"])
 		if err != nil {
 			JSON(w, err, 404)
 			return
@@ -279,7 +279,7 @@ func UpdateCheckoutStatusHandler(app *App) HandlerFunc {
 			return
 		}
 
-		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
+		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}

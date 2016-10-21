@@ -44,7 +44,7 @@ func (form *CartForm) Validate(method string, app ...*App) error {
 		var order = new(Order)
 		var err error
 		// Get order info based on AccessToken
-		if order, err = (OrderRepository{app[0].DB}).GetOrder(*form.AccessToken); err != nil {
+		if order, err = (OrderRepository{app[0]}).GetOrder(*form.AccessToken); err != nil {
 			if err.Error() == "record not found" {
 				return errors.New("Access Token is invalid")
 			}
@@ -100,7 +100,7 @@ func (form *CartForm) Order(app *App, item_id ...uint) (*Order, error) {
 
 	if form.AccessToken != nil {
 		// Get order info based on AccessToken
-		if order, err = (OrderRepository{app.DB}).GetOrder(*form.AccessToken); err != nil {
+		if order, err = (OrderRepository{app}).GetOrder(*form.AccessToken); err != nil {
 			if err.Error() == "record not found" {
 				return order, errors.New("Access Token is invalid")
 			}
