@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -38,39 +39,19 @@ try_gen_other_value:
 	goto try_gen_other_value
 }
 
-func (repo OrderRepository) generateAccessToken(order *Order) error {
-	rand.Seed(time.Now().UTC().UnixNano())
-
-try_gen_other_value:
-	order.AccessToken = fake.CharactersN(32)
-
-	temp_order := &Order{}
-	if err := repo.DB.Where("access_token = ?", order.AccessToken).Find(temp_order).Error; err != nil {
-		// Check if err is not found -> access_token is unique
-		if err.Error() == "record not found" {
-			return nil
-		}
-
-		// Otherwise, this is database operation error
-		return errors.New("Database error")
-	}
-
-	// duplicate, try again
-	goto try_gen_other_value
-}
-
 func (repo OrderRepository) getOrderItemsInfo(order *Order) error {
 	for idx, item := range order.Items {
 		product := &Product{}
-		product.Id = item.ProductId
+		var err error
 
-		if err := repo.DB.Select("image, image_updated_at").Find(&product).Error; err != nil {
+		product.Id = item.ProductId
+		product, err = (ProductRepository{repo.App}).FindById(product.Id)
+		if err != nil {
 			return fmt.Errorf("Product %v", err)
 		}
 
 		order.Items[idx].ProductPrice = product.Price
 		order.Items[idx].ProductName = product.Name
-		(*product).GetImageUrl()
 		order.Items[idx].ProductImageThumbnailUrl = product.ImageThumbnailUrl
 		return nil
 	}
@@ -83,49 +64,107 @@ func (repo OrderRepository) clearNullQuantity() {
 }
 
 func (repo OrderRepository) createOrder(order *Order) error {
-	if err := repo.generateAccessToken(order); err != nil {
+	type CreateCartForm struct {
+		Product_Id uint   `json:"product_id"`
+		Quantity   int    `json:"quantity"`
+		Name       string `json:"name"`
+		Price      uint   `json:"price"`
+	}
+	form := new(CreateCartForm)
+
+	if err := repo.getOrderItemsInfo(order); err != nil {
 		return err
+	}
+
+	form.Product_Id = order.Items[0].ProductId
+	form.Quantity = order.Items[0].Quantity
+	form.Price = uint(order.Items[0].ProductPrice)
+	form.Name = order.Items[0].ProductName
+	response, body := repo.App.HttpRequest("PUT",
+		repo.ORDER_SERVICE+"/cart/items",
+		form)
+	if response.Status != "200 OK" {
+		return errors.New(body)
+	}
+
+	if err := json.Unmarshal([]byte(body), order); err != nil {
+		return err
+	}
+	repo.getOrderItemsInfo(order)
+
+	return nil
+}
+
+func (repo OrderRepository) updateOrder(order *Order) error {
+	type UpdateCartItemForm struct {
+		AccessToken string `json:"access_token"`
+		Quantity    int    `json:"quantity"`
+		Name        string `json:"name"`
+		Price       uint   `json:"price"`
+	}
+	type CreateCartItemForm struct {
+		AccessToken string `json:"access_token"`
+		Product_Id  uint   `json:"product_id"`
+		Quantity    int    `json:"quantity"`
+		Name        string `json:"name"`
+		Price       uint   `json:"price"`
 	}
 
 	if err := repo.getOrderItemsInfo(order); err != nil {
 		return err
 	}
 
-	if err := repo.DB.Create(order).Error; err != nil {
-		return err
-	}
+	if order.ItemUpdateId == 0 {
+		form := new(CreateCartItemForm)
 
-	return nil
-}
-
-func (repo OrderRepository) updateOrder(order *Order) error {
-	tx := repo.DB.Begin()
-
-	// Update the order
-	if err := tx.Save(order).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	// Check if need to create the order_status_log item
-	if order.Status != "cart" {
-		order_status_log := OrderStatusLog{
-			Code:   order.OrderInfo.OrderCode,
-			Status: order.Status,
+		if order.ItemUpdateNew == true {
+			// the brand-new item, update with {product_id, quantity}
+			num_of_item := len(order.Items)
+			form.Quantity = order.ItemUpdateQuantity
+			form.AccessToken = order.AccessToken
+			form.Product_Id = order.Items[num_of_item-1].ProductId
+			form.Quantity = order.Items[num_of_item-1].Quantity
+			form.Price = uint(order.Items[num_of_item-1].ProductPrice)
+			form.Name = order.Items[num_of_item-1].ProductName
+		} else {
+			// update quantity base on offset {product_id, quantity}
+			form.Quantity = order.ItemUpdateQuantity
+			form.AccessToken = order.AccessToken
+			form.Product_Id = uint(order.Items[order.ItemUpdateIdx].ProductId)
+			form.Price = uint(order.Items[order.ItemUpdateIdx].ProductPrice)
+			form.Name = order.Items[order.ItemUpdateIdx].ProductName
 		}
 
-		if err := tx.Create(&order_status_log).Error; err != nil {
-			tx.Rollback()
+		response, body := repo.App.HttpRequest("PUT",
+			repo.ORDER_SERVICE+"/cart/items",
+			form)
+		if response.Status != "200 OK" {
+			return errors.New(body)
+		}
+
+		if err := json.Unmarshal([]byte(body), order); err != nil {
+			return err
+		}
+	} else {
+		form := new(UpdateCartItemForm)
+
+		// update quantity base on offset {item_id, quantity}
+		form.Quantity = order.ItemUpdateQuantity
+		form.AccessToken = order.AccessToken
+		form.Price = uint(order.Items[order.ItemUpdateIdx].ProductPrice)
+		form.Name = order.Items[order.ItemUpdateIdx].ProductName
+
+		response, body := repo.App.HttpRequest("PUT",
+			repo.ORDER_SERVICE+"/cart/items/"+strconv.Itoa(order.ItemUpdateId),
+			form)
+		if response.Status != "200 OK" {
+			return errors.New(body)
+		}
+
+		if err := json.Unmarshal([]byte(body), order); err != nil {
 			return err
 		}
 	}
-
-	tx.Commit()
-
-	repo.clearNullQuantity()
-
-	// Don't return access_token when updating
-	order.EraseAccessToken()
 
 	repo.getOrderItemsInfo(order)
 
@@ -176,8 +215,7 @@ func (repo OrderRepository) GetOrderByOrdercode(order_code string) (*Order, erro
 
 func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	order := &Order{}
-	PR_INFO(repo.ORDER_SERVICE + "/cart?" + access_token)
-	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/cart?"+access_token, "")
+	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/cart?access_token="+access_token, "")
 	if response.Status != "200 OK" {
 		return nil, errors.New("Cart not found")
 	}
@@ -185,6 +223,7 @@ func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	if err := json.Unmarshal([]byte(body), &order); err != nil {
 		return nil, err
 	}
+	repo.getOrderItemsInfo(order)
 
 	return order, nil
 }
@@ -197,25 +236,16 @@ func (repo OrderRepository) SaveOrder(order *Order) error {
 }
 
 func (repo OrderRepository) DeleteOrderItem(order *Order, item_id uint) error {
-	item := OrderItem{}
-
-	// use order.Id to find its OrderItem data (order.Id is its forein key)
-	if err := repo.DB.Where("id = ? AND order_id = ?", item_id, order.Id).Find(&item).Error; err != nil {
-		if err.Error() == "record not found" {
-			return errors.New("Not found Item Id in a Cart")
-		}
-
-		return err
+	response, body := repo.App.HttpRequest("DELETE", repo.ORDER_SERVICE+"/cart/items/"+strconv.Itoa(int(item_id))+"?access_token="+order.AccessToken, "")
+	if response.Status != "200 OK" {
+		PR_DUMP(response)
+		PR_INFO(body)
+		return errors.New("Cart not found")
 	}
 
-	repo.DB.Delete(&item)
-
-	// use order.Id to find its OrderItem data (order.Id is its forein key)
-	items := &[]OrderItem{}
-	repo.DB.Where("order_id = ?", order.Id).Find(items)
-	order.Items = *items
-
-	repo.getOrderItemsInfo(order)
+	if err := json.Unmarshal([]byte(body), &order); err != nil {
+		return err
+	}
 
 	return nil
 }
