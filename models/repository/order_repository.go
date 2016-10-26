@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -210,7 +209,7 @@ func (repo OrderRepository) GetOrderByOrdercode(order_code string) (*Order, erro
 
 func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	order := &Order{}
-	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/cart?access_token="+access_token, "")
+	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/cart?access_token="+access_token, nil)
 	if response.Status != "200 OK" {
 		return nil, ParseError(body)
 	}
@@ -251,38 +250,31 @@ func (repo OrderRepository) CountOrders() (uint, error) {
 	return count, err
 }
 
-func (repo OrderRepository) GetPage(offset uint, limit uint, status string, sort_field string, sort_order string, search string) (*OrderSlice, uint, error) {
-	orders := &OrderSlice{}
-	items := &[]OrderItem{}
+func (repo OrderRepository) GetPage(offset uint, limit uint, status string, sort_field string, sort_order string, search string) (*OrderPage, error) {
+	order_page := &OrderPage{}
 	var err error
-	var where_param string
+	var query_param string
 
-	if status == "" {
-		where_param = "status!='cart'"
-	} else {
-		where_param = "status='" + status + "'"
+	query_param += "?offset=" + strconv.Itoa(int(offset))
+	query_param += "&limit=" + strconv.Itoa(int(limit))
+	if status != "" {
+		query_param += "&status" + status
 	}
-
+	query_param += "&sort=" + sort_field + "|" + sort_order
 	if search != "" {
-		where_param += " AND LOWER(customer_name) LIKE  '%" + strings.ToLower(search) + "%'"
+		query_param += "&q=" + search
 	}
 
-	err = repo.DB.Order(sort_field + " " + sort_order).Offset(int(offset)).Where(where_param).Limit(int(limit)).Find(orders).Error
-
-	for idx, order := range *orders {
-		// use order.Id to find its OrderItem data (order.Id is its forein key)
-		if err := repo.DB.Where("order_id = ?", order.Id).Find(items).Error; err != nil {
-			return nil, 0, err
-		}
-		// use the order.Items to update products information
-		(*orders)[idx].Items = *items
-		repo.getOrderItemsInfo(&(*orders)[idx])
-		(*orders)[idx].CalculateAmount()
+	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/orders"+query_param, nil)
+	if response.Status != "200 OK" {
+		return nil, ParseError(body)
 	}
 
-	count, _ := repo.CountOrders()
+	if err := json.Unmarshal([]byte(body), &order_page); err != nil {
+		return nil, err
+	}
 
-	return orders, count, err
+	return order_page, err
 }
 
 func (repo OrderRepository) CheckoutOrder(order *Order) error {

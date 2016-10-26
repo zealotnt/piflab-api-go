@@ -14,7 +14,7 @@ type ProductRepository struct {
 
 func (repo ProductRepository) FindById(id uint) (*Product, error) {
 	product := &Product{}
-	response, body := repo.App.HttpRequest("GET", repo.PRODUCT_SERVICE+"/products/"+strconv.Itoa(int(id)), "")
+	response, body := repo.App.HttpRequest("GET", repo.PRODUCT_SERVICE+"/products/"+strconv.Itoa(int(id)), nil)
 	if response.Status != "200 OK" {
 		return nil, ParseError(body)
 	}
@@ -34,7 +34,7 @@ func (repo ProductRepository) GetPage(offset uint, limit uint, search string) (*
 			strconv.Itoa(int(offset))+
 			"&limit="+strconv.Itoa(int(limit))+
 			"&q="+search,
-		"")
+		nil)
 	if response.Status != "200 OK" {
 		return nil, ParseError(body)
 	}
