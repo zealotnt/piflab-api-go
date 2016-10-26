@@ -84,7 +84,7 @@ func (repo OrderRepository) createOrder(order *Order) error {
 		repo.ORDER_SERVICE+"/cart/items",
 		form)
 	if response.Status != "200 OK" {
-		return errors.New(body)
+		return ParseError(body)
 	}
 
 	if err := json.Unmarshal([]byte(body), order); err != nil {
@@ -139,7 +139,7 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 			repo.ORDER_SERVICE+"/cart/items",
 			form)
 		if response.Status != "200 OK" {
-			return errors.New(body)
+			return ParseError(body)
 		}
 
 		if err := json.Unmarshal([]byte(body), order); err != nil {
@@ -158,7 +158,7 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 			repo.ORDER_SERVICE+"/cart/items/"+strconv.Itoa(order.ItemUpdateId),
 			form)
 		if response.Status != "200 OK" {
-			return errors.New(body)
+			return ParseError(body)
 		}
 
 		if err := json.Unmarshal([]byte(body), order); err != nil {
@@ -173,21 +173,16 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 
 func (repo OrderRepository) FindByOrderId(order_code string) (*Order, error) {
 	order := &Order{}
-	items := &[]OrderItem{}
-
-	// find a order by its access_token
-	if err := repo.DB.Where("code = ?", order_code).Find(order).Error; err != nil {
-		return nil, err
+	response, body := repo.App.HttpRequest("GET",
+		repo.ORDER_SERVICE+"/orders/"+order_code,
+		nil)
+	if response.Status != "200 OK" {
+		return nil, ParseError(body)
 	}
 
-	// use order.Id to find its OrderItem data (order.Id is its forein key)
-	if err := repo.DB.Where("order_id = ?", order.Id).Find(items).Error; err != nil {
+	if err := json.Unmarshal([]byte(body), order); err != nil {
 		return nil, err
 	}
-
-	// use the order.Items to update products information
-	order.Items = *items
-	repo.getOrderItemsInfo(order)
 
 	return order, nil
 }
@@ -217,7 +212,7 @@ func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	order := &Order{}
 	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/cart?access_token="+access_token, "")
 	if response.Status != "200 OK" {
-		return nil, errors.New("Cart not found")
+		return nil, ParseError(body)
 	}
 
 	if err := json.Unmarshal([]byte(body), &order); err != nil {
@@ -238,9 +233,7 @@ func (repo OrderRepository) SaveOrder(order *Order) error {
 func (repo OrderRepository) DeleteOrderItem(order *Order, item_id uint) error {
 	response, body := repo.App.HttpRequest("DELETE", repo.ORDER_SERVICE+"/cart/items/"+strconv.Itoa(int(item_id))+"?access_token="+order.AccessToken, "")
 	if response.Status != "200 OK" {
-		PR_DUMP(response)
-		PR_INFO(body)
-		return errors.New("Cart not found")
+		return ParseError(body)
 	}
 
 	if err := json.Unmarshal([]byte(body), &order); err != nil {
@@ -293,28 +286,34 @@ func (repo OrderRepository) GetPage(offset uint, limit uint, status string, sort
 }
 
 func (repo OrderRepository) CheckoutOrder(order *Order) error {
-	if err := repo.generateOrderCode(order); err != nil {
+	type CheckoutCartForm struct {
+		AccessToken     string `json:"access_token"`
+		CustomerName    string `json:"name"`
+		CustomerAddress string `json:"address"`
+		CustomerPhone   string `json:"phone"`
+		CustomerEmail   string `json:"email"`
+		CustomerNote    string `json:"note"`
+	}
+
+	form := new(CheckoutCartForm)
+
+	form.AccessToken = order.AccessToken
+	form.CustomerName = order.OrderInfo.CustomerName
+	form.CustomerAddress = order.OrderInfo.CustomerAddress
+	form.CustomerPhone = order.OrderInfo.CustomerPhone
+	form.CustomerEmail = order.OrderInfo.CustomerEmail
+	form.CustomerNote = order.OrderInfo.CustomerNote
+
+	response, body := repo.App.HttpRequest("POST",
+		repo.ORDER_SERVICE+"/cart/checkout",
+		form)
+	if response.Status != "200 OK" {
+		return ParseError(body)
+	}
+
+	if err := json.Unmarshal([]byte(body), order); err != nil {
 		return err
 	}
-
-	tx := repo.DB.Begin()
-
-	if err := tx.Save(order).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	// Create the order_status_log item
-	order_status_log := OrderStatusLog{
-		Code:   order.OrderInfo.OrderCode,
-		Status: order.Status,
-	}
-	if err := tx.Create(&order_status_log).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	tx.Commit()
 
 	return nil
 }

@@ -3,8 +3,20 @@ package lib
 import (
 	"github.com/parnurzeal/gorequest"
 
+	"encoding/json"
+	"errors"
 	"net/http"
 )
+
+type ResponseError struct {
+	Error string `json:"error"`
+}
+
+func ParseError(body string) error {
+	var err_parsed ResponseError
+	json.Unmarshal([]byte(body), &err_parsed)
+	return errors.New(err_parsed.Error)
+}
 
 func (app *App) HttpRequest(method string, route string, body interface{}) (*http.Response, string) {
 	var resp *http.Response

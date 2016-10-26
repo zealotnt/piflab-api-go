@@ -46,7 +46,8 @@ type Order struct {
 	ItemUpdateId       int         `json:"-" sql:"-"`
 	ItemUpdateQuantity int         `json:"-" sql:"-"`
 
-	OrderInfo `json:"-"`
+	OrderCodeRet string `json:"id,omitempty" sql:"-"`
+	OrderInfo    `json:"-"`
 
 	Amounts Amount `json:"amounts" sql:"-"`
 
@@ -209,7 +210,7 @@ func (order *Order) RemoveZeroQuantityItems() {
 
 func (order *Order) ReturnCheckoutRequest() CheckoutReturn {
 	ret := new(CheckoutReturn)
-	ret.Id = order.OrderCode
+	ret.Id = order.OrderCodeRet
 	ret.Items = order.Items
 	ret.Amounts = order.Amounts
 	if order.OrderInfo.CustomerName != "" {

@@ -5,7 +5,6 @@ import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 
 	"encoding/json"
-	"errors"
 	"strconv"
 )
 
@@ -17,7 +16,7 @@ func (repo ProductRepository) FindById(id uint) (*Product, error) {
 	product := &Product{}
 	response, body := repo.App.HttpRequest("GET", repo.PRODUCT_SERVICE+"/products/"+strconv.Itoa(int(id)), "")
 	if response.Status != "200 OK" {
-		return nil, errors.New("Product not found")
+		return nil, ParseError(body)
 	}
 
 	if err := json.Unmarshal([]byte(body), &product); err != nil {
@@ -37,7 +36,7 @@ func (repo ProductRepository) GetPage(offset uint, limit uint, search string) (*
 			"&q="+search,
 		"")
 	if response.Status != "200 OK" {
-		return nil, errors.New(body)
+		return nil, ParseError(body)
 	}
 
 	if err := json.Unmarshal([]byte(body), &product_by_page); err != nil {
@@ -52,7 +51,7 @@ func (repo ProductRepository) createProduct(product *Product) error {
 		repo.PRODUCT_SERVICE+"/products",
 		product)
 	if response.Status != "201 Created" {
-		return errors.New(body)
+		return ParseError(body)
 	}
 	if err := json.Unmarshal([]byte(body), product); err != nil {
 		return err
@@ -66,7 +65,7 @@ func (repo ProductRepository) updateProduct(product *Product) error {
 		repo.PRODUCT_SERVICE+"/products/"+strconv.Itoa(int(product.Id)),
 		product)
 	if response.Status != "200 OK" {
-		return errors.New(body)
+		return ParseError(body)
 	}
 	if err := json.Unmarshal([]byte(body), product); err != nil {
 		return err
@@ -91,7 +90,7 @@ func (repo ProductRepository) DeleteProduct(id uint) (*Product, error) {
 	}
 	response, body := repo.App.HttpRequest("DELETE", repo.PRODUCT_SERVICE+"/products/"+strconv.Itoa(int(id)), "")
 	if response.Status != "200 OK" {
-		return nil, errors.New(body)
+		return nil, ParseError(body)
 	}
 
 	return product, nil
