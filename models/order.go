@@ -36,9 +36,10 @@ type CheckoutReturnSlice []CheckoutReturn
 type OrderSlice []Order
 
 type Order struct {
-	Id          uint   `json:"-"`
-	AccessToken string `json:"access_token,omitempty"`
-	Status      string `json:"status"`
+	Id            uint   `json:"-"`
+	AccessToken   string `json:"access_token,omitempty"`
+	Status        string `json:"status"`
+	StatusUpdated bool   `json:"-" sql:"-"`
 
 	Items              []OrderItem `json:"items" sql:"order_items"`
 	ItemUpdateNew      bool        `json:"-" sql:"-"`

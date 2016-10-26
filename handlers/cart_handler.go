@@ -205,7 +205,7 @@ func GetCheckoutDetailHandler(app *App) HandlerFunc {
 		form := new(GetCheckoutForm)
 		Bind(form, r)
 
-		order, err := (OrderRepository{app}).FindByOrderId(c.Params["id"])
+		order, err := (OrderRepository{app}).FindByOrderCode(c.Params["id"])
 		if err != nil {
 			JSON(w, err, 404)
 			return
