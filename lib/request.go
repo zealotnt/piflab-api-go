@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httputil"
+	"regexp"
 )
 
 type ResponseError struct {
@@ -18,18 +20,36 @@ func ParseError(body string) error {
 	return errors.New(err_parsed.Error)
 }
 
-func RequestForwarder(r *http.Request, route string) (*http.Response, error) {
-	r.URL.Host = route
-	r.RequestURI = ""
-	r.URL.Scheme = "http"
+func getUrlInfo(route string) (scheme string, host string) {
+	re, _ := regexp.Compile(`(\w*):\/\/(.*)`)
+	result := re.FindStringSubmatch(route)
+	if result == nil {
+		return "", ""
+	}
 
-	// PR_DUMP(r)
+	return result[1], result[2]
+}
+
+func RequestForwarder(r *http.Request, route string, data_unmarshal interface{}) (*http.Response, string, error) {
+	r.URL.Scheme, r.URL.Host = getUrlInfo(route)
+	r.RequestURI = ""
 
 	response, err := (&http.Client{}).Do(r)
+	if err != nil {
+		return nil, "", err
+	}
 
-	PR_DUMP(response, err)
+	all_data, _ := httputil.DumpResponse(response, true)
+	header, _ := httputil.DumpResponse(response, false)
 
-	return response, err
+	body_bytes := all_data[len(header):]
+	body_str := string(body_bytes)
+
+	if err := json.Unmarshal([]byte(body_str), &data_unmarshal); err != nil {
+		return nil, "", err
+	}
+
+	return response, body_str, nil
 }
 
 func (app *App) HttpRequest(method string, route string, body interface{}) (*http.Response, string) {

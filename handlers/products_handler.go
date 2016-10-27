@@ -2,6 +2,7 @@ package handlers
 
 import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models/form"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
 
@@ -77,37 +78,21 @@ func GetProductsHandler(app *App) HandlerFunc {
 
 func CreateProductHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		resp, err := RequestForwarder(r, "products:9901")
+		var product Product
+
+		// Forward it to service
+		resp, body, err := RequestForwarder(r, app.PRODUCT_SERVICE, &product)
+		if resp.Status != "201 Created" {
+			JSON(w, ParseError(body), resp.StatusCode)
+			return
+		}
 		if err != nil {
-			JSON(w, err, 500)
-		}
-		JSON(w, resp.Body)
-		// PR_DUMP(r)
-		return
-		form := new(CreateProductForm)
-
-		if err := Bind(form, r); err != nil {
-			JSON(w, err, 400)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
 
-		if err := form.Validate(); err != nil {
-			JSON(w, err, 422)
-			return
-		}
-
-		product := form.Product()
-		if err := (ProductRepository{app}).SaveProduct(product); err != nil {
-			JSON(w, err, 500)
-			return
-		}
-
-		maps, err := FieldSelection(product, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps, 201)
+		// Temporary not support field selection
+		JSON(w, product, 201)
 	}
 }
 
