@@ -77,6 +77,13 @@ func GetProductsHandler(app *App) HandlerFunc {
 
 func CreateProductHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		resp, err := RequestForwarder(r, "products:9901")
+		if err != nil {
+			JSON(w, err, 500)
+		}
+		JSON(w, resp.Body)
+		// PR_DUMP(r)
+		return
 		form := new(CreateProductForm)
 
 		if err := Bind(form, r); err != nil {

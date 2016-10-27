@@ -18,6 +18,20 @@ func ParseError(body string) error {
 	return errors.New(err_parsed.Error)
 }
 
+func RequestForwarder(r *http.Request, route string) (*http.Response, error) {
+	r.URL.Host = route
+	r.RequestURI = ""
+	r.URL.Scheme = "http"
+
+	// PR_DUMP(r)
+
+	response, err := (&http.Client{}).Do(r)
+
+	PR_DUMP(response, err)
+
+	return response, err
+}
+
 func (app *App) HttpRequest(method string, route string, body interface{}) (*http.Response, string) {
 	var resp *http.Response
 	var resp_body string
