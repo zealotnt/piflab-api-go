@@ -36,13 +36,19 @@ type CheckoutReturnSlice []CheckoutReturn
 type OrderSlice []Order
 
 type Order struct {
-	Id          uint   `json:"-"`
-	AccessToken string `json:"access_token,omitempty"`
-	Status      string `json:"-"`
+	Id            uint   `json:"-"`
+	AccessToken   string `json:"access_token,omitempty"`
+	Status        string `json:"status"`
+	StatusUpdated bool   `json:"-" sql:"-"`
 
-	Items []OrderItem `json:"items" sql:"order_items"`
+	Items              []OrderItem `json:"items" sql:"order_items"`
+	ItemUpdateNew      bool        `json:"-" sql:"-"`
+	ItemUpdateIdx      int         `json:"-" sql:"-"`
+	ItemUpdateId       int         `json:"-" sql:"-"`
+	ItemUpdateQuantity int         `json:"-" sql:"-"`
 
-	OrderInfo `json:"-"`
+	OrderCodeRet string `json:"id,omitempty" sql:"-"`
+	OrderInfo    `json:"-"`
 
 	Amounts Amount `json:"amounts" sql:"-"`
 
@@ -129,20 +135,31 @@ func (orders OrderSlice) GetPaging(offset uint, limit uint, total uint, sort str
 	}
 }
 
-func (order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) error {
+func (order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int, product_name string, product_price int) error {
+	// Note: This function only accept 1 item at a time
+
+	// microserve stuff...
+	order.ItemUpdateNew = false
+	if item_id != nil {
+		order.ItemUpdateId = int(*item_id)
+	}
+	order.ItemUpdateQuantity = quantity
+
 	for idx, item := range order.Items {
+		// update quantity base on offset {item_id, quantity}
 		if product_id != nil {
 			if item.ProductId == *product_id {
-				order.Items[idx].Quantity += quantity
-				if order.Items[idx].Quantity < 0 {
-					order.Items[idx].Quantity = 0
-				}
+				order.ItemUpdateIdx = idx
+				// The item already in the list, return (not check for new item)
 				return nil
 			}
 		}
+
+		// update quantity base on {product_id, quantity}
 		if item_id != nil {
 			if item.Id == *item_id {
 				order.Items[idx].Quantity = quantity
+				order.ItemUpdateIdx = idx
 				return nil
 			}
 		}
@@ -156,13 +173,17 @@ func (order *Order) UpdateItems(product_id *uint, item_id *uint, quantity int) e
 		return errors.New("Quantity for item should bigger than 0")
 	}
 
+	// The item is new, add it to the []item list {product_id, quantity}
 	if product_id != nil {
 		order.Items = append(order.Items,
 			OrderItem{
-				ProductId: *product_id,
-				Quantity:  quantity,
+				ProductId:    *product_id,
+				Quantity:     quantity,
+				ProductName:  product_name,
+				ProductPrice: product_price,
 			})
 	}
+	order.ItemUpdateNew = true
 
 	return nil
 }
@@ -190,7 +211,7 @@ func (order *Order) RemoveZeroQuantityItems() {
 
 func (order *Order) ReturnCheckoutRequest() CheckoutReturn {
 	ret := new(CheckoutReturn)
-	ret.Id = order.OrderCode
+	ret.Id = order.OrderCodeRet
 	ret.Items = order.Items
 	ret.Amounts = order.Amounts
 	if order.OrderInfo.CustomerName != "" {

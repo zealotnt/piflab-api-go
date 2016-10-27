@@ -77,7 +77,7 @@ func (form *CheckoutCartForm) Order(app *App) (*Order, error) {
 	var order = new(Order)
 	var err error
 
-	if order, err = (OrderRepository{app.DB}).GetOrder(*form.AccessToken); err != nil {
+	if order, err = (OrderRepository{app}).GetOrder(*form.AccessToken); err != nil {
 		if err.Error() == "record not found" {
 			return order, errors.New("Access Token is invalid")
 		}
