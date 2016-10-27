@@ -21,6 +21,9 @@ type App struct {
 	DB     *DB
 	ENV    string
 	PORT   string
+
+	PRODUCT_SERVICE string
+	ORDER_SERVICE   string
 }
 
 type BodyMultipart struct {
@@ -92,7 +95,30 @@ func NewApp() *App {
 		DB:     newDB(),
 		PORT:   getPort(),
 		ENV:    getEnv(),
+
+		PRODUCT_SERVICE: getProductService(),
+		ORDER_SERVICE:   getOrderService(),
 	}
+}
+
+func getProductService() string {
+	env := os.Getenv("PRODUCT_SERVICE_URL")
+
+	if env == "" {
+		panic("PRODUCT_SERVICE_URL not set")
+	}
+
+	return env
+}
+
+func getOrderService() string {
+	env := os.Getenv("ORDER_SERVICE_URL")
+
+	if env == "" {
+		panic("ORDER_SERVICE_URL not set")
+	}
+
+	return env
 }
 
 func getPort() string {

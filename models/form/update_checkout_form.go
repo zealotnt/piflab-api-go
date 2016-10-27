@@ -45,7 +45,7 @@ func (form *UpdateCheckoutForm) Order(app *App, order_code string) (*Order, erro
 	var order = new(Order)
 	var err error
 
-	if order, err = (OrderRepository{app.DB}).GetOrderByOrdercode(order_code); err != nil {
+	if order, err = (OrderRepository{app}).FindByOrderCode(order_code); err != nil {
 		if err.Error() == "record not found" {
 			return order, errors.New("Order code is invalid")
 		}
@@ -79,6 +79,9 @@ func (form *UpdateCheckoutForm) Order(app *App, order_code string) (*Order, erro
 	}
 
 	order.Status = *form.Status
+	order.StatusUpdated = true
+	// Give accesstoken some value, so the order_repository not create the order
+	order.AccessToken = "don't_create"
 
 	return order, nil
 }

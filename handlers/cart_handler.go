@@ -22,13 +22,11 @@ func GetCartHandler(app *App) HandlerFunc {
 			return
 		}
 
-		order, err := (OrderRepository{app.DB}).GetOrder(*form.AccessToken)
+		order, err := (OrderRepository{app}).GetOrder(*form.AccessToken)
 		if err != nil {
 			JSON(w, err, 500)
 			return
 		}
-		order.CalculateAmount()
-
 		order.EraseAccessToken()
 
 		maps, err := FieldSelection(order, form.Fields)
@@ -48,24 +46,22 @@ func UpdateCartHandler(app *App) HandlerFunc {
 			JSON(w, err, 400)
 		}
 
-		if err := form.Validate("PUT_CART"); err != nil {
+		if err := form.Validate("PUT_CART", app); err != nil {
 			JSON(w, err, 422)
 			return
 		}
 
 		order, err := form.Order(app)
 		if err != nil {
-			JSON(w, err, 422)
+			JSON(w, err, 424)
 			return
 		}
-		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
+		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
 		order.RemoveZeroQuantityItems()
-
-		order.CalculateAmount()
 
 		maps, err := FieldSelection(order, form.Fields)
 		if err != nil {
@@ -91,17 +87,15 @@ func UpdateCartItemHandler(app *App) HandlerFunc {
 
 		order, err := form.Order(app, c.ID())
 		if err != nil {
-			JSON(w, err, 422)
+			JSON(w, err, 424)
 			return
 		}
-		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
+		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
 		order.RemoveZeroQuantityItems()
-
-		order.CalculateAmount()
 
 		maps, err := FieldSelection(order, form.Fields)
 		if err != nil {
@@ -127,17 +121,15 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 
 		order, err := form.Order(app)
 		if err != nil {
-			JSON(w, err, 422)
+			JSON(w, err, 424)
 			return
 		}
-		if err := (OrderRepository{app.DB}).DeleteOrderItem(order, c.ID()); err != nil {
+		if err := (OrderRepository{app}).DeleteOrderItem(order, c.ID()); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
 		order.RemoveZeroQuantityItems()
-
-		order.CalculateAmount()
 
 		maps, err := FieldSelection(order, form.Fields)
 		if err != nil {
@@ -164,16 +156,15 @@ func CheckoutCartHandler(app *App) HandlerFunc {
 
 		order, err := form.Order(app)
 		if err != nil {
-			JSON(w, err, 422)
+			JSON(w, err, 424)
 			return
 		}
 
-		if err := (OrderRepository{app.DB}).CheckoutOrder(order); err != nil {
+		if err := (OrderRepository{app}).CheckoutOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		order.CalculateAmount()
 		ret := order.ReturnCheckoutRequest()
 
 		maps, err := FieldSelection(ret, form.Fields)
@@ -199,40 +190,12 @@ func GetCheckoutHandler(app *App) HandlerFunc {
 			return
 		}
 
-		orders, total, err := OrderRepository{app.DB}.GetPage(form.Offset, form.Limit, *form.Status, form.SortField, form.SortOrder, form.Search)
+		orders_by_pages, err := OrderRepository{app}.GetPage(form.Offset, form.Limit, *form.Status, form.SortField, form.SortOrder, form.Search)
 		if err != nil {
 			JSON(w, err, 500)
 			return
 		}
-
-		// Remove items from the checkout GET
-		for idx, _ := range *orders {
-			(*orders)[idx].Items = nil
-		}
-
-		orders_by_pages := orders.GetPaging(form.Offset, form.Limit, total, *form.Sort)
-		// Get the fully maps
-		maps, err := FieldSelection(orders_by_pages, "")
-		if err != nil {
-			JSON(w, err, 503)
-			return
-		}
-
-		// Filter the "data"'s fields
-		var data_maps []map[string]interface{}
-		for idx, _ := range *orders_by_pages.Data {
-			var data_in_map map[string]interface{}
-			data := (*orders_by_pages.Data)[idx]
-			data_in_map, err = FieldSelection(data, form.Fields)
-			if err != nil {
-				JSON(w, err, 503)
-				return
-			}
-			data_maps = append(data_maps, data_in_map)
-		}
-		// Give the filtered data to the output
-		maps["data"] = data_maps
-		JSON(w, maps)
+		JSON(w, orders_by_pages)
 	}
 }
 
@@ -242,13 +205,12 @@ func GetCheckoutDetailHandler(app *App) HandlerFunc {
 		form := new(GetCheckoutForm)
 		Bind(form, r)
 
-		order, err := (OrderRepository{app.DB}).FindByOrderId(c.Params["id"])
+		order, err := (OrderRepository{app}).FindByOrderCode(c.Params["id"])
 		if err != nil {
 			JSON(w, err, 404)
 			return
 		}
 
-		order.CalculateAmount()
 		ret := order.ReturnCheckoutRequest()
 
 		maps, err := FieldSelection(ret, form.Fields)
@@ -275,16 +237,15 @@ func UpdateCheckoutStatusHandler(app *App) HandlerFunc {
 
 		order, err := form.Order(app, c.Params["id"])
 		if err != nil {
-			JSON(w, err, 422)
+			JSON(w, err, 424)
 			return
 		}
 
-		if err := (OrderRepository{app.DB}).SaveOrder(order); err != nil {
+		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
 			JSON(w, err, 500)
 			return
 		}
 
-		order.CalculateAmount()
 		ret := order.ReturnCheckoutRequest()
 
 		maps, err := FieldSelection(ret, form.Fields)

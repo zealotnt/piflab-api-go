@@ -22,5 +22,3 @@ test:
     - go get github.com/mattn/goveralls
   override:
     - cd $FULL_IMPORT_PATH && goose up
-    - cd $FULL_IMPORT_PATH && ginkgo -r -cover
-    - cd $FULL_IMPORT_PATH && ./testcoverage.sh

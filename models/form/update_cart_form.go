@@ -7,6 +7,7 @@ import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
 
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -44,7 +45,7 @@ func (form *CartForm) Validate(method string, app ...*App) error {
 		var order = new(Order)
 		var err error
 		// Get order info based on AccessToken
-		if order, err = (OrderRepository{app[0].DB}).GetOrder(*form.AccessToken); err != nil {
+		if order, err = (OrderRepository{app[0]}).GetOrder(*form.AccessToken); err != nil {
 			if err.Error() == "record not found" {
 				return errors.New("Access Token is invalid")
 			}
@@ -61,6 +62,9 @@ func (form *CartForm) Validate(method string, app ...*App) error {
 	if method == "PUT_CART" {
 		if form.Product_Id == nil {
 			return errors.New("No Product selected")
+		}
+		if _, err := (ProductRepository{app[0]}).FindById(*form.Product_Id); err != nil {
+			return fmt.Errorf("Product Id %v not found", *form.Product_Id)
 		}
 
 		if form.Quantity == nil {
@@ -100,7 +104,7 @@ func (form *CartForm) Order(app *App, item_id ...uint) (*Order, error) {
 
 	if form.AccessToken != nil {
 		// Get order info based on AccessToken
-		if order, err = (OrderRepository{app.DB}).GetOrder(*form.AccessToken); err != nil {
+		if order, err = (OrderRepository{app}).GetOrder(*form.AccessToken); err != nil {
 			if err.Error() == "record not found" {
 				return order, errors.New("Access Token is invalid")
 			}
@@ -111,13 +115,15 @@ func (form *CartForm) Order(app *App, item_id ...uint) (*Order, error) {
 	}
 
 	// DELETE method should not update
+	// Put Cart should go here
 	if form.Product_Id != nil && form.Quantity != nil {
-		err = order.UpdateItems(form.Product_Id, nil, *form.Quantity)
+		product, _ := (ProductRepository{app}).FindById(*form.Product_Id)
+		err = order.UpdateItems(form.Product_Id, nil, *form.Quantity, product.Name, product.Price)
 	}
 
 	// PUT CartItem, should retrieve ProductId based on ItemId
 	if form.Product_Id == nil && form.Quantity != nil {
-		err = order.UpdateItems(nil, &item_id[0], *form.Quantity)
+		err = order.UpdateItems(nil, &item_id[0], *form.Quantity, "", 0)
 	}
 
 	// If this is the first time craete order,
