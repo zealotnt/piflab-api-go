@@ -92,7 +92,6 @@ func (app *App) Request(method string, route string, body interface{}) *httptest
 func NewApp() *App {
 	return &App{
 		router: newRouter(),
-		DB:     newDB(),
 		PORT:   getPort(),
 		ENV:    getEnv(),
 

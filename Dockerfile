@@ -1,4 +1,4 @@
-FROM golang:1.5
+FROM golang:latest
 
 WORKDIR /go/src/github.com/o0khoiclub0o/piflab-store-api-go
 

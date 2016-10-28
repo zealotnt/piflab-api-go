@@ -24,6 +24,6 @@ case $dbTyped in
 	;;
 esac
 
-./wait-for-it.sh db_old:$dbPort -t 60
-goose up
+echo "Updating Go packages"
+godep restore
 gin -p 80 run
