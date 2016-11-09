@@ -1,5 +1,6 @@
 #!/bin/bash
 
+ENTRY_HEADER='[ENTRY]'
 usage() {
 	echo
 	echo "Syntax: api-go-entry.sh <db-type>"
@@ -24,6 +25,6 @@ case $dbTyped in
 	;;
 esac
 
-echo "Updating Go packages"
+echo "$ENTRY_HEADER Updating Go packages"
 godep restore
-gin -p 80 run
+gin -p $PORT run

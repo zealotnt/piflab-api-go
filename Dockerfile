@@ -14,7 +14,7 @@ CMD piflab-store-api-go
 
 # For development
 RUN go get bitbucket.org/zealotnt/goose/cmd/goose
-RUN go get github.com/codegangsta/gin
+RUN go get github.com/zealotnt/gin
 RUN go get github.com/onsi/ginkgo
 RUN go install github.com/onsi/ginkgo/ginkgo
 RUN go get golang.org/x/tools/cmd/cover
