@@ -13,8 +13,8 @@ type OrderRepository struct {
 	*App
 }
 
-func (repo OrderRepository) getOrderItemsInfo(order *Order) error {
-	for idx, item := range order.Items {
+func (repo OrderRepository) getOrderItemsInfo(order_items []OrderItem, get_product_price_name bool) error {
+	for idx, item := range order_items {
 		product := &Product{}
 		var err error
 
@@ -24,10 +24,15 @@ func (repo OrderRepository) getOrderItemsInfo(order *Order) error {
 			return fmt.Errorf("Product %v", err)
 		}
 
-		order.Items[idx].ProductPrice = product.Price
-		order.Items[idx].ProductName = product.Name
-		order.Items[idx].ProductImageThumbnailUrl = product.ImageThumbnailUrl
-		return nil
+		// This option is for cart/checkout
+		// + when cart, we will update the product price and name whenever there is a change
+		// + when checkout, we will not fetch the product price and name, it is stored in the order's db table
+		if get_product_price_name == true {
+			order_items[idx].ProductPrice = product.Price
+			order_items[idx].ProductName = product.Name
+		}
+
+		order_items[idx].ProductImageThumbnailUrl = product.ImageThumbnailUrl
 	}
 
 	return nil
@@ -42,7 +47,7 @@ func (repo OrderRepository) createOrder(order *Order) error {
 	}
 	form := new(CreateCartForm)
 
-	if err := repo.getOrderItemsInfo(order); err != nil {
+	if err := repo.getOrderItemsInfo(order.Items, true); err != nil {
 		return err
 	}
 
@@ -60,7 +65,7 @@ func (repo OrderRepository) createOrder(order *Order) error {
 	if err := json.Unmarshal([]byte(body), order); err != nil {
 		return err
 	}
-	repo.getOrderItemsInfo(order)
+	repo.getOrderItemsInfo(order.Items, true)
 
 	return nil
 }
@@ -83,7 +88,7 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 		Price       uint   `json:"price"`
 	}
 
-	if err := repo.getOrderItemsInfo(order); err != nil {
+	if err := repo.getOrderItemsInfo(order.Items, true); err != nil {
 		return err
 	}
 
@@ -155,7 +160,7 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 		}
 	}
 
-	repo.getOrderItemsInfo(order)
+	repo.getOrderItemsInfo(order.Items, true)
 
 	return nil
 }
@@ -173,6 +178,9 @@ func (repo OrderRepository) FindByOrderCode(order_code string) (*Order, error) {
 		return nil, err
 	}
 
+	// Update the image url (not the price & name)
+	repo.getOrderItemsInfo(order.Items, false)
+
 	return order, nil
 }
 
@@ -186,7 +194,7 @@ func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	if err := json.Unmarshal([]byte(body), &order); err != nil {
 		return nil, err
 	}
-	repo.getOrderItemsInfo(order)
+	repo.getOrderItemsInfo(order.Items, true)
 
 	return order, nil
 }
@@ -211,7 +219,7 @@ func (repo OrderRepository) DeleteOrderItem(order *Order, item_id uint) error {
 	return nil
 }
 
-func (repo OrderRepository) GetPage(offset uint, limit uint, status string, sort_field string, sort_order string, search string) (*OrderPage, error) {
+func (repo OrderRepository) GetCheckoutPage(offset uint, limit uint, status string, sort_field string, sort_order string, search string) (*OrderPage, error) {
 	order_page := &OrderPage{}
 	var err error
 	var query_param string
@@ -233,6 +241,11 @@ func (repo OrderRepository) GetPage(offset uint, limit uint, status string, sort
 
 	if err := json.Unmarshal([]byte(body), &order_page); err != nil {
 		return nil, err
+	}
+
+	// Update the image url (not the price & name)
+	for idx, _ := range *order_page.Data {
+		repo.getOrderItemsInfo((*order_page.Data)[idx].Items, false)
 	}
 
 	return order_page, err
