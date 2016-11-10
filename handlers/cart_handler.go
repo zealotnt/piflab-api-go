@@ -190,7 +190,7 @@ func GetCheckoutHandler(app *App) HandlerFunc {
 			return
 		}
 
-		orders_by_pages, err := OrderRepository{app}.GetPage(form.Offset, form.Limit, *form.Status, form.SortField, form.SortOrder, form.Search)
+		orders_by_pages, err := OrderRepository{app}.GetCheckoutPage(form.Offset, form.Limit, *form.Status, form.SortField, form.SortOrder, form.Search)
 		if err != nil {
 			JSON(w, err, 500)
 			return
