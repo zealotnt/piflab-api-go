@@ -98,36 +98,21 @@ func CreateProductHandler(app *App) HandlerFunc {
 
 func UpdateProductHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		product, err := (ProductRepository{app}).FindById(c.ID())
+		var product Product
+
+		// Forward it to service
+		resp, body, err := RequestForwarder(r, app.PRODUCT_SERVICE, &product)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
+			return
+		}
 		if err != nil {
-			JSON(w, err, 404)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
 
-		form := new(UpdateProductForm)
-
-		if err := Bind(form, r); err != nil {
-			JSON(w, err, 400)
-			return
-		}
-
-		if err := form.Validate(); err != nil {
-			JSON(w, err, 422)
-			return
-		}
-
-		form.Assign(product)
-		if err := (ProductRepository{app}).SaveProduct(product); err != nil {
-			JSON(w, err, 500)
-			return
-		}
-
-		maps, err := FieldSelection(product, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps, 200)
+		// Temporary not support field selection
+		JSON(w, product, 200)
 	}
 }
 
