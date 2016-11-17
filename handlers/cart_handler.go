@@ -114,7 +114,7 @@ func GetCheckoutHandler(app *App) HandlerFunc {
 		var order_page OrderPage
 
 		// Forward it to carts service
-		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &order_page)
+		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &order_page)
 		if resp.Status != "200 OK" {
 			JSON(w, ParseError(body), resp.StatusCode)
 			return
@@ -134,7 +134,7 @@ func GetCheckoutDetailHandler(app *App) HandlerFunc {
 		var checkout_detail CheckoutReturn
 
 		// Forward it to orders service
-		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &checkout_detail)
+		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &checkout_detail)
 		if resp.Status != "200 OK" {
 			JSON(w, ParseError(body), resp.StatusCode)
 			return
@@ -143,6 +143,9 @@ func GetCheckoutDetailHandler(app *App) HandlerFunc {
 			JSON(w, err, resp.StatusCode)
 			return
 		}
+
+		// Temporary not support field selection
+		JSON(w, checkout_detail)
 	}
 }
 
@@ -151,7 +154,7 @@ func UpdateCheckoutStatusHandler(app *App) HandlerFunc {
 		var checkout_detail CheckoutReturn
 
 		// Forward it to orders service
-		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &checkout_detail)
+		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &checkout_detail)
 		if resp.Status != "200 OK" {
 			JSON(w, ParseError(body), resp.StatusCode)
 			return
@@ -160,5 +163,8 @@ func UpdateCheckoutStatusHandler(app *App) HandlerFunc {
 			JSON(w, err, resp.StatusCode)
 			return
 		}
+
+		// Temporary not support field selection
+		JSON(w, checkout_detail)
 	}
 }
