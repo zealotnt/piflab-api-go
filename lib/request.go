@@ -52,7 +52,7 @@ func RequestForwarder(r *http.Request, route string, data_unmarshal interface{})
 	return response, body_str, nil
 }
 
-func (app *App) HttpRequest(method string, route string, body interface{}) (*http.Response, string) {
+func HttpRequest(method string, route string, body interface{}) (*http.Response, string) {
 	var resp *http.Response
 	var resp_body string
 	var errs []error

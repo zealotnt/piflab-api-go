@@ -55,7 +55,7 @@ func (repo OrderRepository) createOrder(order *Order) error {
 	form.Quantity = order.Items[0].Quantity
 	form.Price = uint(order.Items[0].ProductPrice)
 	form.Name = order.Items[0].ProductName
-	response, body := repo.App.HttpRequest("PUT",
+	response, body := HttpRequest("PUT",
 		repo.ORDER_SERVICE+"/cart/items",
 		form)
 	if response.Status != "200 OK" {
@@ -99,7 +99,7 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 			form := new(UpdateCheckoutStatusForm)
 
 			form.Status = order.Status
-			response, body := repo.App.HttpRequest("PUT",
+			response, body := HttpRequest("PUT",
 				repo.ORDER_SERVICE+"/orders/"+order.OrderCodeRet,
 				form)
 			if response.Status != "200 OK" {
@@ -128,7 +128,7 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 				form.Name = order.Items[order.ItemUpdateIdx].ProductName
 			}
 
-			response, body := repo.App.HttpRequest("PUT",
+			response, body := HttpRequest("PUT",
 				repo.ORDER_SERVICE+"/cart/items",
 				form)
 			if response.Status != "200 OK" {
@@ -148,7 +148,7 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 		form.Price = uint(order.Items[order.ItemUpdateIdx].ProductPrice)
 		form.Name = order.Items[order.ItemUpdateIdx].ProductName
 
-		response, body := repo.App.HttpRequest("PUT",
+		response, body := HttpRequest("PUT",
 			repo.ORDER_SERVICE+"/cart/items/"+strconv.Itoa(order.ItemUpdateId),
 			form)
 		if response.Status != "200 OK" {
@@ -167,7 +167,7 @@ func (repo OrderRepository) updateOrder(order *Order) error {
 
 func (repo OrderRepository) FindByOrderCode(order_code string) (*Order, error) {
 	order := &Order{}
-	response, body := repo.App.HttpRequest("GET",
+	response, body := HttpRequest("GET",
 		repo.ORDER_SERVICE+"/orders/"+order_code,
 		nil)
 	if response.Status != "200 OK" {
@@ -186,7 +186,7 @@ func (repo OrderRepository) FindByOrderCode(order_code string) (*Order, error) {
 
 func (repo OrderRepository) GetOrder(access_token string) (*Order, error) {
 	order := &Order{}
-	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/cart?access_token="+access_token, nil)
+	response, body := HttpRequest("GET", repo.ORDER_SERVICE+"/cart?access_token="+access_token, nil)
 	if response.Status != "200 OK" {
 		return nil, ParseError(body)
 	}
@@ -207,7 +207,7 @@ func (repo OrderRepository) SaveOrder(order *Order) error {
 }
 
 func (repo OrderRepository) DeleteOrderItem(order *Order, item_id uint) error {
-	response, body := repo.App.HttpRequest("DELETE", repo.ORDER_SERVICE+"/cart/items/"+strconv.Itoa(int(item_id))+"?access_token="+order.AccessToken, "")
+	response, body := HttpRequest("DELETE", repo.ORDER_SERVICE+"/cart/items/"+strconv.Itoa(int(item_id))+"?access_token="+order.AccessToken, "")
 	if response.Status != "200 OK" {
 		return ParseError(body)
 	}
@@ -234,7 +234,7 @@ func (repo OrderRepository) GetCheckoutPage(offset uint, limit uint, status stri
 		query_param += "&q=" + search
 	}
 
-	response, body := repo.App.HttpRequest("GET", repo.ORDER_SERVICE+"/orders"+query_param, nil)
+	response, body := HttpRequest("GET", repo.ORDER_SERVICE+"/orders"+query_param, nil)
 	if response.Status != "200 OK" {
 		return nil, ParseError(body)
 	}
@@ -270,7 +270,7 @@ func (repo OrderRepository) CheckoutOrder(order *Order) error {
 	form.CustomerEmail = order.OrderInfo.CustomerEmail
 	form.CustomerNote = order.OrderInfo.CustomerNote
 
-	response, body := repo.App.HttpRequest("POST",
+	response, body := HttpRequest("POST",
 		repo.ORDER_SERVICE+"/cart/checkout",
 		form)
 	if response.Status != "200 OK" {

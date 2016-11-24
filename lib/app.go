@@ -24,6 +24,7 @@ type App struct {
 
 	PRODUCT_SERVICE string
 	ORDER_SERVICE   string
+	CART_SERVICE    string
 }
 
 type BodyMultipart struct {
@@ -97,6 +98,7 @@ func NewApp() *App {
 
 		PRODUCT_SERVICE: getProductService(),
 		ORDER_SERVICE:   getOrderService(),
+		CART_SERVICE:    getCartService(),
 	}
 }
 
@@ -115,6 +117,16 @@ func getOrderService() string {
 
 	if env == "" {
 		panic("ORDER_SERVICE_URL not set")
+	}
+
+	return env
+}
+
+func getCartService() string {
+	env := os.Getenv("CART_SERVICE_URL")
+
+	if env == "" {
+		panic("CART_SERVICE_URL not set")
 	}
 
 	return env

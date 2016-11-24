@@ -2,257 +2,169 @@ package handlers
 
 import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
-	. "github.com/o0khoiclub0o/piflab-store-api-go/models/form"
-	. "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
+	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
+	// . "github.com/o0khoiclub0o/piflab-store-api-go/models/form"
+	// . "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
 
 	"net/http"
 )
 
 func GetCartHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		form := new(CartForm)
+		var cart Order
 
-		if err := Bind(form, r); err != nil {
-			JSON(w, err, 400)
+		// Forward it to carts service
+		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &cart)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
-
-		if err := form.Validate("GET", app); err != nil {
-			JSON(w, err, 401)
-			return
-		}
-
-		order, err := (OrderRepository{app}).GetOrder(*form.AccessToken)
 		if err != nil {
-			JSON(w, err, 500)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		order.EraseAccessToken()
 
-		maps, err := FieldSelection(order, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps)
+		// Temporary not support field selection
+		JSON(w, cart)
 	}
 }
 
 func UpdateCartHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		form := new(CartForm)
+		var cart Order
 
-		if err := Bind(form, r); err != nil {
-			JSON(w, err, 400)
-		}
-
-		if err := form.Validate("PUT_CART", app); err != nil {
-			JSON(w, err, 422)
+		// Forward it to carts service
+		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &cart)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
-
-		order, err := form.Order(app)
 		if err != nil {
-			JSON(w, err, 424)
-			return
-		}
-		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
-			JSON(w, err, 500)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
 
-		order.RemoveZeroQuantityItems()
-
-		maps, err := FieldSelection(order, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps)
+		// Temporary not support field selection
+		JSON(w, cart)
 	}
 }
 
 func UpdateCartItemHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		form := new(CartForm)
+		var cart Order
 
-		if err := Bind(form, r); err != nil {
-			JSON(w, err, 400)
-		}
-
-		if err := form.Validate("PUT_ITEM"); err != nil {
-			JSON(w, err, 422)
+		// Forward it to carts service
+		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &cart)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
-
-		order, err := form.Order(app, c.ID())
 		if err != nil {
-			JSON(w, err, 424)
-			return
-		}
-		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
-			JSON(w, err, 500)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
 
-		order.RemoveZeroQuantityItems()
-
-		maps, err := FieldSelection(order, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps)
+		// Temporary not support field selection
+		JSON(w, cart)
 	}
 }
 
 func DeleteCartItemHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		form := new(CartForm)
+		var cart Order
 
-		if err := Bind(form, r); err != nil {
-			JSON(w, err, 400)
-		}
-
-		if err := form.Validate("DELETE"); err != nil {
-			JSON(w, err, 422)
+		// Forward it to carts service
+		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &cart)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
-
-		order, err := form.Order(app)
 		if err != nil {
-			JSON(w, err, 424)
-			return
-		}
-		if err := (OrderRepository{app}).DeleteOrderItem(order, c.ID()); err != nil {
-			JSON(w, err, 500)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
 
-		order.RemoveZeroQuantityItems()
-
-		maps, err := FieldSelection(order, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps)
+		// Temporary not support field selection
+		JSON(w, cart)
 	}
 }
 
 func CheckoutCartHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		form := new(CheckoutCartForm)
+		var checkout CheckoutReturn
 
-		if err := Bind(form, r); err != nil {
-			JSON(w, err, 400)
+		// Forward it to carts service
+		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &checkout)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
-
-		if err := form.Validate(); err != nil {
-			JSON(w, err, 422)
-			return
-		}
-
-		order, err := form.Order(app)
 		if err != nil {
-			JSON(w, err, 424)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
 
-		if err := (OrderRepository{app}).CheckoutOrder(order); err != nil {
-			JSON(w, err, 500)
-			return
-		}
-
-		ret := order.ReturnCheckoutRequest()
-
-		maps, err := FieldSelection(ret, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps)
+		// Temporary not support field selection
+		JSON(w, checkout)
 	}
 }
 
 func GetCheckoutHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		form := new(GetCheckoutForm)
+		var order_page OrderPage
 
-		if err := Bind(form, r); err != nil {
-			form.Offset = 0
-			form.Limit = 10
-		}
-
-		if err := form.Validate(); err != nil {
-			JSON(w, err, 422)
+		// Forward it to carts service
+		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &order_page)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
-
-		orders_by_pages, err := OrderRepository{app}.GetCheckoutPage(form.Offset, form.Limit, *form.Status, form.SortField, form.SortOrder, form.Search)
 		if err != nil {
-			JSON(w, err, 500)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		JSON(w, orders_by_pages)
+
+		// Temporary not support field selection
+		JSON(w, order_page)
 	}
 }
 
 func GetCheckoutDetailHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		// the purpose of form is to get form.Fields, so don't care about Binding errors
-		form := new(GetCheckoutForm)
-		Bind(form, r)
+		var checkout_detail CheckoutReturn
 
-		order, err := (OrderRepository{app}).FindByOrderCode(c.Params["id"])
+		// Forward it to orders service
+		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &checkout_detail)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
+			return
+		}
 		if err != nil {
-			JSON(w, err, 404)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
 
-		ret := order.ReturnCheckoutRequest()
-
-		maps, err := FieldSelection(ret, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps)
+		// Temporary not support field selection
+		JSON(w, checkout_detail)
 	}
 }
 
 func UpdateCheckoutStatusHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		form := new(UpdateCheckoutForm)
-		if err := Bind(form, r); err != nil {
-			JSON(w, err, 400)
+		var checkout_detail CheckoutReturn
+
+		// Forward it to orders service
+		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &checkout_detail)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
-
-		if err := form.Validate(); err != nil {
-			JSON(w, err, 422)
-			return
-		}
-
-		order, err := form.Order(app, c.Params["id"])
 		if err != nil {
-			JSON(w, err, 424)
+			JSON(w, err, resp.StatusCode)
 			return
 		}
 
-		if err := (OrderRepository{app}).SaveOrder(order); err != nil {
-			JSON(w, err, 500)
-			return
-		}
-
-		ret := order.ReturnCheckoutRequest()
-
-		maps, err := FieldSelection(ret, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps)
+		// Temporary not support field selection
+		JSON(w, checkout_detail)
 	}
 }
