@@ -37,7 +37,6 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) Close() {
-	app.DB.Close()
 }
 
 func (app *App) AddRoutes(routes Routes) {

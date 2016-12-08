@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+export TERM=linux
+
 echo "mode: atomic" > piflab-store-api-go.coverprofile
 
 packages=(
