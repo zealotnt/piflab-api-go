@@ -5,8 +5,8 @@ import (
 
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 	"regexp"
 )
 
@@ -35,16 +35,13 @@ func RequestForwarder(r *http.Request, route string, data_unmarshal interface{})
 	r.RequestURI = ""
 
 	response, err := (&http.Client{}).Do(r)
+	defer response.Body.Close()
 	if err != nil {
 		return nil, "", err
 	}
 
-	all_data, _ := httputil.DumpResponse(response, true)
-	header, _ := httputil.DumpResponse(response, false)
-
-	body_bytes := all_data[len(header):]
+	body_bytes, err := ioutil.ReadAll(response.Body)
 	body_str := string(body_bytes)
-
 	if err := json.Unmarshal([]byte(body_str), &data_unmarshal); err != nil {
 		return nil, "", err
 	}

@@ -15,12 +15,16 @@ func GetCartHandler(app *App) HandlerFunc {
 
 		// Forward it to carts service
 		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &cart)
-		if resp.Status != "200 OK" {
-			JSON(w, ParseError(body), resp.StatusCode)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		if err != nil {
-			JSON(w, err, resp.StatusCode)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
 
@@ -35,12 +39,16 @@ func UpdateCartHandler(app *App) HandlerFunc {
 
 		// Forward it to carts service
 		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &cart)
-		if resp.Status != "200 OK" {
-			JSON(w, ParseError(body), resp.StatusCode)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		if err != nil {
-			JSON(w, err, resp.StatusCode)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
 
@@ -55,12 +63,16 @@ func UpdateCartItemHandler(app *App) HandlerFunc {
 
 		// Forward it to carts service
 		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &cart)
-		if resp.Status != "200 OK" {
-			JSON(w, ParseError(body), resp.StatusCode)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		if err != nil {
-			JSON(w, err, resp.StatusCode)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
 
@@ -75,12 +87,16 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 
 		// Forward it to carts service
 		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &cart)
-		if resp.Status != "200 OK" {
-			JSON(w, ParseError(body), resp.StatusCode)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		if err != nil {
-			JSON(w, err, resp.StatusCode)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
 
@@ -95,12 +111,16 @@ func CheckoutCartHandler(app *App) HandlerFunc {
 
 		// Forward it to carts service
 		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &checkout)
-		if resp.Status != "200 OK" {
-			JSON(w, ParseError(body), resp.StatusCode)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		if err != nil {
-			JSON(w, err, resp.StatusCode)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
 
@@ -115,12 +135,16 @@ func GetCheckoutHandler(app *App) HandlerFunc {
 
 		// Forward it to carts service
 		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &order_page)
-		if resp.Status != "200 OK" {
-			JSON(w, ParseError(body), resp.StatusCode)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		if err != nil {
-			JSON(w, err, resp.StatusCode)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
 
@@ -135,12 +159,16 @@ func GetCheckoutDetailHandler(app *App) HandlerFunc {
 
 		// Forward it to orders service
 		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &checkout_detail)
-		if resp.Status != "200 OK" {
-			JSON(w, ParseError(body), resp.StatusCode)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		if err != nil {
-			JSON(w, err, resp.StatusCode)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
 
@@ -155,12 +183,16 @@ func UpdateCheckoutStatusHandler(app *App) HandlerFunc {
 
 		// Forward it to orders service
 		resp, body, err := RequestForwarder(r, app.ORDER_SERVICE, &checkout_detail)
-		if resp.Status != "200 OK" {
-			JSON(w, ParseError(body), resp.StatusCode)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
 			return
 		}
-		if err != nil {
-			JSON(w, err, resp.StatusCode)
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
 			return
 		}
 
