@@ -35,10 +35,15 @@ type CheckoutReturn struct {
 type CheckoutReturnSlice []CheckoutReturn
 type OrderSlice []Order
 
+type Alert struct {
+	Type    string
+	Message string
+}
+
 type Order struct {
 	Id            uint   `json:"-"`
 	AccessToken   string `json:"access_token,omitempty"`
-	Status        string `json:"status"`
+	Status        string `json:"status,omitempty"`
 	StatusUpdated bool   `json:"-" sql:"-"`
 
 	Items              []OrderItem `json:"items" sql:"order_items"`
@@ -50,7 +55,8 @@ type Order struct {
 	OrderCodeRet string `json:"id,omitempty" sql:"-"`
 	OrderInfo    `json:"-"`
 
-	Amounts Amount `json:"amounts" sql:"-"`
+	Amounts Amount  `json:"amounts" sql:"-"`
+	Alerts  []Alert `json:"alerts,omitempty" sql:"-"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

@@ -107,10 +107,8 @@ func DeleteCartItemHandler(app *App) HandlerFunc {
 
 func CheckoutCartHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		var checkout CheckoutReturn
-
 		// Forward it to carts service
-		resp, body, err := RequestForwarder(r, app.CART_SERVICE, &checkout)
+		resp, body, err := RequestForwarder(r, app.CART_SERVICE, nil)
 		if err != nil {
 			if resp == nil {
 				JSON(w, err)
@@ -125,7 +123,7 @@ func CheckoutCartHandler(app *App) HandlerFunc {
 		}
 
 		// Temporary not support field selection
-		JSON(w, checkout)
+		WriteBody(w, body)
 	}
 }
 

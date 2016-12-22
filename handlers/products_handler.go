@@ -3,7 +3,6 @@ package handlers
 import (
 	. "github.com/o0khoiclub0o/piflab-store-api-go/lib"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models"
-	. "github.com/o0khoiclub0o/piflab-store-api-go/models/form"
 	. "github.com/o0khoiclub0o/piflab-store-api-go/models/repository"
 
 	"net/http"
@@ -11,31 +10,8 @@ import (
 
 func GetProductsDetailHandler(app *App) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		// the purpose of form is to get form.Fields, so don't care about Binding errors
-		form := new(GetProductForm)
-		Bind(form, r)
-
-		product, err := (ProductRepository{app}).FindById(c.ID())
-		if err != nil {
-			JSON(w, err, 404)
-			return
-		}
-
-		maps, err := FieldSelection(product, form.Fields)
-		if err != nil {
-			JSON(w, err)
-			return
-		}
-		JSON(w, maps)
-	}
-}
-
-func GetProductsHandler(app *App) HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request, c Context) {
-		var products_by_pages ProductPage
-
 		// Forward it to service
-		resp, body, err := RequestForwarder(r, app.PRODUCT_SERVICE, &products_by_pages)
+		resp, body, err := RequestForwarder(r, app.PRODUCT_SERVICE, nil)
 		if err != nil {
 			if resp == nil {
 				JSON(w, err)
@@ -50,7 +26,29 @@ func GetProductsHandler(app *App) HandlerFunc {
 		}
 
 		// Temporary not support field selection
-		JSON(w, products_by_pages)
+		WriteBody(w, body)
+	}
+}
+
+func GetProductsHandler(app *App) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, c Context) {
+		// Forward it to service
+		resp, body, err := RequestForwarder(r, app.PRODUCT_SERVICE, nil)
+		if err != nil {
+			if resp == nil {
+				JSON(w, err)
+				return
+			}
+			JSON(w, err, resp.StatusCode)
+			return
+		}
+		if resp.Status != "200 OK" {
+			JSON(w, ParseError(body), resp.StatusCode)
+			return
+		}
+
+		// Temporary not support field selection
+		WriteBody(w, body)
 	}
 }
 

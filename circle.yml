@@ -17,8 +17,10 @@ dependencies:
 test:
   pre:
     - go get bitbucket.org/zealotnt/goose/cmd/goose
+    - go get github.com/onsi/ginkgo/ginkgo
     - go install github.com/onsi/ginkgo/ginkgo
     - go get golang.org/x/tools/cmd/cover
     - go get github.com/mattn/goveralls
   override:
     - cd $FULL_IMPORT_PATH && goose up
+    - cd $FULL_IMPORT_PATH && ./testcoverage.sh

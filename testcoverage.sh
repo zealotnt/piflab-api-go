@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-export TERM=linux
+export TERM=xterm
 
 echo "mode: atomic" > piflab-store-api-go.coverprofile
 
