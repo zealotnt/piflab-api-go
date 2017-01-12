@@ -7,11 +7,11 @@ import (
 func GetRoutes() Routes {
 	return Routes{
 		Route{"GET", "/", IndexHandler},
-		Route{"GET", "/products", GetProductsHandler},
-		Route{"GET", "/products/{id}", GetProductsDetailHandler},
+		Route{"GET", "/products", ProductForwardHandler},
+		Route{"GET", "/products/{id}", ProductForwardHandler},
 		Route{"POST", "/products", CreateProductHandler},
-		Route{"PUT", "/products/{id}", UpdateProductHandler},
-		Route{"DELETE", "/products/{id}", DeleteProductHandler},
+		Route{"PUT", "/products/{id}", ProductForwardHandler},
+		Route{"DELETE", "/products/{id}", ProductForwardHandler},
 
 		Route{"GET", "/cart", GetCartHandler},
 		Route{"PUT", "/cart/items", UpdateCartHandler},
