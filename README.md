@@ -47,4 +47,4 @@ http://docs.piflabstore.apiary.io/
 `go run db/seeds/main.go`
 
 ## PIFLab store API services structure
-![services-structure](./docs/img/services.png)
+![services-structure](https://www.lucidchart.com/publicSegments/view/9921c064-ed07-4a0f-868c-f9f37def2443/image.png)
